@@ -18,6 +18,22 @@ Do NOT describe the paper's method or solution here — only the problem itself.
 
 ---
 
+# Reproduction Log
+
+### Iteration 1: MiniMax-M2.7
+- **Milestone**: `none` | **Status**: done
+- **GPU**: 0.0h
+
+<details>
+<summary>Progress Log</summary>
+
+<!-- Write your progress here -->
+
+</details>
+
+
+---
+
 # Reproduction Milestones
 
 **Current: none**
