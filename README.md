@@ -42,6 +42,5 @@ Do NOT describe the paper's method or solution here — only the problem itself.
 
 **Current: none**
 
-## Progress Log
-
 ## Stop Justification
+- Completed at milestone `none`.
