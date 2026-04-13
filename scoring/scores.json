@@ -4,7 +4,7 @@
       "results": {
         "odyn": {
           "type": "proposed",
-          "failure_rate_medium": 100.0
+          "failure_rate_medium": 25.0
         },
         "proxqp": {
           "type": "baseline",

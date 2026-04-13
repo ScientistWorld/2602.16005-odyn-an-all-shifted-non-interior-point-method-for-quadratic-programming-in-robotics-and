@@ -7,7 +7,7 @@ cd /home/user
 
 echo "=== Quick verification on 10 Maros-Meszaros problems ==="
 
-python3 -m eval.benchmark \
+PYTHONPATH=/home/user/pypkgs python3 -m eval.benchmark \
     --data-dir /home/user/method/maros_meszaros_qpbenchmark/data \
     --solvers odyn proxqp \
     --rtol 1e-6 \

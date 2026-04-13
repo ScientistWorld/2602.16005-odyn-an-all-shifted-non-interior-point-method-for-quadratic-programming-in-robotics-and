@@ -24,6 +24,11 @@ from typing import Optional, Tuple, Dict, Any
 from dataclasses import dataclass, field
 
 
+def _inf_norm(arr):
+    """Infinity norm with empty-array guard."""
+    return np.linalg.norm(arr, np.inf) if arr.size > 0 else 0.0
+
+
 @dataclass
 class OdynParams:
     """ODYN hyperparameters. Defaults from Table II of the paper (double precision)."""
@@ -264,7 +269,7 @@ class DenseOdynSolver:
                 return max(*scales, 1e-10)
 
             scale_d = compute_scale(x, c, y, z)
-            scale_eq = np.linalg.norm(b, np.inf) if b is not None else 1.0
+            scale_eq = _inf_norm(b) if b is not None and b.size > 0 else 1.0
             scale_i = max(
                 np.linalg.norm(G @ x, np.inf) if G is not None and G.size > 0 else 0,
                 np.linalg.norm(s, np.inf) if s.size > 0 else 0,
@@ -279,10 +284,15 @@ class DenseOdynSolver:
             # Dual infeasibility: min(s, z)
             r_n = np.minimum(s, z) if p > 0 else np.array([])
 
-            if (np.linalg.norm(r_d, np.inf) <= atol + rtol * scale_d and
-                np.linalg.norm(r_eq, np.inf) <= atol + rtol * max(scale_eq, 1.0) and
-                (p == 0 or np.linalg.norm(r_i, np.inf) <= atol + rtol * scale_i) and
-                (p == 0 or np.linalg.norm(r_n, np.inf) <= atol + rtol * max(scale_n, 1e-3))):
+            def _norm(arr, scale=1.0):
+                if arr.size == 0:
+                    return 0.0
+                return np.linalg.norm(arr, np.inf)
+
+            if (_norm(r_d) <= atol + rtol * scale_d and
+                _norm(r_eq) <= atol + rtol * max(scale_eq, 1.0) and
+                (p == 0 or _norm(r_i) <= atol + rtol * scale_i) and
+                (p == 0 or _norm(r_n) <= atol + rtol * max(scale_n, 1e-3))):
                 status = "optimal"
                 break
 
@@ -459,7 +469,8 @@ class DenseOdynSolver:
 
             # Update step-length parameters (simplified)
             # Based on residual improvement
-            if np.linalg.norm(r_d, np.inf) <= self.params.theta_l * np.linalg.norm(r_d, np.inf):
+            r_d_norm = _inf_norm(r_d)
+            if r_d_norm > 0 and r_d_norm <= self.params.theta_l * r_d_norm:
                 # Good progress: reduce interpolation
                 theta_d = max(self.params.theta_min, theta_d - self.params.theta_minus * theta_d)
                 rho_d = max(self.params.rho_min, rho_d / self.params.delta)
@@ -478,7 +489,7 @@ class DenseOdynSolver:
                 'sigma': sigma,
                 'rho_d': rho_d,
                 'theta_d': theta_d,
-                'r_norm': np.linalg.norm(r_d, np.inf),
+                'r_norm': _inf_norm(r_d),
                 'merit': M_current,
             })
 
@@ -499,8 +510,8 @@ class DenseOdynSolver:
             iterations=iterations,
             solve_time=solve_time,
             status=status,
-            primal_residual=np.linalg.norm(r_eq, np.inf) if m > 0 else 0,
-            dual_residual=np.linalg.norm(r_d, np.inf),
+            primal_residual=_inf_norm(r_eq) if m > 0 else 0,
+            dual_residual=_inf_norm(r_d),
             infeasibility=np.linalg.norm(r_n, np.inf) if p > 0 else 0,
         )
 
@@ -651,9 +662,9 @@ class SparseOdynSolver:
             r_d, r_eq, r_i, r_g = residuals(x, s, y, z)
 
             # Check stopping
-            if (np.linalg.norm(r_d, np.inf) < atol and
-                (m == 0 or np.linalg.norm(r_eq, np.inf) < atol) and
-                (p == 0 or np.linalg.norm(np.minimum(s, z), np.inf) < atol)):
+            if (_inf_norm(r_d) < atol and
+                (m == 0 or _inf_norm(r_eq) < atol) and
+                (p == 0 or _inf_norm(np.minimum(s, z)) < atol)):
                 status = "optimal"
                 break
 
@@ -764,7 +775,8 @@ class SparseOdynSolver:
             s_E = s.copy()
 
             # Update regularization
-            if np.linalg.norm(r_d, np.inf) < self.params.theta_l * np.linalg.norm(r_d, np.inf):
+            r_d_n = _inf_norm(r_d)
+            if r_d_n < self.params.theta_l * r_d_n:
                 rho_d = max(self.params.rho_min, rho_d / self.params.delta)
 
         else:
@@ -782,8 +794,8 @@ class SparseOdynSolver:
             iterations=iterations,
             solve_time=solve_time,
             status=status,
-            primal_residual=np.linalg.norm(r_eq, np.inf) if m > 0 else 0,
-            dual_residual=np.linalg.norm(r_d, np.inf),
+            primal_residual=_inf_norm(r_eq) if m > 0 else 0,
+            dual_residual=_inf_norm(r_d),
             infeasibility=np.linalg.norm(np.minimum(s, z), np.inf) if p > 0 else 0,
         )
 

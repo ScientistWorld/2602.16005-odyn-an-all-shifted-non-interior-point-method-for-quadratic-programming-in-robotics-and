@@ -1,10 +1,12 @@
-#!/usr/bin/env python3
-"""
-Evaluation script for ODYN QP solver benchmark.
+#!/usr/bin/python3
+"""Evaluation script for ODYN QP solver benchmark.
 
 Runs ODYN, OSQP, and PROXQP on the Maros-Meszárós test set and computes
 failure rates and performance metrics.
 """
+import sys
+# Prepend custom packages dir so it takes priority over broken dist-packages
+sys.path.insert(0, '/home/user/pypkgs')
 
 import argparse
 import json
@@ -211,18 +213,19 @@ def run_proxqp(problem: dict, rtol: float, timeout: float = 120.0) -> dict:
         m_eq = A.shape[0] if A is not None and A.size > 0 else 0
         m_ineq = G.shape[0] if G is not None and G.size > 0 else 0
 
-        # Build matrices
-        A_mat = A if A is not None and A.size > 0 else None
-        C_mat = G if G is not None and G.size > 0 else None
+        # Build matrices (always as dense arrays for PROXQP dense solver)
+        P_dense = P.toarray() if spa.issparse(P) else P
+        A_mat = A.toarray() if spa.issparse(A) else A
+        C_mat = G.toarray() if spa.issparse(G) else G
         b_vec = problem["b"] if problem["b"] is not None else None
         h_vec = problem["h"] if problem["h"] is not None else None
-        # PROXQP requires both l and u for inequalities; use -inf for lower bounds
         l_vec = np.full(m_ineq, -np.inf) if m_ineq > 0 else None
         u_vec = h_vec
 
         qp = proxqp.dense.QP(n, m_eq, m_ineq)
-        qp.init(P, q, A=A_mat, b=b_vec, C=C_mat, l=l_vec, u=u_vec,
-                eps_rel=rtol, eps_abs=rtol)
+        # Use positional arguments: H, g, A, b, C, l, u, compute_preconditioner, rho, mu_eq, mu_in, manual_minimal_H_eigenvalue
+        qp.init(P_dense, q, A_mat, b_vec, C_mat, l_vec, u_vec,
+                True, None, None, None, None)
         qp.solve()
         solve_time = time.time() - t0
         return {
