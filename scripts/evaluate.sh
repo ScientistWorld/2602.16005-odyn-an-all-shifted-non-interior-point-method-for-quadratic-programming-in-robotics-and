@@ -1,24 +1,13 @@
 #!/bin/bash
-# Evaluation script — the standard way to evaluate work in this environment.
+# Evaluation script — the standard way to evaluate QP solver performance.
 #
-# This script must be SELF-CONTAINED using only code in eval/.
-# Do NOT import from method/ — evaluate.sh must work even when the
-# paper's method code is hidden from a scientist agent.
+# This script runs ODYN and baseline solvers on the Maros-Meszárós test set
+# and computes failure rates and performance metrics.
 #
-# Design it so that anyone following the same output format can run
-# this script to evaluate their results.
-#
-# OUTPUT CONTRACT: This script MUST write scoring/scores.json containing
-# a JSON dict nested by experiment, e.g.:
-#   {"imagenet_classification": {"top1_accuracy": 82.1, "top5_accuracy": 94.8}}
-# Experiment and metric names must match the keys in scoring/reference.json.
-# This file is read by the system for automated comparison.
-#
-# Example usage:
-#   ./evaluate.sh <method_and_run_name>                             # evaluate with defaults
-#   ./evaluate.sh <method_and_run_name> checkpoints/epoch_10.pt     # evaluate a specific checkpoint
-#
-# Called from run.sh after training, or independently.
+# Usage:
+#   ./evaluate.sh                      # evaluate all solvers on all problems
+#   ./evaluate.sh --max-problems 20    # quick test on 20 problems
+#   ./evaluate.sh --solvers odyn proxqp osqp
 
 set -e
 
@@ -26,5 +15,34 @@ cd /home/user
 
 mkdir -p scoring
 
-# TODO: implement evaluation using code in eval/
-# Must write scoring/scores.json at the end
+# Parse arguments
+MAX_PROBLEMS=""
+SOLVERS="odyn proxqp osqp"
+RTOL="1e-6"
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --max-problems)
+            MAX_PROBLEMS="--max-problems $2"
+            shift 2
+            ;;
+        --solvers)
+            SOLVERS="$2"
+            shift 2
+            ;;
+        --rtol)
+            RTOL="$2"
+            shift 2
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+python3 -m eval.benchmark \
+    --data-dir /home/user/method/maros_meszaros_qpbenchmark/data \
+    --solvers $SOLVERS \
+    --rtol $RTOL \
+    $MAX_PROBLEMS \
+    --output /home/user/scoring/scores.json

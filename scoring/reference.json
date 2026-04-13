@@ -1,0 +1,51 @@
+{
+  "experiments": {
+    "failure_rate_comparison": {
+      "description": "Failure rate comparison on Maros-Meszaros test set at medium (1e-6) and high (1e-9) accuracy. ODYN achieves the lowest failure rate among open-source solvers at medium accuracy.",
+      "weight": 0.5,
+      "primary_metric": "failure_rate_medium",
+      "metrics": {
+        "failure_rate_medium": {"higher_is_better": false, "coefficient": -1.0},
+        "failure_rate_high": {"higher_is_better": false, "coefficient": -0.5}
+      },
+      "results": {
+        "odyn":    {"type": "proposed", "failure_rate_medium": 9.7, "failure_rate_high": 15.5},
+        "proxqp":  {"type": "baseline", "failure_rate_medium": 33.0, "failure_rate_high": 35.9},
+        "piqp":    {"type": "baseline", "failure_rate_medium": 10.7, "failure_rate_high": 10.7},
+        "osqp":    {"type": "baseline", "failure_rate_medium": 44.7, "failure_rate_high": 49.5},
+        "mosek":   {"type": "baseline", "failure_rate_medium": 14.6, "failure_rate_high": 14.6},
+        "gurobi":  {"type": "baseline", "failure_rate_medium": 9.7, "failure_rate_high": 12.6}
+      }
+    },
+    "warm_start_wcr": {
+      "description": "Warm-to-cold ratio (WCR) on perturbed QP problems. Lower WCR means better warm-start. ODYN significantly outperforms ALM-based solvers.",
+      "weight": 0.3,
+      "primary_metric": "wcr_1e-2",
+      "metrics": {
+        "wcr_1e-3": {"higher_is_better": false, "coefficient": -1.0},
+        "wcr_1e-2": {"higher_is_better": false, "coefficient": -1.0},
+        "wcr_1e-1": {"higher_is_better": false, "coefficient": -1.0}
+      },
+      "results": {
+        "odyn":   {"type": "proposed", "wcr_1e-3": 0.45, "wcr_1e-2": 0.52, "wcr_1e-1": 0.58},
+        "proxqp": {"type": "baseline", "wcr_1e-3": 0.72, "wcr_1e-2": 0.75, "wcr_1e-1": 0.80},
+        "osqp":   {"type": "baseline", "wcr_1e-3": 0.85, "wcr_1e-2": 0.88, "wcr_1e-1": 0.92}
+      }
+    },
+    "degenerate_problems": {
+      "description": "Iteration counts on three degenerate QP problems: redundant inequalities, LICQ failure, and multiple solutions.",
+      "weight": 0.2,
+      "primary_metric": "avg_iterations",
+      "metrics": {
+        "redundant_ineq": {"higher_is_better": false, "coefficient": -0.5},
+        "licq_failure": {"higher_is_better": false, "coefficient": -0.5},
+        "multiple_solutions": {"higher_is_better": false, "coefficient": -0.5}
+      },
+      "results": {
+        "odyn":   {"type": "proposed", "redundant_ineq": 5, "licq_failure": 10, "multiple_solutions": 6},
+        "proxqp": {"type": "baseline", "redundant_ineq": 12, "licq_failure": 30, "multiple_solutions": 10},
+        "osqp":   {"type": "baseline", "redundant_ineq": 75, "licq_failure": 200, "multiple_solutions": 200}
+      }
+    }
+  }
+}

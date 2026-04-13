@@ -1,20 +1,17 @@
 #!/bin/bash
-# Example job script submitted via the end-of-turn YAML block.
-#
-# This runs inside the compute container with:
-#   - Your workspace mounted at /home/user
-#   - GPU(s) available
-#   - No internet access
-#
-# Make sure all data, code, and dependencies are already in the
-# workspace or baked into the container before submitting.
+# Quick test run on a subset of problems to verify the pipeline works.
 
 set -e
 
 cd /home/user
 
-# Example: train a model
-python method/train.py --epochs 10 --lr 0.001
+echo "Quick test: running ODYN on 5 Maros-Meszárós problems..."
+python3 -m eval.benchmark \
+    --data-dir /home/user/method/maros_meszaros_qpbenchmark/data \
+    --solvers odyn \
+    --rtol 1e-6 \
+    --max-problems 5 \
+    --output /home/user/scoring/scores.json
 
-# Example: evaluate
-bash scripts/evaluate.sh checkpoints/best.pt
+echo ""
+echo "Quick test complete. Check scoring/scores.json for results."

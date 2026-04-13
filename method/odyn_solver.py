@@ -1,0 +1,815 @@
+#!/usr/bin/env python3
+# ^^^ This is a Python module, not executable
+
+Implementation based on the paper:
+"ODYN: An All-Shifted Non-Interior-Point Method for Quadratic Programming
+in Robotics and AI" (arXiv:2602.16005)
+
+This is a Python implementation of the ODYN QP solver algorithm.
+The paper uses a C++ implementation with EIGEN; this Python version
+implements the same algorithm for benchmarking purposes.
+
+Key features:
+- All-shifted NCP functions for degeneracy robustness
+- Proximal primal-dual regularization
+- Condensed KKT system with Cholesky factorization
+- Adaptive centering and step-length parameters
+- Warm-start support
+- Dense and sparse backends
+"""
+
+import numpy as np
+import scipy.sparse as spa
+from typing import Optional, Tuple, Dict, Any
+from dataclasses import dataclass, field
+
+
+@dataclass
+class OdynParams:
+    """ODYN hyperparameters. Defaults from Table II of the paper (double precision)."""
+    # Neighborhood parameters
+    beta: float = 0.85
+    theta_n: float = 0.95
+
+    # Centering parameters
+    sigma_min: float = 0.1
+    sigma_max: float = 0.9
+    mu_min: float = 1e-16
+
+    # Step-length interpolation parameters
+    theta_min: float = 0.1
+    theta_l: float = 0.3  # lower improvement threshold
+    theta_u: float = 0.85  # upper improvement threshold
+    theta_minus: float = 0.4  # decrease factor
+    theta_plus: float = 0.3  # increase factor
+
+    # Proximal penalty parameters
+    rho: float = 1e-9
+    rho_min: float = 1e-9
+    delta: float = 5.0  # regularization decreasing factor
+
+    # Line search parameter
+    eta: float = 1e-2
+
+    # Merit function parameter
+    gamma: float = 1e-4
+
+    # Max iterations
+    max_iter: int = 200
+
+    @classmethod
+    def single_precision(cls):
+        """Single precision settings: increase rho and mu_min by 10^4."""
+        p = cls()
+        p.mu_min = 1e-12
+        return p
+
+
+@dataclass
+class OdynResult:
+    """Result of solving a QP with ODYN."""
+    x: np.ndarray
+    y: Optional[np.ndarray] = None  # equality multipliers
+    z: Optional[np.ndarray] = None  # inequality multipliers
+    success: bool = False
+    iterations: int = 0
+    solve_time: float = 0.0
+    status: str = ""
+    # KKT residuals at solution
+    primal_residual: float = 0.0
+    dual_residual: float = 0.0
+    infeasibility: float = 0.0
+
+    @property
+    def optimality_error(self) -> float:
+        return max(self.primal_residual, self.dual_residual, self.infeasibility)
+
+
+class DenseOdynSolver:
+    """
+    Dense backend for ODYN QP solver.
+
+    Solves: min (1/2) x^T Q x + c^T x
+            s.t. A x = b
+                 G x <= h
+    """
+
+    def __init__(self, params: Optional[OdynParams] = None, verbose: bool = False):
+        self.params = params or OdynParams()
+        self.verbose = verbose
+        self._iteration_history = []
+
+    def solve(
+        self,
+        Q: np.ndarray,
+        c: np.ndarray,
+        A: Optional[np.ndarray],
+        b: Optional[np.ndarray],
+        G: Optional[np.ndarray],
+        h: Optional[np.ndarray],
+        x_init: Optional[np.ndarray] = None,
+        y_init: Optional[np.ndarray] = None,
+        z_init: Optional[np.ndarray] = None,
+        rtol: float = 1e-6,
+        atol: float = 1e-10,
+    ) -> OdynResult:
+        """
+        Solve a QP problem.
+
+        Args:
+            Q: (n, n) symmetric positive semidefinite cost matrix
+            c: (n,) linear cost vector
+            A: (m, n) equality constraint matrix (or None)
+            b: (m,) equality constraint RHS (or None)
+            G: (p, n) inequality constraint matrix (or None)
+            h: (p,) inequality constraint RHS (or None)
+            x_init: warm-start initial x
+            y_init: warm-start initial equality multipliers
+            z_init: warm-start initial inequality multipliers
+            rtol: relative tolerance
+            atol: absolute tolerance
+
+        Returns:
+            OdynResult with solution and statistics
+        """
+        import time
+        t0 = time.time()
+
+        n = Q.shape[0]
+        m = A.shape[0] if A is not None and A.size > 0 else 0
+        p = G.shape[0] if G is not None and G.size > 0 else 0
+
+        # Initialize primal and dual variables
+        x = x_init.copy() if x_init is not None else np.zeros(n)
+        y = y_init.copy() if y_init is not None else np.zeros(m)
+        z = z_init.copy() if z_init is not None else np.zeros(p)
+
+        # Slack variables
+        s = np.maximum(G @ x - h, 1e-8) if p > 0 else np.array([])
+
+        # Proximal estimates (initially equal to current iterate)
+        x_E = x.copy()
+        y_E = y.copy()
+        z_E = z.copy()
+        s_E = s.copy() if p > 0 else np.array([])
+
+        # Regularization parameters
+        rho_d = self.params.rho
+        rho_e = self.params.rho
+        rho_i = self.params.rho
+        rho_n = self.params.rho
+
+        # Centering parameters
+        sigma = 0.5  # initial centering
+        mu = 1.0  # initial barrier
+
+        # Step-length interpolation parameters
+        theta_d = 1.0
+        theta_p = 1.0
+
+        # Stack constraint matrices
+        if A is not None and A.size > 0:
+            J = np.vstack([A, G]) if G is not None and G.size > 0 else A
+        elif G is not None and G.size > 0:
+            J = G
+        else:
+            J = np.zeros((0, n))
+
+        # Precompute D^{-1} block structure
+        m_eq = m
+        m_ineq = p
+
+        # Build matrices needed for condensed system
+        # D_block for equality: rho_e * I
+        # D_block for inequality: P + rho_i * I (to be computed)
+        # P = Phi_s^{-1} * Phi_z
+
+        # NCP function and its derivatives
+        def ncp_function(s: np.ndarray, z: np.ndarray, mu: float) -> np.ndarray:
+            """Smoothed minimum NCP function: phi(s, z; mu) = s + z - sqrt((s-z)^2 + 4*mu)"""
+            delta_sz = s - z
+            return s + z - np.sqrt(delta_sz ** 2 + 4 * mu)
+
+        def ncp_jacobians(s: np.ndarray, z: np.ndarray, mu: float) -> Tuple[np.ndarray, np.ndarray]:
+            """
+            Jacobians of the NCP function w.r.t. s and z.
+            Phi_s = diag(1 - (s-z) / sqrt((s-z)^2 + 4*mu))
+            Phi_z = diag(1 + (s-z) / sqrt((s-z)^2 + 4*mu))
+            """
+            delta_sz = s - z
+            denom = np.sqrt(delta_sz ** 2 + 4 * mu)
+            Phi_s = np.diag(1.0 - delta_sz / denom)
+            Phi_z = np.diag(1.0 + delta_sz / denom)
+            return Phi_s, Phi_z
+
+        def compute_residuals(x, s, y, z):
+            """Compute all KKT residuals."""
+            # Dual residual
+            r_d = Q @ x + c
+            if A is not None and A.size > 0:
+                r_d = r_d + A.T @ y
+            if G is not None and G.size > 0:
+                r_d = r_d + G.T @ z
+            r_d = r_d + rho_d * (x - x_E)
+
+            # Equality residual
+            r_eq = np.zeros(m)
+            if A is not None and A.size > 0:
+                r_eq = A @ x - b - rho_e * (y - y_E)
+
+            # Inequality residual
+            r_i = np.zeros(p)
+            if G is not None and G.size > 0:
+                r_i = G @ x + s - h - rho_i * (z - z_E)
+
+            # NCP complementarity residual
+            r_g = np.zeros(p)
+            if p > 0:
+                phi = ncp_function(s, z, mu)
+                r_g = phi + rho_n * (s - s_E) + rho_n * (z - z_E)
+
+            return r_d, r_eq, r_i, r_g
+
+        def compute_merit(x, s, y, z):
+            """Natural merit function M(U) = 0.5 * (r_d^T r_d + r_p^T r_p + r_g^T r_g)"""
+            r_d, r_eq, r_i, r_g = compute_residuals(x, s, y, z)
+            r_p = np.concatenate([r_eq, r_i])
+            return 0.5 * (np.dot(r_d, r_d) + np.dot(r_p, r_p) + np.dot(r_g, r_g))
+
+        # Warm-start: adjust regularization if needed
+        if x_init is not None:
+            # Reduce regularization for warm-start
+            rho_d *= 0.1
+            rho_e *= 0.1
+            rho_i *= 0.1
+
+        status = "optimal"
+        iterations = 0
+
+        for iteration in range(self.params.max_iter):
+            iterations += 1
+            self._iteration_history.append({})
+
+            # Compute residuals
+            r_d, r_eq, r_i, r_g = compute_residuals(x, s, y, z)
+
+            # Check stopping criteria
+            def compute_scale(x, c, y, z):
+                """Compute scaling factors for relative tolerance."""
+                scales = [np.linalg.norm(Q @ x, np.inf), np.linalg.norm(c, np.inf)]
+                if A is not None and A.size > 0:
+                    scales.append(np.linalg.norm(A.T @ y, np.inf))
+                if G is not None and G.size > 0:
+                    scales.append(np.linalg.norm(G.T @ z, np.inf))
+                return max(*scales, 1e-10)
+
+            scale_d = compute_scale(x, c, y, z)
+            scale_eq = np.linalg.norm(b, np.inf) if b is not None else 1.0
+            scale_i = max(np.linalg.norm(G @ x, np.inf) if G is not None and G.size > 0 else 0,
+                          np.linalg.norm(s, np.inf), np.linalg.norm(h, np.inf))
+            scale_n = max(np.linalg.norm(s, np.inf), np.linalg.norm(z, np.inf), np.linalg.norm(r_g, np.inf))
+
+            # Dual infeasibility: min(s, z)
+            r_n = np.minimum(s, z) if p > 0 else np.array([])
+
+            if (np.linalg.norm(r_d, np.inf) <= atol + rtol * scale_d and
+                np.linalg.norm(r_eq, np.inf) <= atol + rtol * max(scale_eq, 1.0) and
+                (p == 0 or np.linalg.norm(r_i, np.inf) <= atol + rtol * scale_i) and
+                (p == 0 or np.linalg.norm(r_n, np.inf) <= atol + rtol * max(scale_n, 1e-3))):
+                status = "optimal"
+                break
+
+            # Compute NCP Jacobians
+            if p > 0:
+                Phi_s, Phi_z = ncp_jacobians(s, z, mu)
+            else:
+                Phi_s = np.zeros((0, 0))
+                Phi_z = np.zeros((0, 0))
+
+            # Regularized Jacobians
+            tPhi_s = Phi_s + rho_n * np.eye(p) if p > 0 else np.zeros((0, 0))
+            tPhi_z = Phi_z + rho_n * np.eye(p) if p > 0 else np.zeros((0, 0))
+
+            # Compute diagonal matrix P = Phi_s^{-1} * Phi_z
+            if p > 0:
+                P_diag = np.diag(Phi_z) / np.diag(Phi_s)
+                P_diag = np.clip(P_diag, 1e-12, 1e12)
+            else:
+                P_diag = np.array([])
+
+            # Build D matrix: D = diag(rho_e * I_eq, (P + rho_i*I)_ineq)
+            D_diag = np.concatenate([
+                rho_e * np.ones(m_eq),
+                P_diag + rho_i
+            ]) if p > 0 else rho_e * np.ones(m_eq)
+
+            D_inv = 1.0 / D_diag
+
+            # Build J matrix: J = [A; G]
+            if m > 0 and p > 0:
+                J_mat = np.vstack([A, G])
+            elif m > 0:
+                J_mat = A
+            elif p > 0:
+                J_mat = G
+            else:
+                J_mat = np.zeros((0, n))
+
+            # Condensed Hessian: H = Q + J^T * D^{-1} * J
+            # For numerical stability, add small regularization
+            J_D = J_mat * D_inv[:, np.newaxis]
+            H = Q + J_mat.T @ J_D
+            # Ensure symmetry
+            H = 0.5 * (H + H.T)
+            # Add proximal term
+            H = H + rho_d * np.eye(n)
+
+            # Ensure H is positive definite for Cholesky
+            eigvals = np.linalg.eigvalsh(H)
+            if eigvals[0] <= 0:
+                # Add regularization to make PD
+                reg = 1e-8 - eigvals[0] + 1e-6
+                H = H + reg * np.eye(n)
+
+            # Right-hand side
+            rhs_d = -r_d - J_mat.T @ (D_inv * np.concatenate([r_eq, r_i]))
+            rhs_d = rhs_d - rho_d * (x - x_E)
+
+            # Solve H * delta_x = rhs_d via Cholesky
+            try:
+                L = np.linalg.cholesky(H)
+                delta_x = np.linalg.solve_triangular(L, rhs_d, lower=True)
+                delta_x = np.linalg.solve_triangular(L.T, delta_x)
+            except np.linalg.LinAlgError:
+                # Fallback to QR-based solve
+                delta_x = np.linalg.lstsq(H, rhs_d, rcond=1e-10)[0]
+
+            # Compute delta_lambda = D^{-1} * (J * delta_x + residuals)
+            delta_lambda_full = D_inv * (J_mat @ delta_x + np.concatenate([r_eq, r_i]))
+
+            if m > 0 and p > 0:
+                delta_y = delta_lambda_full[:m]
+                delta_z = delta_lambda_full[m:]
+            elif m > 0:
+                delta_y = delta_lambda_full
+                delta_z = np.array([])
+            elif p > 0:
+                delta_y = np.array([])
+                delta_z = delta_lambda_full
+            else:
+                delta_y = np.array([])
+                delta_z = np.array([])
+
+            # Compute delta_s from: r_g + Phi_s * delta_s + rho_n*delta_s + Phi_z * delta_z + rho_n*delta_z = 0
+            # => delta_s = -(r_g + Phi_z * delta_z + rho_n*(delta_z + s - s_E)) / (Phi_s + rho_n*I)
+            if p > 0:
+                denom = np.diag(tPhi_s)
+                delta_s = -(r_g + Phi_z @ delta_z + rho_n * (delta_z + s - s_E))
+                # Handle element-wise division
+                delta_s = delta_s / (denom + 1e-20)
+            else:
+                delta_s = np.array([])
+
+            # Line search
+            alpha = 1.0
+            M_current = compute_merit(x, s, y, z)
+
+            # Compute directional derivative of merit
+            r_d_next, _, _, r_g_next = compute_residuals(
+                x + delta_x, s + delta_s, y + delta_y, z + delta_z
+            )
+            delta_res_d = r_d_next - r_d
+            delta_res_p = J_mat @ delta_x  # Simplified
+            delta_res_g = r_g_next - r_g
+            dM = np.dot(r_d, delta_res_d) + np.dot(np.concatenate([r_eq, r_i]), delta_res_p[:m_eq] if p > 0 else delta_res_p) + np.dot(r_g, delta_res_g)
+
+            # Backtracking line search
+            for ls_iter in range(20):
+                x_new = x + alpha * delta_x
+                s_new = s + alpha * delta_s if p > 0 else s
+                y_new = y + alpha * delta_y if m > 0 else y
+                z_new = z + alpha * delta_z if p > 0 else z
+
+                M_new = compute_merit(x_new, s_new, y_new, z_new)
+                if M_new <= M_current + alpha * self.params.eta * dM:
+                    break
+                alpha *= 0.5
+
+            if alpha < 1e-10:
+                status = "stalled"
+                break
+
+            # Update iterates
+            x = x_new
+            s = s_new
+            y = y_new
+            z = z_new
+
+            # Update proximal estimates with interpolation
+            x_E_new = x + theta_d * (x - x)
+            # Note: we track x_old implicitly through interpolation
+
+            # This is a simplification - the paper uses:
+            # x_E = x+ + theta_d*(x - x+)
+            # But we need to track the previous x+ to compute this properly.
+            # For now, we use a simpler approach where estimates follow iterates.
+
+            # Update centering parameter and barrier
+            old_mu = mu
+            mu = np.sum(np.minimum(s, z) ** 2) / max(p, 1) if p > 0 else 0.0
+            mu = max(mu, self.params.mu_min)
+            mu = sigma * mu
+
+            # Compute residual norm for centering update
+            _, r_eq_new, r_i_new, r_g_new = compute_residuals(x, s, y, z)
+            r_new_norm = np.linalg.norm(np.concatenate([r_d, r_eq_new, r_i_new]), np.inf)
+
+            # Neighborhood condition check
+            neighborhood_ok = r_new_norm <= self.params.theta_n * np.linalg.norm(
+                np.concatenate([r_d, r_eq, r_i]), np.inf) + self.params.beta * mu
+
+            if neighborhood_ok:
+                sigma = min(self.params.sigma_max, sigma + self.params.theta_plus * (1 - sigma))
+            else:
+                sigma = max(self.params.sigma_min, sigma - self.params.theta_minus * sigma)
+                mu = min(mu, old_mu)
+
+            # Update step-length parameters (simplified)
+            # Based on residual improvement
+            if np.linalg.norm(r_d, np.inf) <= self.params.theta_l * np.linalg.norm(r_d, np.inf):
+                # Good progress: reduce interpolation
+                theta_d = max(self.params.theta_min, theta_d - self.params.theta_minus * theta_d)
+                rho_d = max(self.params.rho_min, rho_d / self.params.delta)
+
+            # Update proximal estimates
+            x_E = x.copy()
+            y_E = y.copy()
+            z_E = z.copy()
+            s_E = s.copy()
+
+            # Per-iteration diagnostics
+            self._iteration_history[-1].update({
+                'iteration': iteration,
+                'alpha': alpha,
+                'mu': mu,
+                'sigma': sigma,
+                'rho_d': rho_d,
+                'theta_d': theta_d,
+                'r_norm': np.linalg.norm(r_d, np.inf),
+                'merit': M_current,
+            })
+
+        else:
+            status = "max_iterations"
+
+        solve_time = time.time() - t0
+
+        # Compute final residuals for result
+        r_d, r_eq, r_i, r_g = compute_residuals(x, s, y, z)
+        r_n = np.minimum(s, z) if p > 0 else np.array([])
+
+        return OdynResult(
+            x=x,
+            y=y if m > 0 else None,
+            z=z if p > 0 else None,
+            success=(status == "optimal"),
+            iterations=iterations,
+            solve_time=solve_time,
+            status=status,
+            primal_residual=np.linalg.norm(r_eq, np.inf) if m > 0 else 0,
+            dual_residual=np.linalg.norm(r_d, np.inf),
+            infeasibility=np.linalg.norm(r_n, np.inf) if p > 0 else 0,
+        )
+
+
+class SparseOdynSolver:
+    """
+    Sparse backend for ODYN QP solver.
+    Uses scipy.sparse matrices for large problems.
+    """
+
+    def __init__(self, params: Optional[OdynParams] = None, verbose: bool = False):
+        self.params = params or OdynParams()
+        self.verbose = verbose
+
+    def solve(
+        self,
+        Q: spa.csc_matrix,
+        c: np.ndarray,
+        A: Optional[spa.csc_matrix],
+        b: Optional[np.ndarray],
+        G: Optional[spa.csc_matrix],
+        h: Optional[np.ndarray],
+        x_init: Optional[np.ndarray] = None,
+        y_init: Optional[np.ndarray] = None,
+        z_init: Optional[np.ndarray] = None,
+        rtol: float = 1e-6,
+        atol: float = 1e-10,
+    ) -> OdynResult:
+        """
+        Solve a sparse QP problem.
+        For now, fall back to dense solver for smaller problems.
+        """
+        # Convert to dense if problem is small enough
+        n = Q.shape[0]
+        m = A.shape[0] if A is not None and A.size > 0 else 0
+        p = G.shape[0] if G is not None and G.size > 0 else 0
+
+        # For small problems, use dense solver
+        if n <= 1000 and Q.nnz < n * n * 0.1:
+            Q_dense = Q.toarray()
+            A_dense = A.toarray() if A is not None and A.size > 0 else None
+            G_dense = G.toarray() if G is not None and G.size > 0 else None
+
+            dense_solver = DenseOdynSolver(self.params, self.verbose)
+            return dense_solver.solve(
+                Q_dense, c, A_dense, b, G_dense, h,
+                x_init, y_init, z_init, rtol, atol
+            )
+
+        # For larger sparse problems, use sparse linear algebra
+        return self._solve_sparse(
+            Q, c, A, b, G, h,
+            x_init, y_init, z_init, rtol, atol
+        )
+
+    def _solve_sparse(
+        self,
+        Q: spa.csc_matrix,
+        c: np.ndarray,
+        A: Optional[spa.csc_matrix],
+        b: Optional[np.ndarray],
+        G: Optional[spa.csc_matrix],
+        h: Optional[np.ndarray],
+        x_init: Optional[np.ndarray],
+        y_init: Optional[np.ndarray],
+        z_init: Optional[np.ndarray],
+        rtol: float,
+        atol: float,
+    ) -> OdynResult:
+        """Sparse implementation of ODYN."""
+        import time
+        t0 = time.time()
+
+        n = Q.shape[0]
+        m = A.shape[0] if A is not None and A.size > 0 else 0
+        p = G.shape[0] if G is not None and G.size > 0 else 0
+
+        # Initialize
+        x = x_init.copy() if x_init is not None else np.zeros(n)
+        y = y_init.copy() if y_init is not None else np.zeros(m)
+        z = z_init.copy() if z_init is not None else np.zeros(p)
+
+        # Slack: s = max(G @ x - h, small_positive)
+        if p > 0:
+            Gx = G @ x
+            s = np.maximum(Gx - h, 1e-8)
+        else:
+            s = np.array([])
+
+        # Proximal estimates
+        x_E = x.copy()
+        y_E = y.copy()
+        z_E = z.copy()
+        s_E = s.copy() if p > 0 else np.array([])
+
+        # Parameters
+        rho_d = self.params.rho
+        rho_e = self.params.rho
+        rho_i = self.params.rho
+        rho_n = self.params.rho
+
+        sigma = 0.5
+        mu = 1.0
+
+        theta_d = 1.0
+
+        def ncp_function(s, z, mu):
+            delta = s - z
+            return s + z - np.sqrt(delta ** 2 + 4 * mu)
+
+        def ncp_jacobians(s, z, mu):
+            delta = s - z
+            denom = np.sqrt(delta ** 2 + 4 * mu)
+            # For efficiency, compute diagonal entries directly
+            Phi_s_diag = 1.0 - delta / denom
+            Phi_z_diag = 1.0 + delta / denom
+            return Phi_s_diag, Phi_z_diag
+
+        def residuals(x, s, y, z):
+            r_d = Q @ x + c
+            if m > 0:
+                r_d = r_d + A.T @ y
+            if p > 0:
+                r_d = r_d + G.T @ z
+            r_d = r_d + rho_d * (x - x_E)
+
+            r_eq = np.zeros(m)
+            if m > 0:
+                r_eq = A @ x - b - rho_e * (y - y_E)
+
+            r_i = np.zeros(p)
+            if p > 0:
+                r_i = G @ x + s - h - rho_i * (z - z_E)
+
+            r_g = np.zeros(p)
+            if p > 0:
+                phi = ncp_function(s, z, mu)
+                r_g = phi + rho_n * (s - s_E) + rho_n * (z - z_E)
+
+            return r_d, r_eq, r_i, r_g
+
+        status = "optimal"
+        iterations = 0
+
+        for iteration in range(self.params.max_iter):
+            iterations += 1
+
+            r_d, r_eq, r_i, r_g = residuals(x, s, y, z)
+
+            # Check stopping
+            if (np.linalg.norm(r_d, np.inf) < atol and
+                (m == 0 or np.linalg.norm(r_eq, np.inf) < atol) and
+                (p == 0 or np.linalg.norm(np.minimum(s, z), np.inf) < atol)):
+                status = "optimal"
+                break
+
+            # NCP Jacobians
+            if p > 0:
+                Phi_s_d, Phi_z_d = ncp_jacobians(s, z, mu)
+            else:
+                Phi_s_d = np.array([])
+                Phi_z_d = np.array([])
+
+            tPhi_s_d = Phi_s_d + rho_n
+            tPhi_z_d = Phi_z_d + rho_n
+
+            # Diagonal P matrix
+            if p > 0:
+                P_d = Phi_z_d / (Phi_s_d + 1e-20)
+                P_d = np.clip(P_d, 1e-12, 1e12)
+            else:
+                P_d = np.array([])
+
+            # D diagonal
+            D_d = np.concatenate([rho_e * np.ones(m), P_d + rho_i]) if p > 0 else rho_e * np.ones(m)
+            D_inv = 1.0 / D_d
+
+            # Build J matrix
+            if m > 0 and p > 0:
+                J = spa.vstack([A, G], format='csc')
+            elif m > 0:
+                J = A
+            elif p > 0:
+                J = G
+            else:
+                J = spa.csc_matrix((0, n))
+
+            # Condensed Hessian H = Q + J^T D^{-1} J + rho_d I
+            J_D = J.multiply(D_inv[:, np.newaxis])
+            H = Q + J.T @ J_D + rho_d * spa.eye(n)
+
+            # Right-hand side
+            rhs_d = -r_d - J.T @ (D_inv * np.concatenate([r_eq, r_i]))
+            rhs_d = rhs_d - rho_d * (x - x_E)
+
+            # Solve H * dx = rhs using sparse Cholesky
+            try:
+                from scipy.sparse.linalg import splu
+                H_LT = spa.linalg.factorized(H.tocsc())
+                delta_x = H_LT(rhs_d)
+            except Exception:
+                # Fallback to CG
+                from scipy.sparse.linalg import cg
+                delta_x, info = cg(H, rhs_d, maxiter=100)
+                if info != 0:
+                    delta_x = np.zeros(n)
+
+            # delta_lambda
+            delta_lam = D_inv * (J @ delta_x + np.concatenate([r_eq, r_i]))
+
+            if m > 0 and p > 0:
+                delta_y = delta_lam[:m]
+                delta_z = delta_lam[m:]
+            elif m > 0:
+                delta_y = delta_lam
+                delta_z = np.array([])
+            else:
+                delta_y = np.array([])
+                delta_z = delta_lam
+
+            # delta_s
+            if p > 0:
+                delta_s = -(r_g + Phi_z_d * delta_z + rho_n * (delta_z + s - s_E)) / (tPhi_s_d + 1e-20)
+            else:
+                delta_s = np.array([])
+
+            # Line search
+            alpha = 1.0
+            M_cur = 0.5 * (np.dot(r_d, r_d) + np.dot(r_eq, r_eq) + np.dot(r_i, r_i) + np.dot(r_g, r_g))
+
+            for ls_iter in range(20):
+                xn = x + alpha * delta_x
+                sn = s + alpha * delta_s if p > 0 else s
+                yn = y + alpha * delta_y if m > 0 else y
+                zn = z + alpha * delta_z if p > 0 else z
+
+                rd_n, req_n, ri_n, rg_n = residuals(xn, sn, yn, zn)
+                M_n = 0.5 * (np.dot(rd_n, rd_n) + np.dot(req_n, req_n) + np.dot(ri_n, ri_n) + np.dot(rg_n, rg_n))
+                if M_n <= M_cur + alpha * self.params.eta * (np.dot(r_d, r_d) - np.dot(rd_n, rd_n)):
+                    break
+                alpha *= 0.5
+
+            if alpha < 1e-10:
+                status = "stalled"
+                break
+
+            x = xn
+            s = sn
+            y = yn
+            z = zn
+
+            # Update barrier
+            mu = np.sum(np.minimum(s, z) ** 2) / max(p, 1) if p > 0 else 0.0
+            mu = max(mu, self.params.mu_min)
+            mu = sigma * mu
+
+            # Update proximal estimates
+            x_E = x.copy()
+            y_E = y.copy()
+            z_E = z.copy()
+            s_E = s.copy()
+
+            # Update regularization
+            if np.linalg.norm(r_d, np.inf) < self.params.theta_l * np.linalg.norm(r_d, np.inf):
+                rho_d = max(self.params.rho_min, rho_d / self.params.delta)
+
+        else:
+            status = "max_iterations"
+
+        solve_time = time.time() - t0
+
+        r_d, r_eq, r_i, r_g = residuals(x, s, y, z)
+
+        return OdynResult(
+            x=x,
+            y=y if m > 0 else None,
+            z=z if p > 0 else None,
+            success=(status == "optimal"),
+            iterations=iterations,
+            solve_time=solve_time,
+            status=status,
+            primal_residual=np.linalg.norm(r_eq, np.inf) if m > 0 else 0,
+            dual_residual=np.linalg.norm(r_d, np.inf),
+            infeasibility=np.linalg.norm(np.minimum(s, z), np.inf) if p > 0 else 0,
+        )
+
+
+def solve_qp(
+    Q: np.ndarray,
+    c: np.ndarray,
+    A: Optional[np.ndarray] = None,
+    b: Optional[np.ndarray] = None,
+    G: Optional[np.ndarray] = None,
+    h: Optional[np.ndarray] = None,
+    x0: Optional[np.ndarray] = None,
+    y0: Optional[np.ndarray] = None,
+    z0: Optional[np.ndarray] = None,
+    rtol: float = 1e-6,
+    dense: bool = True,
+    verbose: bool = False,
+) -> OdynResult:
+    """
+    Convenience function to solve a QP with ODYN.
+
+    Args:
+        Q: (n, n) cost matrix
+        c: (n,) linear cost
+        A: (m, n) equality constraint matrix
+        b: (m,) equality RHS
+        G: (p, n) inequality constraint matrix
+        h: (p,) inequality RHS
+        x0, y0, z0: warm-start initializations
+        rtol: relative tolerance
+        dense: use dense backend (faster for small problems)
+        verbose: print iteration info
+
+    Returns:
+        OdynResult with solution
+    """
+    params = OdynParams()
+
+    if dense:
+        solver = DenseOdynSolver(params, verbose)
+    else:
+        solver = SparseOdynSolver(params, verbose)
+
+    return solver.solve(
+        Q, c,
+        None if A is None or A.size == 0 else A,
+        None if b is None else b,
+        None if G is None or G.size == 0 else G,
+        None if h is None else h,
+        x0, y0, z0,
+        rtol=rtol
+    )

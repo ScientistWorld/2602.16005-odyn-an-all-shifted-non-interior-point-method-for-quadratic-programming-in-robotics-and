@@ -1,7 +1,5 @@
 #!/bin/bash
-# Run the paper's proposed method.
-#
-# This script trains/runs the paper's method using code in method/.
+# Run ODYN QP solver and evaluate on the benchmark.
 #
 # Usage:
 #   bash scripts/method.sh
@@ -10,5 +8,5 @@ set -e
 
 cd /home/user
 
-# TODO: run the paper's method
-# TODO: call scripts/evaluate.sh to score
+echo "Running ODYN solver benchmark..."
+bash scripts/evaluate.sh --solvers odyn --rtol 1e-6
