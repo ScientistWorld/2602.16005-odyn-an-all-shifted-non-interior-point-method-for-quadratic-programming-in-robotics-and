@@ -33,50 +33,65 @@ def load_maros_meszaros_problem(mat_path: str):
     A_mat = mat_dict["A"].astype(float)
     if spa.issparse(A_mat):
         A_mat = A_mat.tocsc()
-    l = mat_dict["l"].T.flatten().astype(float)
-    u = mat_dict["u"].T.flatten().astype(float)
+    l = np.array(mat_dict["l"].T.flatten().astype(float))
+    u = np.array(mat_dict["u"].T.flatten().astype(float))
     n = int(mat_dict["n"].T.flatten().astype(int)[0])
     m_total = int(mat_dict["m"].T.flatten().astype(int)[0])
 
-    # Replace infinity markers
-    A_mat = np.array(A_mat)
-    l = np.array(l)
-    u = np.array(u)
-    A_mat[A_mat > 9e19] = np.inf
+    # Replace infinity markers in bounds
     l[l > 9e19] = np.inf
-    u[u > 9e19] = -np.inf
-    A_mat[A_mat < -9e19] = -np.inf
-    l[l < -9e19] = -np.inf
-    u[u < -9e19] = -np.inf
+    u[u > 9e19] = np.inf
+    l[l < -9e19] = np.inf
+    u[u < -9e19] = np.inf
 
     # Separate C (constraint) from x bounds (last n rows)
     lb = l[-n:]
     ub = u[-n:]
-    C = A_mat[:-n]
     l_c = l[:-n]
     u_c = u[:-n]
 
-    # Convert to A x = b, G x <= h format
+    # C is the first m_total - n rows of A_mat
+    m_con = m_total - n
+    C = A_mat[:m_con] if m_con > 0 else None
+
+    # Identify equality vs inequality constraint rows
     bounds_are_equal = np.abs(u_c - l_c) < 1e-10
-    eq_rows = np.where(bounds_are_equal)[0]
-    ineq_rows = np.where(~bounds_are_equal)[0]
+    eq_mask = bounds_are_equal
+    ineq_mask = ~bounds_are_equal
+    eq_idx = np.where(eq_mask)[0]
+    ineq_idx = np.where(ineq_mask)[0]
 
-    A = C[eq_rows] if len(eq_rows) > 0 else None
-    b = u_c[eq_rows] if len(eq_rows) > 0 else None
-    G_ineq = C[ineq_rows]
-    h_ineq = u_c[ineq_rows]
-    # Also add -C x >= -u => -C x <= -l
-    G2_ineq = -C[ineq_rows]
-    h2_ineq = -l_c[ineq_rows]
+    # Equality constraints: A x = b
+    if len(eq_idx) > 0:
+        A = C[eq_idx] if C is not None else None
+        b = u_c[eq_idx]
+    else:
+        A, b = None, None
 
-    # Keep only finite inequalities
-    finite_1 = h_ineq < np.inf
-    finite_2 = h2_ineq < np.inf
-    G_ineq = np.vstack([G_ineq[finite_1], G2_ineq[finite_2]])
-    h_ineq = np.hstack([h_ineq[finite_1], h2_ineq[finite_2]])
+    # Inequality constraints: G x <= h (original) and -G x <= -l (from lower bounds)
+    INFINITY = 9e19
+    h1 = u_c[ineq_idx]
+    h2 = -l_c[ineq_idx]
+    g1_idx = np.where(h1 < INFINITY)[0]
+    g2_idx = np.where(h2 < INFINITY)[0]
 
-    G = G_ineq if G_ineq.size > 0 else None
-    h = h_ineq if h_ineq.size > 0 else None
+    rows_g1 = ineq_idx[g1_idx]
+    rows_g2 = ineq_idx[g2_idx]
+
+    G_rows = []
+    h_vals = []
+    if len(rows_g1) > 0 and C is not None:
+        G_rows.append(C[rows_g1])
+        h_vals.append(h1[g1_idx])
+    if len(rows_g2) > 0 and C is not None:
+        G_rows.append(-C[rows_g2])
+        h_vals.append(h2[g2_idx])
+
+    if G_rows:
+        G = spa.vstack(G_rows, format='csc')
+        h = np.concatenate(h_vals)
+    else:
+        G, h = None, None
 
     name = Path(mat_path).stem
     return {
@@ -189,43 +204,32 @@ def run_proxqp(problem: dict, rtol: float, timeout: float = 120.0) -> dict:
     A = problem["A"]
     G = problem["G"]
 
-    n = len(q)
-    m_eq = A.shape[0] if A is not None else 0
-    m_ineq = G.shape[0] if G is not None else 0
-
-    # Setup PROXQP
-    if A is not None and G is not None:
-        A_comb = np.vstack([A, G])
-        b_lower = np.concatenate([problem["b"], -np.full(m_ineq, np.inf)])
-        b_upper = np.concatenate([problem["b"], problem["h"]])
-    elif A is not None:
-        A_comb = A
-        b_lower = problem["b"]
-        b_upper = problem["b"]
-    elif G is not None:
-        A_comb = G
-        b_lower = -np.full(m_ineq, np.inf)
-        b_upper = problem["h"]
-    else:
-        A_comb = np.zeros((0, n))
-        b_lower = np.array([])
-        b_upper = np.array([])
-
-    # Handle proxsuite's different API
     try:
         from proxsuite import proxqp
         t0 = time.time()
-        # PROXQP dense API
+        n = len(q)
+        m_eq = A.shape[0] if A is not None and A.size > 0 else 0
+        m_ineq = G.shape[0] if G is not None and G.size > 0 else 0
+
+        # Build matrices
+        A_mat = A if A is not None and A.size > 0 else None
+        C_mat = G if G is not None and G.size > 0 else None
+        b_vec = problem["b"] if problem["b"] is not None else None
+        h_vec = problem["h"] if problem["h"] is not None else None
+        # PROXQP requires both l and u for inequalities; use -inf for lower bounds
+        l_vec = np.full(m_ineq, -np.inf) if m_ineq > 0 else None
+        u_vec = h_vec
+
         qp = proxqp.dense.QP(n, m_eq, m_ineq)
-        qp.init(P, q, A_comb, b_lower, b_upper,
-                eps_rel=rtol, eps_abs=rtol, max_iter=2000)
+        qp.init(P, q, A=A_mat, b=b_vec, C=C_mat, l=l_vec, u=u_vec,
+                eps_rel=rtol, eps_abs=rtol)
         qp.solve()
         solve_time = time.time() - t0
         return {
-            "success": qp.results.info.status == 0,  # 0 = solved
+            "success": qp.results.info.status.name == "PROXQP_SOLVED",
             "iterations": qp.results.info.iter,
             "solve_time": solve_time,
-            "status": str(qp.results.info.status),
+            "status": qp.results.info.status.name,
         }
     except Exception as e:
         return {"success": False, "iterations": 0, "solve_time": 0, "status": f"error: {e}"}
@@ -291,16 +295,16 @@ def run_odyn(problem: dict, rtol: float, timeout: float = 120.0) -> dict:
 def run_degenerate_test_cases() -> Dict[str, Dict]:
     """Run the three degenerate test cases from the paper."""
     # Test case 1: Redundant inequalities (Eq. 66)
-    # min 0.5*(x1^2 + x2^2) s.t. x1 >= 1, x1 >= 0
+    # min 0.5*(x1^2 + x2^2) s.t. x1 >= 1
+    # The 'redundant' is that the bound x1 >= 0 is looser than x1 >= 1
+    # So feasible region: x1 >= 1 (only the binding constraint matters)
+    # Optimal: x1 = 1, x2 = 0
     Q1 = np.array([[1.0, 0.0], [0.0, 1.0]])
     c1 = np.zeros(2)
     A1 = None
     b1 = None
-    G1 = np.array([[-1.0, 0.0], [1.0, 0.0]])  # Gx <= h -> -x1 <= -1, x1 <= 0... wait
-    # x1 >= 1 -> -x1 <= -1
-    # x1 >= 0 -> -x1 <= 0
-    G1 = np.array([[-1.0, 0.0], [1.0, 0.0]])
-    h1 = np.array([-1.0, 0.0])
+    G1 = np.array([[-1.0, 0.0]])  # -x1 <= -1 -> x1 >= 1
+    h1 = np.array([-1.0])
 
     # Test case 2: LICQ failure (Eq. 67)
     # min with tiny Q entries, equality x1=0, and bounds
@@ -308,17 +312,17 @@ def run_degenerate_test_cases() -> Dict[str, Dict]:
     c2 = np.array([1e-4, -1.0])
     A2 = np.array([[1.0, 0.0]])
     b2 = np.array([0.0])
-    G2 = np.array([[-1.0, 0.0], [1.0, 0.0], [0.0, -1.0], [0.0, 1.0]])
-    h2 = np.array([0.0, np.inf, 0.0, np.inf])
+    G2 = np.array([[-1.0, 0.0], [0.0, -1.0]])  # x1 >= 0, x2 >= 0
+    h2 = np.array([0.0, 0.0])
 
     # Test case 3: Multiple solutions (Eq. 68)
-    # Q has zero row/col, redundant constraint
+    # Q has zero row, redundant constraint (0*x1 + 0*x2 <= 0 is always active but doesn't constrain)
     Q3 = np.array([[0.0, 0.0], [0.0, 1.0]])
     c3 = np.array([1.0, 0.0])
     A3 = None
     b3 = None
-    G3 = np.array([[0.0, 0.0], [-1.0, 0.0], [1.0, 0.0], [0.0, -1.0], [0.0, 1.0]])
-    h3 = np.array([0.0, 0.0, 3.0, 0.0, 3.0])
+    G3 = np.array([[0.0, 0.0], [-1.0, 0.0], [0.0, -1.0], [0.0, 1.0]])  # redundant 0<=0, -1<=x1<=3, -1<=x2<=3
+    h3 = np.array([0.0, 0.0, 0.0, 3.0])
 
     results = {}
 

@@ -1,0 +1,32 @@
+{
+  "experiments": {
+    "failure_rate_comparison": {
+      "results": {
+        "odyn": {
+          "type": "proposed",
+          "failure_rate_medium": 100.0
+        },
+        "proxqp": {
+          "type": "baseline",
+          "failure_rate_medium": 100.0
+        }
+      }
+    },
+    "degenerate_problems": {
+      "results": {
+        "odyn_redundant_ineq": {
+          "type": "proposed",
+          "redundant_ineq": 7
+        },
+        "odyn_licq_failure": {
+          "type": "proposed",
+          "licq_failure": 200
+        },
+        "odyn_multiple_solutions": {
+          "type": "proposed",
+          "multiple_solutions": 200
+        }
+      }
+    }
+  }
+}

@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
-# ^^^ This is a Python module, not executable
+"""
+ODYN: All-Shifted Non-Interior-Point QP Solver
 
 Implementation based on the paper:
 "ODYN: An All-Shifted Non-Interior-Point Method for Quadratic Programming
@@ -265,9 +265,16 @@ class DenseOdynSolver:
 
             scale_d = compute_scale(x, c, y, z)
             scale_eq = np.linalg.norm(b, np.inf) if b is not None else 1.0
-            scale_i = max(np.linalg.norm(G @ x, np.inf) if G is not None and G.size > 0 else 0,
-                          np.linalg.norm(s, np.inf), np.linalg.norm(h, np.inf))
-            scale_n = max(np.linalg.norm(s, np.inf), np.linalg.norm(z, np.inf), np.linalg.norm(r_g, np.inf))
+            scale_i = max(
+                np.linalg.norm(G @ x, np.inf) if G is not None and G.size > 0 else 0,
+                np.linalg.norm(s, np.inf) if s.size > 0 else 0,
+                np.linalg.norm(h, np.inf) if h is not None and np.size(h) > 0 else 0
+            )
+            scale_n = max(
+                np.linalg.norm(s, np.inf) if s.size > 0 else 0,
+                np.linalg.norm(z, np.inf) if z.size > 0 else 0,
+                np.linalg.norm(r_g, np.inf) if r_g.size > 0 else 0
+            )
 
             # Dual infeasibility: min(s, z)
             r_n = np.minimum(s, z) if p > 0 else np.array([])
@@ -332,14 +339,23 @@ class DenseOdynSolver:
                 H = H + reg * np.eye(n)
 
             # Right-hand side
-            rhs_d = -r_d - J_mat.T @ (D_inv * np.concatenate([r_eq, r_i]))
+            if m + p > 0:
+                rhs_d = -r_d - J_mat.T @ (D_inv * np.concatenate([r_eq, r_i]))
+            else:
+                rhs_d = -r_d
             rhs_d = rhs_d - rho_d * (x - x_E)
 
+            # Handle NaN/Inf in RHS
+            if not np.all(np.isfinite(rhs_d)):
+                status = "numerical_error"
+                break
+
             # Solve H * delta_x = rhs_d via Cholesky
+            from scipy.linalg import solve_triangular
             try:
                 L = np.linalg.cholesky(H)
-                delta_x = np.linalg.solve_triangular(L, rhs_d, lower=True)
-                delta_x = np.linalg.solve_triangular(L.T, delta_x)
+                delta_x = solve_triangular(L, rhs_d, lower=True)
+                delta_x = solve_triangular(L.T, delta_x)
             except np.linalg.LinAlgError:
                 # Fallback to QR-based solve
                 delta_x = np.linalg.lstsq(H, rhs_d, rcond=1e-10)[0]
@@ -379,9 +395,16 @@ class DenseOdynSolver:
                 x + delta_x, s + delta_s, y + delta_y, z + delta_z
             )
             delta_res_d = r_d_next - r_d
-            delta_res_p = J_mat @ delta_x  # Simplified
             delta_res_g = r_g_next - r_g
-            dM = np.dot(r_d, delta_res_d) + np.dot(np.concatenate([r_eq, r_i]), delta_res_p[:m_eq] if p > 0 else delta_res_p) + np.dot(r_g, delta_res_g)
+
+            # Merit function directional derivative
+            # dM = grad(M) @ delta_U
+            # Simplified: just use norm reduction
+            dM = np.dot(r_d, delta_res_d) + np.dot(r_g, delta_res_g)
+            if m > 0 or p > 0:
+                r_p = np.concatenate([r_eq, r_i])
+                delta_res_p = J_mat @ delta_x
+                dM += np.dot(r_p, delta_res_p)
 
             # Backtracking line search
             for ls_iter in range(20):

@@ -1,17 +1,24 @@
 #!/bin/bash
-# Quick test run on a subset of problems to verify the pipeline works.
+# Test run — quick verification on a small subset.
 
 set -e
 
 cd /home/user
 
-echo "Quick test: running ODYN on 5 Maros-Meszárós problems..."
+echo "=== Quick verification on 10 Maros-Meszaros problems ==="
+
 python3 -m eval.benchmark \
     --data-dir /home/user/method/maros_meszaros_qpbenchmark/data \
-    --solvers odyn \
+    --solvers odyn proxqp \
     --rtol 1e-6 \
-    --max-problems 5 \
+    --max-problems 10 \
     --output /home/user/scoring/scores.json
 
 echo ""
-echo "Quick test complete. Check scoring/scores.json for results."
+echo "Test complete. Results:"
+python3 -c "
+import json
+with open('/home/user/scoring/scores.json') as f:
+    data = json.load(f)
+print(json.dumps(data, indent=2))
+"
