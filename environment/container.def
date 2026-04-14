@@ -23,3 +23,28 @@ From: python:3.12-slim
 # Note: Python packages (numpy, scipy, proxsuite, etc.) are installed
 # via setup.sh, not in this file. This ensures fast iterative updates
 # without rebuilding the container.
+
+    # --- Merged from setup.sh ---
+    pip install --break-system-packages uv 2>/dev/null || pip install uv 2>/dev/null || true
+    export UV_SYSTEM_PYTHON=1 UV_BREAK_SYSTEM_PACKAGES=1
+    # Setup script for ODYN QP solver environment
+    #
+    # This script runs inside the container with internet access.
+    # Install all Python dependencies here.
+    
+    set -e
+    
+    # Use uv for faster installation
+    uv pip install --break-system-packages uv 2>/dev/null || true
+    export UV_SYSTEM_PYTHON=1
+    export UV_BREAK_SYSTEM_PACKAGES=1
+    
+    # Core numerical libraries
+    uv pip install --system numpy scipy 2>/dev/null || uv pip install numpy scipy 2>/dev/null || true
+    
+    # QP solver libraries (if available on PyPI)
+    uv pip install --system proxsuite 2>/dev/null || uv pip install proxsuite 2>/dev/null || true
+    
+    # Note: OSQP has known issues with limited disk space
+    # If osqp fails to import, the eval script will handle it gracefully
+
