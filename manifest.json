@@ -17,36 +17,40 @@
     ]
   },
   "reproduction": {
-    "milestone": "none",
+    "milestone": "method_runs",
     "status": "done",
     "error": null,
     "scaffold": "claude-code",
-    "model": "glm-5.1",
-    "profile": "glm-5-medium",
+    "model": "MiniMax-M2.7",
+    "profile": "minimax-medium",
     "effort": "medium",
     "gpu_hours_used": 0.0,
     "current_iteration_gpu_budget": 30,
     "current_iteration_gpu_hours_used": 0.0,
     "total_gpu_hours_used": 0.0,
-    "current_iteration_cpu_hours_used": 0.0,
-    "total_cpu_hours_used": 0,
+    "current_iteration_cpu_hours_used": 0.041,
+    "total_cpu_hours_used": 0.041,
     "gpu_budget": 30,
-    "duration_sec": 36.0,
+    "duration_sec": 11999.4,
     "cost_usd": 0,
-    "input_tokens": 0,
+    "input_tokens": 47470447,
     "output_tokens": 0,
-    "cached_input_tokens": 0,
+    "cached_input_tokens": 3669224,
     "cache_creation_tokens": 0,
     "reasoning_tokens": null,
-    "total_input_tokens": 0,
+    "total_input_tokens": 51139671,
     "num_turns": 0,
     "duration_api_ms": 0,
-    "num_runs": 2,
+    "num_runs": 3,
     "iteration_count": 1,
     "workflow": "standard",
-    "workflow_step": 1,
-    "total_gpu_jobs": 0,
-    "time_breakdown": {}
+    "workflow_step": 0,
+    "total_gpu_jobs": 2,
+    "time_breakdown": {
+      "working": 9353.467323541641,
+      "installing": 345.0113024711609,
+      "waiting": 366.9431257247925
+    }
   },
   "agents": [
     {
@@ -118,6 +122,84 @@
       "tool_uses": {},
       "gpu_jobs": [],
       "progress_log": ""
+    },
+    {
+      "scaffold": "claude-code",
+      "model": "MiniMax-M2.7",
+      "profile": "minimax-medium",
+      "effort": "medium",
+      "role": "reproducer",
+      "is_iteration": false,
+      "iteration": 1,
+      "workflow": "standard",
+      "workflow_step": 0,
+      "started_at": 1776113966.8620894,
+      "finished_at": 1776127266.7854056,
+      "duration_sec": 11963.4,
+      "blocked_sec": 1336.5,
+      "status": "done",
+      "error": null,
+      "milestone": "method_runs",
+      "gpu_budget": 30,
+      "gpu_hours_used": 0.0,
+      "total_gpu_hours_used": 0.0,
+      "cpu_hours_used": 0.041,
+      "time_breakdown": {
+        "working": 9353.467323541641,
+        "installing": 345.0113024711609,
+        "waiting": 366.9431257247925
+      },
+      "cost_usd": 0,
+      "input_tokens": 47470447,
+      "output_tokens": 0,
+      "cached_input_tokens": 3669224,
+      "cache_creation_tokens": 0,
+      "reasoning_tokens": null,
+      "total_input_tokens": 51139671,
+      "num_turns": 0,
+      "duration_api_ms": 0,
+      "tool_uses": {
+        "Read": 77,
+        "Glob": 1,
+        "Bash": 131,
+        "Edit": 47,
+        "TodoWrite": 1,
+        "Write": 2,
+        "Grep": 10,
+        "TaskOutput": 29,
+        "TaskStop": 2
+      },
+      "gpu_jobs": [
+        {
+          "run_id": "5d95fb45-abf",
+          "command": "bash /home/user/scripts/run.sh",
+          "num_gpus": 0,
+          "num_cpus": 1,
+          "resource": "gpu-cpu-test",
+          "hive_job_id": "ca0ea7d2",
+          "status": "failed",
+          "returncode": 137,
+          "duration_sec": 86.8,
+          "submitted_at": 1776119640.948774,
+          "started_at": 1776119723.8498201,
+          "completed_at": 1776119810.6472585
+        },
+        {
+          "run_id": "def8412e-973",
+          "command": "bash /home/user/scripts/run.sh",
+          "num_gpus": 0,
+          "num_cpus": 1,
+          "resource": "gpu-cpu-test",
+          "hive_job_id": "29ad3412",
+          "status": "failed",
+          "returncode": 137,
+          "duration_sec": 60.6,
+          "submitted_at": 1776123979.6446223,
+          "started_at": 1776124042.1809208,
+          "completed_at": 1776124102.794181
+        }
+      ],
+      "progress_log": "### [2026-04-12] - none\n- Read paper thoroughly: ODYN is an all-shifted non-interior-point QP solver\n- Key results: 9.7% failure rate on Maros-Mesz\u00e1r\u00f3s (best among open-source), superior warm-start, robust on degenerate problems\n- Could not clone ODYN repository (GitHub not accessible from this environment, no direct URL in paper)\n- Cloned Maros-Mesz\u00e1r\u00f3s QP benchmark repo to `/home/user/method/maros_meszaros_qpbenchmark/` (138 .mat files)\n- Installed available QP solvers: proxsuite (PROXQP), osqp packages\n- Created all briefing files (overview.md, problem.md, method.md, evaluation.md)\n- Created scoring/reference.json with paper's reported numbers\n- Implemented ODYN solver from scratch in Python based on paper's algorithm description\n- Created eval/benchmark.py for evaluation\n- Updated all scripts (evaluate.sh, method.sh, reproduce.sh, run.sh)\n- Updated container.def and setup.sh"
     }
   ],
   "components": {
@@ -128,7 +210,7 @@
     "has_reproduce_script": true,
     "has_method_script": true,
     "has_baseline": true,
-    "has_reference": false,
+    "has_reference": true,
     "has_data": true
   }
 }

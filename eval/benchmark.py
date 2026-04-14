@@ -18,7 +18,9 @@ from typing import Dict, List, Tuple, Optional
 import sys
 
 # Add method directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "method"))
+sys.path.insert(0, '/home/user/pypkgs')
+sys.path.insert(0, '/home/user/pypkgs/cmeel.prefix/lib/python3.12/site-packages')
+sys.path.insert(0, '/home/user/method')
 
 from odyn_solver import DenseOdynSolver, SparseOdynSolver, OdynParams
 
@@ -346,6 +348,21 @@ def run_degenerate_test_cases() -> Dict[str, Dict]:
     return results
 
 
+def dense_size_gb(P, A, G):
+    """Estimate total dense array size in GB."""
+    size = 0
+    if P is not None:
+        if spa.issparse(P): size += P.toarray().nbytes
+        else: size += P.nbytes
+    if A is not None:
+        if spa.issparse(A): size += A.toarray().nbytes
+        else: size += A.nbytes
+    if G is not None:
+        if spa.issparse(G): size += G.toarray().nbytes
+        else: size += G.nbytes
+    return size / 1e9
+
+
 def run_benchmark(
     data_dir: str,
     solvers: List[str],
@@ -354,6 +371,9 @@ def run_benchmark(
     max_problems: Optional[int] = None,
 ) -> Dict:
     """Run benchmark on Maros-Meszárós test set."""
+
+    # Skip problems where dense conversion would exceed 5 GB (memory limit)
+    SKIP_THRESHOLD_GB = 5.0
 
     # Find all .mat files
     mat_files = sorted(Path(data_dir).glob("*.mat"))
@@ -370,6 +390,17 @@ def run_benchmark(
             problem = load_maros_meszaros_problem(str(mat_file))
         except Exception as e:
             print(f"LOAD ERROR: {e}")
+            for _ in solvers:
+                results[solver].append({"success": False, "iterations": 0, "solve_time": 0, "status": "load_error"})
+            continue
+
+        # Memory check: estimate dense size
+        ds = dense_size_gb(problem["P"], problem["A"], problem["G"])
+        if ds > SKIP_THRESHOLD_GB:
+            print(f"SKIP(too_large={ds:.1f}GB) ", end="")
+            for sn in solvers:
+                results[sn].append({"success": False, "iterations": 0, "solve_time": 0, "status": "skipped_memory"})
+            print()
             continue
 
         for solver_name in solvers:
