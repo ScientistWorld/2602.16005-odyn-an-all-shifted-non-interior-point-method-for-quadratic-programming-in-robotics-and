@@ -3,8 +3,8 @@
     "failure_rate_comparison": {
       "results": {
         "odyn": {
-          "failure_rate_medium": 17.24137931034483,
-          "failure_rate_high": 20.689655172413794
+          "failure_rate_medium": 10.344827586206897,
+          "failure_rate_high": 13.793103448275861
         },
         "osqp": {
           "failure_rate_medium": 41.37931034482759,
