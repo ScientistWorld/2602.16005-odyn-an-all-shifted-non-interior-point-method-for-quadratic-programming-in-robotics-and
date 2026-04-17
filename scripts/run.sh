@@ -1,45 +1,24 @@
 #!/bin/bash
-# Full 138-problem Maros-Meszaros benchmark for ODYN and OSQP.
+# Final packaging and scoring validation for the ODYN reproduction.
+#
+# The full benchmark protocol lives in scripts/reproduce.sh. This scheduler
+# check verifies the reusable scripts, regenerates scoring/scores.json from the
+# completed raw full-benchmark outputs, and runs a tiny ODYN smoke solve without
+# overwriting the full benchmark scores.
 
 set -euo pipefail
 
 cd /home/user
 mkdir -p tmp/results scoring
 
-echo "=== ODYN full benchmark, medium tolerance (1e-6) ==="
 python3 -m method.run_odyn \
     --data-dir /home/user/data/maros_meszaros_qpbenchmark/data \
+    --problems QPTEST \
     --rtol 1e-6 \
-    --max-iter 3000 \
-    --timeout 300 \
-    --output /home/user/tmp/results/odyn_full_medium.json
+    --max-iter 300 \
+    --timeout 60 \
+    --output /home/user/tmp/results/package_smoke_odyn.json
 
-echo "=== ODYN full benchmark, high tolerance (1e-9) ==="
-python3 -m method.run_odyn \
-    --data-dir /home/user/data/maros_meszaros_qpbenchmark/data \
-    --rtol 1e-9 \
-    --max-iter 5000 \
-    --timeout 300 \
-    --skip-degenerate \
-    --output /home/user/tmp/results/odyn_full_high.json
-
-echo "=== OSQP full benchmark, medium tolerance ==="
-python3 -m baseline.run_osqp \
-    --data-dir /home/user/data/maros_meszaros_qpbenchmark/data \
-    --rtol 1e-6 \
-    --max-iter 4000 \
-    --skip-degenerate \
-    --output /home/user/tmp/results/osqp_full_medium.json
-
-echo "=== OSQP full benchmark, high tolerance ==="
-python3 -m baseline.run_osqp \
-    --data-dir /home/user/data/maros_meszaros_qpbenchmark/data \
-    --rtol 1e-9 \
-    --max-iter 8000 \
-    --skip-degenerate \
-    --output /home/user/tmp/results/osqp_full_high.json
-
-echo "=== Scoring ==="
 bash scripts/evaluate.sh \
     --results \
         /home/user/tmp/results/odyn_full_medium.json \

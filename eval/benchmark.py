@@ -37,7 +37,7 @@ def load_result(path: Path) -> dict[str, Any]:
     return data
 
 
-def score_failure_rate(raw: dict[str, Any]) -> tuple[str, float] | None:
+def score_failure_rate(raw: dict[str, Any]) -> dict[str, float] | None:
     benchmark = raw.get("benchmark") or []
     attempted = [
         item for item in benchmark
@@ -49,7 +49,7 @@ def score_failure_rate(raw: dict[str, Any]) -> tuple[str, float] | None:
     total = len(attempted)
     rate = 100.0 * failed / total if total else 100.0
     metric = _metric_for_tolerance(float(raw.get("metadata", {}).get("rtol", 1e-6)))
-    return metric, rate
+    return {metric: rate, "attempted_count": float(total)}
 
 
 def score_degenerate(raw: dict[str, Any]) -> dict[str, float] | None:
@@ -78,8 +78,7 @@ def build_scores(result_paths: list[Path]) -> dict[str, Any]:
 
         failure_score = score_failure_rate(raw)
         if failure_score is not None:
-            metric, rate = failure_score
-            failure_results.setdefault(method, {})[metric] = rate
+            failure_results.setdefault(method, {}).update(failure_score)
 
         degenerate_score = score_degenerate(raw)
         if degenerate_score is not None:
