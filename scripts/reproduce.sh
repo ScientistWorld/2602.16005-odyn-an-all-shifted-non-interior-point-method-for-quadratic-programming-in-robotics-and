@@ -1,36 +1,24 @@
 #!/bin/bash
-# Reproduce the paper's results end-to-end.
-#
-# This runs ODYN vs PROXQP vs OSQP on the Maros-Meszárós test set
-# and computes failure rates and degenerate problem performance.
+# End-to-end reproduction entry point.
 
-set -e
+set -euo pipefail
 
 cd /home/user
+mkdir -p tmp/results scoring
 
 echo "=== ODYN QP Solver Reproduction ==="
-echo "Benchmark: Maros-Meszárós test set"
-echo ""
+echo "[1/2] Medium-accuracy Maros-Meszaros benchmark"
+python3 -m method.run_odyn \
+    --data-dir /home/user/data/maros_meszaros_qpbenchmark/data \
+    --rtol 1e-6 \
+    --max-iter 250 \
+    --timeout 120 \
+    --output /home/user/tmp/results/odyn_medium.json
 
-# Run full benchmark
-echo "[1/3] Running benchmark on all solvers..."
-bash scripts/evaluate.sh --solvers odyn proxqp osqp --rtol 1e-6
+echo "[2/2] Scoring"
+bash scripts/evaluate.sh \
+    --results /home/user/tmp/results/odyn_medium.json \
+    --output /home/user/scoring/scores.json
 
-echo ""
-echo "[2/3] Running high-accuracy benchmark..."
-bash scripts/evaluate.sh --solvers odyn proxqp osqp --rtol 1e-9 --max-problems 50
+python3 validate.py --compare
 
-echo ""
-echo "[3/3] Computing warm-to-cold ratio..."
-# Warm-start evaluation is handled by the benchmark script
-
-echo ""
-echo "=== Results Summary ==="
-if [ -f scoring/scores.json ]; then
-    python3 -c "
-import json
-with open('/home/user/scoring/scores.json') as f:
-    data = json.load(f)
-print(json.dumps(data, indent=2))
-"
-fi

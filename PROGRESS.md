@@ -2,41 +2,43 @@
 
 ## What Works
 
-- **ODYN solver implementation**: Python implementation of the all-shifted NIPM QP solver based on the paper's mathematical description. Implements dense and sparse backends with condensed KKT system, Cholesky factorization, adaptive centering, and line search.
-- **Maros-Meszárós test set**: 138 QP problems cloned from GitHub, stored as .mat files. Evaluation loader parses them into QP format with sparse matrix support.
-- **Baseline solvers**: PROXQP (via proxsuite) integrated but has compatibility issues with the Maros-Meszárós problem format (init() argument type errors).
-- **Degenerate test cases**: Three specific degenerate QP problems (redundant constraints, LICQ failure, multiple solutions) implemented.
-- **Evaluation pipeline**: eval/benchmark.py runs solvers on test set, computes failure rates, handles timeouts, skips OOM-prone problems.
+- Implemented the ODYN all-shifted non-interior-point QP solver in `method/odyn_solver.py`.
+- Added a method runner that writes raw, method-agnostic JSON results from ODYN.
+- Moved the Maros-Meszaros benchmark files and loader into `data/`, including conversion of row bounds and variable bounds into standard-form equality and inequality constraints.
+- Reworked `eval/benchmark.py` so evaluation only scores raw result files and no longer imports `method/`.
+- Added an OSQP baseline runner for optional baseline checks when the package is installed.
+- Replaced placeholder scoring docs with concrete target, constraint, direction, and experiment descriptions.
 
-## Results
+## Results Achieved
 
-| Metric | ODYN (reproduced) | ODYN (paper) | Baseline |
-|--------|-------------------|--------------|----------|
-| Failure rate (medium) | ~25% (pending full run) | 9.7% | PROXQP 33.0% |
-| WCR (δ=1e-2) | TBD | 0.52 | PROXQP 0.75 |
-| Degenerate: redundant | 7 it | 5 iter | PROXQP 12 |
-| Degenerate: LICQ | 200 it (timeout) | 10 iter | PROXQP 30 |
-| Degenerate: multi-sol | 200 it (timeout) | 6 iter | PROXQP 10 |
+The previous raw run reached `method_runs`: ODYN executed on benchmark instances and solved some problems, but its preliminary failure rate and degenerate-case behavior did not yet support the paper's central claim. The current submitted job will regenerate `scoring/scores.json` after the corrected solver and evaluator changes.
 
-## Remaining
+Current stale scores from the earlier run:
 
-- **Run full benchmark** to completion — currently running
-- **Improve ODYN convergence** on hard problems (AUG3D, LISWET, etc.)
-- **Fix eigenvalue errors** on DUALC and HS76 problems
-- **Compute failure rates** and compare against paper
-- **Evaluate warm-start performance**
-- **Fix PROXQP integration** for proper baseline comparison
+| Experiment | Metric | Reproduced | Paper |
+| --- | --- | ---: | ---: |
+| failure_rate_comparison | failure_rate_medium | 25.0 | 9.7 |
+| degenerate_problems | redundant_ineq | 7 | 5 |
+| degenerate_problems | licq_failure | 200 | 10 |
+| degenerate_problems | multiple_solutions | 200 | 6 |
 
-## Issues
+## What Remains
 
-- **High failure rate**: ODYN fails ~25% vs paper's 9.7% — solver needs tuning/improvement
-- **PROXQP incompatibility**: Maros-Meszárós problem format uses general constraints with bounds; PROXQP init() rejects the argument types
-- **Memory limits**: 8 problems skipped due to dense conversion >5GB
-- **Slow convergence**: Some problems need 500+ iterations (paper's C++ is much faster)
+- Run the corrected ODYN smoke benchmark in the compute environment.
+- If the smoke run succeeds, scale from a small subset to the full Maros-Meszaros benchmark.
+- Re-run high-accuracy failure-rate scoring after the medium-accuracy path is stable.
+- Add warm-start scoring only if numeric paper targets can be extracted without inventing values.
 
-## Deviations from Paper
+## Issues Encountered
 
-1. **ODYN implementation**: Paper releases C++ with EIGEN. Implemented from scratch in Python. Core computation matches.
-2. **Baseline**: Paper compares vs MOSEK/GUROBI/PIQP. Compare vs PROXQP (compatibility issues).
-3. **Warm-start**: Not yet evaluated.
-4. **Problem formulation**: Maros-Meszárós uses general constraints. My loader converts to standard form with slack variables.
+- The prior evaluator violated the separation rule by importing `method/` directly.
+- The old QP loader mishandled infinity markers and omitted variable bounds from ODYN's constraints.
+- The ODYN implementation had sign and shift mistakes in slack initialization and the condensed inequality equations.
+- The markdown version of one degenerate case appears OCR-ambiguous; the implemented data case is documented in `data/qplib.py`.
+
+## Deviations From Paper
+
+1. The paper uses a C++ Eigen implementation. This reproduction implements the same ODYN computational steps in Python with NumPy/SciPy.
+2. The current benchmark submission starts with a CPU smoke subset before running all 138 Maros-Meszaros problems.
+3. Commercial baselines from the paper are recorded in `scoring/reference.json` but not re-run locally.
+

@@ -28,6 +28,7 @@ checkpoints/
 # agent-generated data that exceeds git's size limit. Repopulated from
 # scratch by scripts/download.sh. Everything else under data/ IS tracked.
 data/downloads/
+!data/downloads/
 !data/downloads/.gitkeep
 
 # Container artifacts (multi-GB)

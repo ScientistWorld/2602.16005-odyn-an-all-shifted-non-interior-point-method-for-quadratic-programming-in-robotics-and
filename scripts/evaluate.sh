@@ -1,48 +1,37 @@
 #!/bin/bash
-# Evaluation script — the standard way to evaluate QP solver performance.
-#
-# This script runs ODYN and baseline solvers on the Maros-Meszárós test set
-# and computes failure rates and performance metrics.
+# Score one or more raw solver result files.
 #
 # Usage:
-#   ./evaluate.sh                      # evaluate all solvers on all problems
-#   ./evaluate.sh --max-problems 20    # quick test on 20 problems
-#   ./evaluate.sh --solvers odyn proxqp osqp
+#   bash scripts/evaluate.sh --results tmp/results/odyn_results.json
 
-set -e
+set -euo pipefail
 
 cd /home/user
-
 mkdir -p scoring
 
-# Parse arguments
-MAX_PROBLEMS=""
-SOLVERS="odyn proxqp osqp"
-RTOL="1e-6"
+RESULTS=("/home/user/tmp/results/odyn_results.json")
+OUTPUT="/home/user/scoring/scores.json"
 
 while [[ $# -gt 0 ]]; do
-    case $1 in
-        --max-problems)
-            MAX_PROBLEMS="--max-problems $2"
-            shift 2
+    case "$1" in
+        --results)
+            shift
+            RESULTS=()
+            while [[ $# -gt 0 && "$1" != --* ]]; do
+                RESULTS+=("$1")
+                shift
+            done
             ;;
-        --solvers)
-            SOLVERS="$2"
-            shift 2
-            ;;
-        --rtol)
-            RTOL="$2"
+        --output)
+            OUTPUT="$2"
             shift 2
             ;;
         *)
-            break
+            echo "Unknown argument: $1" >&2
+            exit 2
             ;;
     esac
 done
 
-python3 -m eval.benchmark \
-    --data-dir /home/user/method/maros_meszaros_qpbenchmark/data \
-    --solvers $SOLVERS \
-    --rtol $RTOL \
-    $MAX_PROBLEMS \
-    --output /home/user/scoring/scores.json
+python3 -m eval.benchmark --results "${RESULTS[@]}" --output "$OUTPUT"
+

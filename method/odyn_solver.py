@@ -149,8 +149,8 @@ class DenseOdynSolver:
         y = y_init.copy() if y_init is not None else np.zeros(m)
         z = z_init.copy() if z_init is not None else np.zeros(p)
 
-        # Slack variables
-        s = np.maximum(G @ x - h, 1e-8) if p > 0 else np.array([])
+        # Slack variables for Gx + s = h, s >= 0.
+        s = np.maximum(h - G @ x, 1e-8) if p > 0 else np.array([])
 
         # Proximal estimates (initially equal to current iterate)
         x_E = x.copy()
@@ -311,12 +311,17 @@ class DenseOdynSolver:
             tPhi_s = Phi_s + rho_n * np.eye(p) if p > 0 else np.zeros((0, 0))
             tPhi_z = Phi_z + rho_n * np.eye(p) if p > 0 else np.zeros((0, 0))
 
-            # Compute diagonal matrix P = Phi_s^{-1} * Phi_z
+            # Compute diagonal matrix P = (Phi_s + rho_n I)^{-1} (Phi_z + rho_n I)
+            # and q = (Phi_s + rho_n I)^{-1} r_g used by the condensed system.
             if p > 0:
-                P_diag = np.diag(Phi_z) / np.diag(Phi_s)
+                tPhi_s_diag = np.diag(tPhi_s)
+                tPhi_z_diag = np.diag(tPhi_z)
+                P_diag = tPhi_z_diag / (tPhi_s_diag + 1e-20)
                 P_diag = np.clip(P_diag, 1e-12, 1e12)
+                q_shift = r_g / (tPhi_s_diag + 1e-20)
             else:
                 P_diag = np.array([])
+                q_shift = np.array([])
 
             # Build D matrix: D = diag(rho_e * I_eq, (P + rho_i*I)_ineq)
             D_diag = np.concatenate([
@@ -358,11 +363,11 @@ class DenseOdynSolver:
                 break
 
             # Right-hand side
+            shifted_primal = np.concatenate([r_eq, r_i - q_shift]) if (m + p) > 0 else np.array([])
             if m + p > 0:
-                rhs_d = -r_d - J_mat.T @ (D_inv * np.concatenate([r_eq, r_i]))
+                rhs_d = -r_d - J_mat.T @ (D_inv * shifted_primal)
             else:
                 rhs_d = -r_d
-            rhs_d = rhs_d - rho_d * (x - x_E)
 
             # Handle NaN/Inf in RHS
             if not np.all(np.isfinite(rhs_d)):
@@ -379,8 +384,8 @@ class DenseOdynSolver:
                 # Fallback to QR-based solve
                 delta_x = np.linalg.lstsq(H, rhs_d, rcond=1e-10)[0]
 
-            # Compute delta_lambda = D^{-1} * (J * delta_x + residuals)
-            delta_lambda_full = D_inv * (J_mat @ delta_x + np.concatenate([r_eq, r_i]))
+            # Compute delta_lambda = D^{-1} * (J * delta_x + shifted residuals)
+            delta_lambda_full = D_inv * (J_mat @ delta_x + shifted_primal)
 
             if m > 0 and p > 0:
                 delta_y = delta_lambda_full[:m]
@@ -398,10 +403,7 @@ class DenseOdynSolver:
             # Compute delta_s from: r_g + Phi_s * delta_s + rho_n*delta_s + Phi_z * delta_z + rho_n*delta_z = 0
             # => delta_s = -(r_g + Phi_z * delta_z + rho_n*(delta_z + s - s_E)) / (Phi_s + rho_n*I)
             if p > 0:
-                denom = np.diag(tPhi_s)
-                delta_s = -(r_g + Phi_z @ delta_z + rho_n * (delta_z + s - s_E))
-                # Handle element-wise division
-                delta_s = delta_s / (denom + 1e-20)
+                delta_s = -q_shift - P_diag * delta_z
             else:
                 delta_s = np.array([])
 
@@ -441,54 +443,54 @@ class DenseOdynSolver:
                 status = "stalled"
                 break
 
+            # Save previous iterates for the proximal estimate interpolation.
+            x_prev = x.copy()
+            y_prev = y.copy()
+            z_prev = z.copy()
+            s_prev = s.copy()
+
             # Update iterates
             x = x_new
             s = s_new
             y = y_new
             z = z_new
 
-            # Update proximal estimates with interpolation
-            x_E_new = x + theta_d * (x - x)
-            # Note: we track x_old implicitly through interpolation
-
-            # This is a simplification - the paper uses:
-            # x_E = x+ + theta_d*(x - x+)
-            # But we need to track the previous x+ to compute this properly.
-            # For now, we use a simpler approach where estimates follow iterates.
-
             # Update centering parameter and barrier
             old_mu = mu
-            mu = np.sum(np.minimum(s, z) ** 2) / max(p, 1) if p > 0 else 0.0
-            mu = max(mu, self.params.mu_min)
-            mu = sigma * mu
+            mu_pred = np.sum(np.minimum(s, z) ** 2) / max(p, 1) if p > 0 else 0.0
+            mu = max(self.params.mu_min, sigma * mu_pred)
 
             # Compute residual norm for centering update
-            _, r_eq_new, r_i_new, r_g_new = compute_residuals(x, s, y, z)
-            r_new_norm = np.linalg.norm(np.concatenate([r_d, r_eq_new, r_i_new]), np.inf)
+            r_d_new, r_eq_new, r_i_new, r_g_new = compute_residuals(x, s, y, z)
+            r_old_norm = _inf_norm(np.concatenate([r_d, r_eq, r_i, r_g]))
+            r_new_norm = _inf_norm(np.concatenate([r_d_new, r_eq_new, r_i_new, r_g_new]))
 
             # Neighborhood condition check
-            neighborhood_ok = r_new_norm <= self.params.theta_n * np.linalg.norm(
-                np.concatenate([r_d, r_eq, r_i]), np.inf) + self.params.beta * mu
+            neighborhood_ok = r_new_norm <= self.params.theta_n * r_old_norm + self.params.beta * mu
 
             if neighborhood_ok:
-                sigma = min(self.params.sigma_max, sigma + self.params.theta_plus * (1 - sigma))
-            else:
                 sigma = max(self.params.sigma_min, sigma - self.params.theta_minus * sigma)
-                mu = min(mu, old_mu)
+            else:
+                sigma = min(self.params.sigma_max, sigma + self.params.theta_plus * (1 - sigma))
+                mu = max(mu, old_mu)
 
-            # Update step-length parameters (simplified)
-            # Based on residual improvement
-            r_d_norm = _inf_norm(r_d)
-            if r_d_norm > 0 and r_d_norm <= self.params.theta_l * r_d_norm:
-                # Good progress: reduce interpolation
+            # Update step-length and proximal regularization from residual improvement.
+            if r_old_norm > 0 and r_new_norm <= self.params.theta_l * r_old_norm:
                 theta_d = max(self.params.theta_min, theta_d - self.params.theta_minus * theta_d)
+                theta_p = max(self.params.theta_min, theta_p - self.params.theta_minus * theta_p)
                 rho_d = max(self.params.rho_min, rho_d / self.params.delta)
+                rho_e = max(self.params.rho_min, rho_e / self.params.delta)
+                rho_i = max(self.params.rho_min, rho_i / self.params.delta)
+                rho_n = max(self.params.rho_min, rho_n / self.params.delta)
+            elif r_old_norm > 0 and r_new_norm >= self.params.theta_u * r_old_norm:
+                theta_d = min(1.0, theta_d + self.params.theta_plus * (1.0 - theta_d))
+                theta_p = min(1.0, theta_p + self.params.theta_plus * (1.0 - theta_p))
 
-            # Update proximal estimates
-            x_E = x.copy()
-            y_E = y.copy()
-            z_E = z.copy()
-            s_E = s.copy()
+            # Proximal estimate update from Eq. (48).
+            x_E = x + theta_d * (x_prev - x)
+            y_E = y + theta_p * (y_prev - y)
+            z_E = z + theta_p * (z_prev - z)
+            s_E = s + theta_p * (s_prev - s)
 
             # Per-iteration diagnostics
             self._iteration_history[-1].update({
@@ -603,10 +605,10 @@ class SparseOdynSolver:
         y = y_init.copy() if y_init is not None else np.zeros(m)
         z = z_init.copy() if z_init is not None else np.zeros(p)
 
-        # Slack: s = max(G @ x - h, small_positive)
+        # Slack for Gx + s = h, s >= 0.
         if p > 0:
             Gx = G @ x
-            s = np.maximum(Gx - h, 1e-8)
+            s = np.maximum(h - Gx, 1e-8)
         else:
             s = np.array([])
 
@@ -626,6 +628,7 @@ class SparseOdynSolver:
         mu = 1.0
 
         theta_d = 1.0
+        theta_p = 1.0
 
         def ncp_function(s, z, mu):
             delta = s - z
@@ -689,10 +692,12 @@ class SparseOdynSolver:
 
             # Diagonal P matrix
             if p > 0:
-                P_d = Phi_z_d / (Phi_s_d + 1e-20)
+                P_d = tPhi_z_d / (tPhi_s_d + 1e-20)
                 P_d = np.clip(P_d, 1e-12, 1e12)
+                q_shift = r_g / (tPhi_s_d + 1e-20)
             else:
                 P_d = np.array([])
+                q_shift = np.array([])
 
             # D diagonal
             D_d = np.concatenate([rho_e * np.ones(m), P_d + rho_i]) if p > 0 else rho_e * np.ones(m)
@@ -713,8 +718,8 @@ class SparseOdynSolver:
             H = Q + J.T @ J_D + rho_d * spa.eye(n)
 
             # Right-hand side
-            rhs_d = -r_d - J.T @ (D_inv * np.concatenate([r_eq, r_i]))
-            rhs_d = rhs_d - rho_d * (x - x_E)
+            shifted_primal = np.concatenate([r_eq, r_i - q_shift]) if (m + p) > 0 else np.array([])
+            rhs_d = -r_d - J.T @ (D_inv * shifted_primal) if (m + p) > 0 else -r_d
 
             # Solve H * dx = rhs using sparse Cholesky
             try:
@@ -729,7 +734,7 @@ class SparseOdynSolver:
                     delta_x = np.zeros(n)
 
             # delta_lambda
-            delta_lam = D_inv * (J @ delta_x + np.concatenate([r_eq, r_i]))
+            delta_lam = D_inv * (J @ delta_x + shifted_primal)
 
             if m > 0 and p > 0:
                 delta_y = delta_lam[:m]
@@ -743,7 +748,7 @@ class SparseOdynSolver:
 
             # delta_s
             if p > 0:
-                delta_s = -(r_g + Phi_z_d * delta_z + rho_n * (delta_z + s - s_E)) / (tPhi_s_d + 1e-20)
+                delta_s = -q_shift - P_d * delta_z
             else:
                 delta_s = np.array([])
 
@@ -767,26 +772,47 @@ class SparseOdynSolver:
                 status = "stalled"
                 break
 
+            x_prev = x.copy()
+            y_prev = y.copy()
+            z_prev = z.copy()
+            s_prev = s.copy()
+
             x = xn
             s = sn
             y = yn
             z = zn
 
             # Update barrier
-            mu = np.sum(np.minimum(s, z) ** 2) / max(p, 1) if p > 0 else 0.0
-            mu = max(mu, self.params.mu_min)
-            mu = sigma * mu
+            old_mu = mu
+            mu_pred = np.sum(np.minimum(s, z) ** 2) / max(p, 1) if p > 0 else 0.0
+            mu = max(self.params.mu_min, sigma * mu_pred)
+
+            rd_new, req_new, ri_new, rg_new = residuals(x, s, y, z)
+            r_old_norm = _inf_norm(np.concatenate([r_d, r_eq, r_i, r_g]))
+            r_new_norm = _inf_norm(np.concatenate([rd_new, req_new, ri_new, rg_new]))
+            if r_new_norm <= self.params.theta_n * r_old_norm + self.params.beta * mu:
+                sigma = max(self.params.sigma_min, sigma - self.params.theta_minus * sigma)
+            else:
+                sigma = min(self.params.sigma_max, sigma + self.params.theta_plus * (1.0 - sigma))
+                mu = max(mu, old_mu)
 
             # Update proximal estimates
-            x_E = x.copy()
-            y_E = y.copy()
-            z_E = z.copy()
-            s_E = s.copy()
+            x_E = x + theta_d * (x_prev - x)
+            y_E = y + theta_p * (y_prev - y)
+            z_E = z + theta_p * (z_prev - z)
+            s_E = s + theta_p * (s_prev - s)
 
             # Update regularization
-            r_d_n = _inf_norm(r_d)
-            if r_d_n < self.params.theta_l * r_d_n:
+            if r_old_norm > 0 and r_new_norm <= self.params.theta_l * r_old_norm:
+                theta_d = max(self.params.theta_min, theta_d - self.params.theta_minus * theta_d)
+                theta_p = max(self.params.theta_min, theta_p - self.params.theta_minus * theta_p)
                 rho_d = max(self.params.rho_min, rho_d / self.params.delta)
+                rho_e = max(self.params.rho_min, rho_e / self.params.delta)
+                rho_i = max(self.params.rho_min, rho_i / self.params.delta)
+                rho_n = max(self.params.rho_min, rho_n / self.params.delta)
+            elif r_old_norm > 0 and r_new_norm >= self.params.theta_u * r_old_norm:
+                theta_d = min(1.0, theta_d + self.params.theta_plus * (1.0 - theta_d))
+                theta_p = min(1.0, theta_p + self.params.theta_plus * (1.0 - theta_p))
 
         else:
             status = "max_iterations"

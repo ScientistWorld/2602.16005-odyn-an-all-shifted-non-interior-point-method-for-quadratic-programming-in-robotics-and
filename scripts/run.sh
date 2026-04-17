@@ -1,23 +1,23 @@
 #!/bin/bash
-# Full benchmark run on all 138 Maros-Meszaros problems
+# Compute-node smoke run for the corrected ODYN reproduction.
 
-set -e
+set -euo pipefail
 
 cd /home/user
+mkdir -p tmp/results scoring
 
-echo "=== Running full ODYN benchmark on all 138 Maros-Meszaros problems ==="
-
-PYTHONPATH=/home/user/pypkgs/cmeel.prefix/lib/python3.12/site-packages:/home/user/pypkgs python3 -m eval.benchmark \
-    --data-dir /home/user/method/maros_meszaros_qpbenchmark/data \
-    --solvers odyn \
+echo "=== ODYN corrected smoke benchmark ==="
+python3 -m method.run_odyn \
+    --data-dir /home/user/data/maros_meszaros_qpbenchmark/data \
     --rtol 1e-6 \
+    --max-iter 250 \
+    --timeout 90 \
+    --max-problems 8 \
+    --output /home/user/tmp/results/odyn_smoke.json
+
+bash scripts/evaluate.sh \
+    --results /home/user/tmp/results/odyn_smoke.json \
     --output /home/user/scoring/scores.json
 
-echo ""
-echo "Benchmark complete. Results:"
-python3 -c "
-import json
-with open('/home/user/scoring/scores.json') as f:
-    data = json.load(f)
-print(json.dumps(data, indent=2))
-"
+python3 validate.py --compare
+
