@@ -33,3 +33,8 @@
 - ODYN attempted 29 dense-feasible problems and solved 20 at each tolerance; skipped memory-guarded cases are excluded from the failure-rate denominator.
 - The reproduced failure rate is 31.0% for both tolerances on this harder subset, worse than the paper's ODYN number but still a meaningful expansion beyond the 10-problem smoke suite.
 - Queued a local OSQP run on the exact 29 ODYN-attempted problems so future scores include a direct same-subset baseline.
+
+### [2026-04-17 05:55] - core_claim_plus
+- Completed the local OSQP comparison on the same 29 broad-subset problems.
+- OSQP failed 12 of 29 problems at both tolerances, while ODYN failed 9 of 29, giving a same-subset robustness advantage for the reproduced method.
+- Added safer dense condensed-system factorization retries and queued a stabilized ODYN rerun with higher iteration limits.

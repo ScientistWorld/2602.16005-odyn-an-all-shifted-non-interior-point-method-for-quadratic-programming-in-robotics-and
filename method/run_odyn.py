@@ -35,9 +35,22 @@ def _matrix_for_solver(matrix: Any, dense: bool) -> Any:
     return matrix
 
 
-def run_odyn(problem: dict[str, Any], *, rtol: float, max_iter: int, timeout: int, dense: bool) -> dict[str, Any]:
+def run_odyn(
+    problem: dict[str, Any],
+    *,
+    rtol: float,
+    max_iter: int,
+    timeout: int,
+    dense: bool,
+    rho: float | None = None,
+    rho_min: float | None = None,
+) -> dict[str, Any]:
     params = OdynParams()
     params.max_iter = max_iter
+    if rho is not None:
+        params.rho = rho
+    if rho_min is not None:
+        params.rho_min = rho_min
     solver = DenseOdynSolver(params) if dense else SparseOdynSolver(params)
 
     Q = _matrix_for_solver(problem["Q"], dense)
@@ -96,10 +109,10 @@ def run_odyn(problem: dict[str, Any], *, rtol: float, max_iter: int, timeout: in
         signal.signal(signal.SIGALRM, old_handler)
 
 
-def run_degenerate(rtol: float, max_iter: int, timeout: int) -> dict[str, Any]:
+def run_degenerate(rtol: float, max_iter: int, timeout: int, rho: float | None, rho_min: float | None) -> dict[str, Any]:
     out: dict[str, Any] = {}
     for name, problem in degenerate_cases().items():
-        result = run_odyn(problem, rtol=rtol, max_iter=max_iter, timeout=timeout, dense=True)
+        result = run_odyn(problem, rtol=rtol, max_iter=max_iter, timeout=timeout, dense=True, rho=rho, rho_min=rho_min)
         out[name] = result
         print(f"degenerate {name}: {result['status']} {result['iterations']} it")
     return out
@@ -139,7 +152,15 @@ def run_benchmark(args: argparse.Namespace) -> list[dict[str, Any]]:
             })
             continue
 
-        result = run_odyn(problem, rtol=args.rtol, max_iter=args.max_iter, timeout=args.timeout, dense=dense)
+        result = run_odyn(
+            problem,
+            rtol=args.rtol,
+            max_iter=args.max_iter,
+            timeout=args.timeout,
+            dense=dense,
+            rho=args.rho,
+            rho_min=args.rho_min,
+        )
         result.update({"name": problem["name"], "dense": dense, "dense_size_gb": dense_gb, "attempted": True})
         print(f"  {result['status']} success={result['success']} it={result['iterations']} time={result['solve_time']:.2f}s")
         raw.append(result)
@@ -157,6 +178,8 @@ def main() -> None:
     parser.add_argument("--problems", nargs="*", default=None)
     parser.add_argument("--max-dense-gb", type=float, default=2.0)
     parser.add_argument("--max-dense-n", type=int, default=1000)
+    parser.add_argument("--rho", type=float, default=None)
+    parser.add_argument("--rho-min", type=float, default=None)
     parser.add_argument("--allow-sparse", action="store_true")
     parser.add_argument("--degenerate-only", action="store_true")
     parser.add_argument("--skip-degenerate", action="store_true")
@@ -172,12 +195,14 @@ def main() -> None:
             "max_iter": args.max_iter,
             "timeout": args.timeout,
             "data_dir": args.data_dir,
+            "rho": args.rho,
+            "rho_min": args.rho_min,
         },
         "degenerate": {},
         "benchmark": [],
     }
     if not args.skip_degenerate:
-        data["degenerate"] = run_degenerate(args.rtol, args.max_iter, args.timeout)
+        data["degenerate"] = run_degenerate(args.rtol, args.max_iter, args.timeout, args.rho, args.rho_min)
     if not args.degenerate_only:
         data["benchmark"] = run_benchmark(args)
 

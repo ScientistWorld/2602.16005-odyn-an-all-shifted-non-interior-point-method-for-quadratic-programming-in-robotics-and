@@ -21,15 +21,20 @@ Current scores from the completed broader subset run:
 | --- | --- | ---: | ---: |
 | failure_rate_comparison | failure_rate_medium | 31.0 | 9.7 |
 | failure_rate_comparison | failure_rate_high | 31.0 | 15.5 |
+| failure_rate_comparison/osqp | failure_rate_medium | 41.4 | 44.7 |
+| failure_rate_comparison/osqp | failure_rate_high | 41.4 | 49.5 |
 | degenerate_problems | redundant_ineq | 6 | 5 |
 | degenerate_problems | licq_failure | 3 | 10 |
 | degenerate_problems | multiple_solutions | 9 | 6 |
+| degenerate_problems/osqp | redundant_ineq | 75 | 75 |
+| degenerate_problems/osqp | licq_failure | 50 | 200 |
+| degenerate_problems/osqp | multiple_solutions | 75 | 200 |
 
 ## What Remains
 
-- Run OSQP on the same 29 ODYN-attempted broad-subset problems and include it in `scoring/scores.json`.
-- Investigate ODYN numerical errors on QBRANDY, QCAPRI, QE226, QETAMACR, QFORPLAN, QRECIPE, and QSHARE1B.
-- Tune or stabilize ODYN enough to reduce the broad-subset failure rate before attempting the full 138-problem benchmark.
+- Rerun ODYN after adding safer dense condensed-system regularization and higher iteration limits.
+- Investigate ODYN numerical errors on QBRANDY, QCAPRI, QE226, QETAMACR, QFORPLAN, QRECIPE, and QSHARE1B if the stabilization rerun does not reduce failures.
+- Tune or stabilize ODYN enough to reduce the broad-subset failure rate further before attempting the full 138-problem benchmark.
 - Add warm-start scoring only if numeric paper targets can be extracted without inventing values.
 
 ## Issues Encountered
@@ -40,6 +45,7 @@ Current scores from the completed broader subset run:
 - The markdown version of one degenerate case appears OCR-ambiguous; the implemented data case is documented in `data/qplib.py`.
 - The first smoke job selected large alphabetical Maros instances, so the evaluator now excludes explicitly unattempted memory skips from failure-rate scoring. The second smoke job used named small instances and produced the current failure-rate score.
 - The broader subset exposes remaining numerical stability issues on several medium-sized QPs; these are now documented as the main path to higher milestones.
+- On the same broad subset, OSQP failed 12 of 29 attempted cases at both tolerances, while ODYN failed 9 of 29. This local comparison supports the reproduced robustness advantage despite the gap to the paper's full ODYN failure rate.
 
 ## Deviations From Paper
 

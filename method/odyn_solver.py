@@ -62,6 +62,13 @@ class OdynParams:
     # Max iterations
     max_iter: int = 200
 
+    # Numerical safeguards for the condensed dense solve. The paper's C++
+    # implementation uses Eigen factorizations; this Python reproduction uses
+    # explicit dense matrices, so we allow a few diagonal-regularized Cholesky
+    # retries before declaring numerical failure.
+    max_factorization_retries: int = 8
+    regularization_floor: float = 1e-12
+
     @classmethod
     def single_precision(cls):
         """Single precision settings: increase rho and mu_min by 10^4."""
@@ -329,6 +336,9 @@ class DenseOdynSolver:
                 P_diag + rho_i
             ]) if p > 0 else rho_e * np.ones(m_eq)
 
+            if not np.all(np.isfinite(D_diag)) or np.any(D_diag <= 0):
+                status = "numerical_error"
+                break
             D_inv = 1.0 / D_diag
 
             # Build J matrix: J = [A; G]
@@ -350,15 +360,7 @@ class DenseOdynSolver:
             # Add proximal term
             H = H + rho_d * np.eye(n)
 
-            # Ensure H is positive definite for Cholesky
-            for pd_attempt in range(3):
-                eigvals = np.linalg.eigvalsh(H)
-                if eigvals[0] > 1e-10:
-                    break
-                # Add regularization to make PD
-                reg = max(1e-8, 1e-6 - eigvals[0]) * (10 ** pd_attempt)
-                H = H + reg * np.eye(n)
-            else:
+            if not np.all(np.isfinite(H)):
                 status = "numerical_error"
                 break
 
@@ -374,18 +376,44 @@ class DenseOdynSolver:
                 status = "numerical_error"
                 break
 
-            # Solve H * delta_x = rhs_d via Cholesky
+            # Solve H * delta_x = rhs_d via Cholesky with escalating diagonal
+            # regularization. This keeps the condensed ODYN step intact while
+            # avoiding early failure from tiny negative pivots in dense Python
+            # linear algebra.
             from scipy.linalg import solve_triangular
+            delta_x = None
+            eye_n = np.eye(n)
+            base_reg = max(self.params.regularization_floor, rho_d)
             try:
-                L = np.linalg.cholesky(H)
-                delta_x = solve_triangular(L, rhs_d, lower=True)
-                delta_x = solve_triangular(L.T, delta_x)
-            except np.linalg.LinAlgError:
-                # Fallback to QR-based solve
-                delta_x = np.linalg.lstsq(H, rhs_d, rcond=1e-10)[0]
+                for pd_attempt in range(self.params.max_factorization_retries):
+                    reg = 0.0 if pd_attempt == 0 else base_reg * (10.0 ** pd_attempt)
+                    H_reg = H if reg == 0.0 else H + reg * eye_n
+                    try:
+                        L = np.linalg.cholesky(H_reg)
+                        candidate = solve_triangular(L, rhs_d, lower=True, check_finite=False)
+                        candidate = solve_triangular(L.T, candidate, check_finite=False)
+                    except np.linalg.LinAlgError:
+                        continue
+                    if np.all(np.isfinite(candidate)):
+                        delta_x = candidate
+                        break
+                if delta_x is None:
+                    H_reg = H + base_reg * (10.0 ** self.params.max_factorization_retries) * eye_n
+                    candidate = np.linalg.lstsq(H_reg, rhs_d, rcond=1e-10)[0]
+                    if np.all(np.isfinite(candidate)):
+                        delta_x = candidate
+            except Exception:
+                delta_x = None
+
+            if delta_x is None:
+                status = "numerical_error"
+                break
 
             # Compute delta_lambda = D^{-1} * (J * delta_x + shifted residuals)
             delta_lambda_full = D_inv * (J_mat @ delta_x + shifted_primal)
+            if not np.all(np.isfinite(delta_lambda_full)):
+                status = "numerical_error"
+                break
 
             if m > 0 and p > 0:
                 delta_y = delta_lambda_full[:m]
@@ -406,6 +434,9 @@ class DenseOdynSolver:
                 delta_s = -q_shift - P_diag * delta_z
             else:
                 delta_s = np.array([])
+            if not np.all(np.isfinite(delta_s)):
+                status = "numerical_error"
+                break
 
             # Line search
             alpha = 1.0
