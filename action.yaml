@@ -1,3 +1,8 @@
-action: done
-milestone: secondary_claims
-notes: "Full 138-problem benchmark completed. ODYN 12.3% vs OSQP 50.0% failure rate on same problems — core robustness claim validated. Degenerate problems confirmed (6/3/9 iterations). Python dense backend limits coverage to 73/138 problems vs paper's sparse C++. Secondary claims reproduced. All structural checks pass. Environment packaged."
+# IMPORTANT: Once you set action to 'submit' or 'done', STOP immediately.
+# Do NOT sleep, poll, or wait for jobs. The system reads this file
+# only after your turn ends. Sleeping blocks the entire pipeline.
+action: pending
+gpus: 1
+test: false
+milestone: core_claim_plus
+notes: ""
