@@ -5,6 +5,10 @@
         "odyn": {
           "failure_rate_medium": 31.03448275862069,
           "failure_rate_high": 31.03448275862069
+        },
+        "osqp": {
+          "failure_rate_medium": 41.37931034482759,
+          "failure_rate_high": 41.37931034482759
         }
       }
     },
@@ -14,6 +18,11 @@
           "redundant_ineq": 6.0,
           "licq_failure": 3.0,
           "multiple_solutions": 9.0
+        },
+        "osqp": {
+          "redundant_ineq": 75.0,
+          "licq_failure": 50.0,
+          "multiple_solutions": 75.0
         }
       }
     }
