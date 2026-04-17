@@ -1,8 +1,5 @@
-# IMPORTANT: Once you set action to 'submit' or 'done', STOP immediately.
-# Do NOT sleep, poll, or wait for jobs. The system reads this file
-# only after your turn ends. Sleeping blocks the entire pipeline.
-action: pending
-gpus: 1
+action: submit
+gpus: 0
 test: false
 milestone: core_claim_plus
-notes: ""
+notes: "Full 138-problem Maros-Meszaros benchmark for ODYN and OSQP. Previous 29-problem subset showed ODYN 10.3% vs OSQP 41.4% failure rate, demonstrating core robustness claim. Running all 138 problems for results closer to paper's reported numbers."
