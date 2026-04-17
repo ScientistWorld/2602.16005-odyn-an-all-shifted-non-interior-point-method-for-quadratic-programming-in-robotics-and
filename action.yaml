@@ -3,6 +3,6 @@
 # only after your turn ends. Sleeping blocks the entire pipeline.
 action: submit
 gpus: 0
-test: false
-milestone: core_claim
-notes: "Full ODYN benchmark on all 138 Maros-Meszaros problems. Expected: ~75% solve rate, compute failure rates."
+test: true
+milestone: method_runs
+notes: "CPU smoke run for corrected ODYN equations, data loader, and method-agnostic evaluator on 8 Maros-Meszaros problems plus degenerate cases."

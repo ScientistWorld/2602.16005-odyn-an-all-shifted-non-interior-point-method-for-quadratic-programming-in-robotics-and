@@ -3,9 +3,6 @@
     "failure_rate_comparison": {
       "results": {
         "odyn": {
-          "failure_rate_medium": 25.0
-        },
-        "proxqp": {
           "failure_rate_medium": 100.0
         }
       }
@@ -13,9 +10,9 @@
     "degenerate_problems": {
       "results": {
         "odyn": {
-          "redundant_ineq": 7,
-          "licq_failure": 200,
-          "multiple_solutions": 200
+          "redundant_ineq": 6.0,
+          "licq_failure": 3.0,
+          "multiple_solutions": 9.0
         }
       }
     }
