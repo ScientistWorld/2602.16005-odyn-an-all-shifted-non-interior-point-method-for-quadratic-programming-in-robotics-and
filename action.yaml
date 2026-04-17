@@ -5,4 +5,4 @@ action: submit
 gpus: 0
 test: true
 milestone: method_runs
-notes: "CPU smoke run for corrected ODYN equations, data loader, and method-agnostic evaluator on 8 Maros-Meszaros problems plus degenerate cases."
+notes: "CPU test run on named small Maros-Meszaros instances plus degenerate cases, after excluding unattempted memory skips from scoring."
