@@ -39,10 +39,14 @@ def load_result(path: Path) -> dict[str, Any]:
 
 def score_failure_rate(raw: dict[str, Any]) -> tuple[str, float] | None:
     benchmark = raw.get("benchmark") or []
-    if not benchmark:
+    attempted = [
+        item for item in benchmark
+        if bool(item.get("attempted", not str(item.get("status", "")).startswith("skipped_")))
+    ]
+    if not attempted:
         return None
-    failed = sum(1 for item in benchmark if not bool(item.get("success", False)))
-    total = len(benchmark)
+    failed = sum(1 for item in attempted if not bool(item.get("success", False)))
+    total = len(attempted)
     rate = 100.0 * failed / total if total else 100.0
     metric = _metric_for_tolerance(float(raw.get("metadata", {}).get("rtol", 1e-6)))
     return metric, rate
@@ -111,4 +115,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

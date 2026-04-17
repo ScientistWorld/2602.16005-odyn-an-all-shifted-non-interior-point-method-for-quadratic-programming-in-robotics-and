@@ -17,3 +17,7 @@
 - Audited the previous `core_claim` marker and rolled it back because the full benchmark was incomplete and the evaluator imported from `method/`.
 - Moved benchmark loading into `data/`, separated raw method execution from scoring, and fixed key ODYN equations before submitting a corrected smoke run.
 
+### [2026-04-17 05:35] - method_runs
+- Completed a CPU smoke job with the corrected code.
+- ODYN solved all three degenerate QP cases, matching the paper's robustness claim on that small experiment.
+- The Maros slice was skipped by the memory guard, so the next job targets named small benchmark instances before claiming `core_claim`.

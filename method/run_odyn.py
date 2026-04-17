@@ -123,7 +123,7 @@ def run_benchmark(args: argparse.Namespace) -> list[dict[str, Any]]:
         try:
             problem = load_maros_meszaros_problem(mat_file)
         except Exception as exc:
-            raw.append({"name": mat_file.stem, "success": False, "status": f"load_error: {exc}", "iterations": 0})
+            raw.append({"name": mat_file.stem, "success": False, "status": f"load_error: {exc}", "iterations": 0, "attempted": True})
             continue
 
         dense_gb = estimated_dense_size_gb(problem)
@@ -135,11 +135,12 @@ def run_benchmark(args: argparse.Namespace) -> list[dict[str, Any]]:
                 "status": f"skipped_memory_estimate_{dense_gb:.2f}GB",
                 "iterations": 0,
                 "solve_time": 0.0,
+                "attempted": False,
             })
             continue
 
         result = run_odyn(problem, rtol=args.rtol, max_iter=args.max_iter, timeout=args.timeout, dense=dense)
-        result.update({"name": problem["name"], "dense": dense, "dense_size_gb": dense_gb})
+        result.update({"name": problem["name"], "dense": dense, "dense_size_gb": dense_gb, "attempted": True})
         print(f"  {result['status']} success={result['success']} it={result['iterations']} time={result['solve_time']:.2f}s")
         raw.append(result)
     return raw
@@ -186,4 +187,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
