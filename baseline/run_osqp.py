@@ -84,9 +84,14 @@ def main() -> None:
     parser.add_argument("--rtol", type=float, default=1e-6)
     parser.add_argument("--max-iter", type=int, default=2000)
     parser.add_argument("--max-problems", type=int, default=None)
+    parser.add_argument("--problems", nargs="*", default=None)
+    parser.add_argument("--skip-degenerate", action="store_true")
     args = parser.parse_args()
 
     files = sorted(Path(args.data_dir).glob("*.mat"))
+    if args.problems:
+        wanted = {name.removesuffix(".mat") for name in args.problems}
+        files = [path for path in files if path.stem in wanted]
     if args.max_problems is not None:
         files = files[: args.max_problems]
 
@@ -97,10 +102,12 @@ def main() -> None:
         "benchmark": [],
     }
 
-    for name, problem in degenerate_cases().items():
-        raw["degenerate"][name] = run_osqp(problem, args.rtol, args.max_iter)
+    if not args.skip_degenerate:
+        for name, problem in degenerate_cases().items():
+            raw["degenerate"][name] = run_osqp(problem, args.rtol, args.max_iter)
 
-    for path in files:
+    for idx, path in enumerate(files, start=1):
+        print(f"[{idx}/{len(files)}] {path.stem}", flush=True)
         try:
             problem = load_maros_meszaros_problem(path)
             result = run_osqp(problem, args.rtol, args.max_iter)
@@ -118,4 +125,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

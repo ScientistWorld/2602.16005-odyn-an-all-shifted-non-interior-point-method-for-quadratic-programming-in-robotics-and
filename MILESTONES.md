@@ -1,6 +1,6 @@
 # Reproduction Milestones
 
-**Current: core_claim**
+**Current: core_claim_plus**
 
 ## Progress Log
 
@@ -27,3 +27,9 @@
 - ODYN solved all 10 attempted Maros-Meszaros instances at medium tolerance, giving 0.0% failure rate on this scaled subset.
 - Degenerate case iteration counts were 6, 3, and 9 for redundant inequalities, LICQ failure, and multiple solutions, supporting the paper's robustness claim on the Table IV-style pathologies.
 - The current claim is intentionally scoped to the scaled smoke suite; a broader subset job is queued next to expand toward `core_claim_plus`.
+
+### [2026-04-17 05:45] - core_claim_plus
+- Ran ODYN on a broader named Maros-Meszaros subset at both medium and high requested tolerances.
+- ODYN attempted 29 dense-feasible problems and solved 20 at each tolerance; skipped memory-guarded cases are excluded from the failure-rate denominator.
+- The reproduced failure rate is 31.0% for both tolerances on this harder subset, worse than the paper's ODYN number but still a meaningful expansion beyond the 10-problem smoke suite.
+- Queued a local OSQP run on the exact 29 ODYN-attempted problems so future scores include a direct same-subset baseline.

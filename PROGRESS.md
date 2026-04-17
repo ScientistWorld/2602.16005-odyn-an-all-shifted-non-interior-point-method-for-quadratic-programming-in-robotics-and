@@ -11,22 +11,25 @@
 
 ## Results Achieved
 
-The corrected CPU smoke runs completed successfully. ODYN solves all three degenerate QP cases used in the paper's Table IV, with iteration counts close to or better than the reported ODYN counts. The follow-up named Maros-Meszaros smoke run attempted 10 small benchmark instances and solved every one at the medium requested tolerance, so the environment now supports the paper's central robustness claim on a scaled but non-trivial suite.
+The corrected CPU smoke runs completed successfully. ODYN solves all three degenerate QP cases used in the paper's Table IV, with iteration counts close to or better than the reported ODYN counts. The follow-up named Maros-Meszaros smoke run attempted 10 small benchmark instances and solved every one at the medium requested tolerance, so the environment supports the paper's central robustness claim on a scaled but non-trivial suite.
 
-Current scores from the completed named smoke run:
+The broader subset run attempted 29 dense-feasible Maros-Meszaros problems at both medium and high requested tolerances. ODYN solved 20 and failed 9 at each tolerance, for a 31.0% failure rate. This is worse than the paper's reported ODYN result, but it expands the reproduction beyond the minimum and remains a useful diagnostic benchmark for future improvements.
+
+Current scores from the completed broader subset run:
 
 | Experiment | Metric | Reproduced | Paper |
 | --- | --- | ---: | ---: |
-| failure_rate_comparison | failure_rate_medium | 0.0 | 9.7 |
+| failure_rate_comparison | failure_rate_medium | 31.0 | 9.7 |
+| failure_rate_comparison | failure_rate_high | 31.0 | 15.5 |
 | degenerate_problems | redundant_ineq | 6 | 5 |
 | degenerate_problems | licq_failure | 3 | 10 |
 | degenerate_problems | multiple_solutions | 9 | 6 |
 
 ## What Remains
 
-- Run a broader named Maros-Meszaros subset at both medium and high requested tolerances.
-- If the broader subset succeeds, attempt the full dense-feasible benchmark slice and then consider sparse support for larger instances.
-- Add OSQP baseline scoring on the same subset to make the local comparison more informative.
+- Run OSQP on the same 29 ODYN-attempted broad-subset problems and include it in `scoring/scores.json`.
+- Investigate ODYN numerical errors on QBRANDY, QCAPRI, QE226, QETAMACR, QFORPLAN, QRECIPE, and QSHARE1B.
+- Tune or stabilize ODYN enough to reduce the broad-subset failure rate before attempting the full 138-problem benchmark.
 - Add warm-start scoring only if numeric paper targets can be extracted without inventing values.
 
 ## Issues Encountered
@@ -36,6 +39,7 @@ Current scores from the completed named smoke run:
 - The ODYN implementation had sign and shift mistakes in slack initialization and the condensed inequality equations.
 - The markdown version of one degenerate case appears OCR-ambiguous; the implemented data case is documented in `data/qplib.py`.
 - The first smoke job selected large alphabetical Maros instances, so the evaluator now excludes explicitly unattempted memory skips from failure-rate scoring. The second smoke job used named small instances and produced the current failure-rate score.
+- The broader subset exposes remaining numerical stability issues on several medium-sized QPs; these are now documented as the main path to higher milestones.
 
 ## Deviations From Paper
 
