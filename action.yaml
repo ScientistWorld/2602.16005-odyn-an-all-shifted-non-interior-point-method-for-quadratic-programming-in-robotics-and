@@ -5,4 +5,4 @@ action: submit
 gpus: 0
 test: true
 milestone: core_claim_plus
-notes: "Run OSQP on the same 29 ODYN-attempted broad-subset problems at medium and high tolerances, then rescore ODYN and OSQP together."
+notes: "Rerun the broad ODYN subset with safer condensed-system factorization and higher iteration limits, then rescore against the same OSQP baseline."
