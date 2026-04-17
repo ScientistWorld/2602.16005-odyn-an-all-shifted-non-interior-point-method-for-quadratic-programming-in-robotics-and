@@ -38,3 +38,8 @@
 - Completed the local OSQP comparison on the same 29 broad-subset problems.
 - OSQP failed 12 of 29 problems at both tolerances, while ODYN failed 9 of 29, giving a same-subset robustness advantage for the reproduced method.
 - Added safer dense condensed-system factorization retries and queued a stabilized ODYN rerun with higher iteration limits.
+
+### [2026-04-17 06:05] - core_claim_plus
+- The stabilized ODYN rerun reduced broad-subset failure rates to 17.2% at medium tolerance and 20.7% at high tolerance.
+- All remaining ODYN failures are max-iteration cases; the previous numerical-error failures now solve.
+- Queued one final higher-iteration broad-subset pass to test whether the remaining failures are iteration-budget limited.

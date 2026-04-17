@@ -25,8 +25,8 @@ echo "=== ODYN stabilized broader Maros-Meszaros benchmark, medium tolerance ===
 python3 -m method.run_odyn \
     --data-dir /home/user/data/maros_meszaros_qpbenchmark/data \
     --rtol 1e-6 \
-    --max-iter 1000 \
-    --timeout 120 \
+    --max-iter 3000 \
+    --timeout 240 \
     --problems "${ODYN_BROAD_PROBLEMS[@]}" \
     --output /home/user/tmp/results/odyn_broad_medium.json
 
@@ -34,8 +34,8 @@ echo "=== ODYN stabilized broader Maros-Meszaros benchmark, high tolerance ==="
 python3 -m method.run_odyn \
     --data-dir /home/user/data/maros_meszaros_qpbenchmark/data \
     --rtol 1e-9 \
-    --max-iter 1500 \
-    --timeout 120 \
+    --max-iter 5000 \
+    --timeout 240 \
     --skip-degenerate \
     --problems "${ODYN_BROAD_PROBLEMS[@]}" \
     --output /home/user/tmp/results/odyn_broad_high.json
