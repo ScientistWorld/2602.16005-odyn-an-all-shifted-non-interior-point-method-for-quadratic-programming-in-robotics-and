@@ -165,7 +165,4 @@ Target: ODYN should achieve failure rate ≤ 15% at medium accuracy (1e-6) on th
 
 # Reproduction Milestones
 
-**Current: none**
-
-## Stop Justification
-- Completed at milestone `none`.
+**Current: core_claim**

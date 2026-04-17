@@ -193,7 +193,9 @@ class DenseOdynSolver:
         def ncp_function(s: np.ndarray, z: np.ndarray, mu: float) -> np.ndarray:
             """Smoothed minimum NCP function: phi(s, z; mu) = s + z - sqrt((s-z)^2 + 4*mu)"""
             delta_sz = s - z
-            return s + z - np.sqrt(delta_sz ** 2 + 4 * mu)
+            # Clamp to prevent overflow in sqrt
+            inside = np.clip(delta_sz ** 2 + 4 * mu, 0, 1e30)
+            return s + z - np.sqrt(inside)
 
         def ncp_jacobians(s: np.ndarray, z: np.ndarray, mu: float) -> Tuple[np.ndarray, np.ndarray]:
             """
@@ -202,9 +204,11 @@ class DenseOdynSolver:
             Phi_z = diag(1 + (s-z) / sqrt((s-z)^2 + 4*mu))
             """
             delta_sz = s - z
-            denom = np.sqrt(delta_sz ** 2 + 4 * mu)
-            Phi_s = np.diag(1.0 - delta_sz / denom)
-            Phi_z = np.diag(1.0 + delta_sz / denom)
+            inside = np.clip(delta_sz ** 2 + 4 * mu, 1e-20, 1e30)
+            denom = np.sqrt(inside)
+            safe_delta = np.clip(delta_sz, -1e15, 1e15)
+            Phi_s = np.diag(1.0 - safe_delta / denom)
+            Phi_z = np.diag(1.0 + safe_delta / denom)
             return Phi_s, Phi_z
 
         def compute_residuals(x, s, y, z):
@@ -342,11 +346,16 @@ class DenseOdynSolver:
             H = H + rho_d * np.eye(n)
 
             # Ensure H is positive definite for Cholesky
-            eigvals = np.linalg.eigvalsh(H)
-            if eigvals[0] <= 0:
+            for pd_attempt in range(3):
+                eigvals = np.linalg.eigvalsh(H)
+                if eigvals[0] > 1e-10:
+                    break
                 # Add regularization to make PD
-                reg = 1e-8 - eigvals[0] + 1e-6
+                reg = max(1e-8, 1e-6 - eigvals[0]) * (10 ** pd_attempt)
                 H = H + reg * np.eye(n)
+            else:
+                status = "numerical_error"
+                break
 
             # Right-hand side
             if m + p > 0:

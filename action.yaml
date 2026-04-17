@@ -3,6 +3,6 @@
 # only after your turn ends. Sleeping blocks the entire pipeline.
 action: submit
 gpus: 0
-test: true
-milestone: method_runs
-notes: "Test job: verify ODYN solver works on simple QP problems and degenerate test cases"
+test: false
+milestone: core_claim
+notes: "Full ODYN benchmark on all 138 Maros-Meszaros problems. Expected: ~75% solve rate, compute failure rates."
