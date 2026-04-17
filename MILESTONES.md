@@ -22,5 +22,10 @@
 - ODYN achieved 12.33% medium and 23.29% high failure rates over 73 dense-feasible attempted instances; OSQP was around 50% failure over all 138.
 - Added reusable scoring, baseline, reproduction, download, and environment scripts.
 
+### [2026-04-17 12:47] - secondary_claims
+- Audited the restored workspace and confirmed the implementation is the paper's ODYN algorithm rather than a surrogate.
+- Verified `eval/` is independent of `method/` and that current scores are regenerated from raw solver result JSON files.
+- Removed evaluator `/home/user` assumptions and added deterministic raw-result provenance to `scoring/scores.json`.
+
 ## Stop Justification
 - Not stopped yet. The next job is a final CPU packaging check after documentation and scoring cleanup.

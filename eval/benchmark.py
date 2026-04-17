@@ -68,7 +68,22 @@ def score_degenerate(raw: dict[str, Any]) -> dict[str, float] | None:
 
 
 def build_scores(result_paths: list[Path]) -> dict[str, Any]:
-    scores: dict[str, Any] = {"experiments": {}}
+    workspace = Path.cwd().resolve()
+    provenance_paths = []
+    for path in result_paths:
+        resolved = path.resolve()
+        try:
+            provenance_paths.append(str(resolved.relative_to(workspace)))
+        except ValueError:
+            provenance_paths.append(str(resolved))
+
+    scores: dict[str, Any] = {
+        "_provenance": {
+            "generator": "eval.benchmark",
+            "raw_results": provenance_paths,
+        },
+        "experiments": {},
+    }
     failure_results: dict[str, dict[str, float]] = {}
     degenerate_results: dict[str, dict[str, float]] = {}
 
@@ -97,10 +112,10 @@ def main() -> None:
     parser.add_argument(
         "--results",
         nargs="+",
-        default=["/home/user/tmp/results/odyn_results.json"],
+        default=[str(Path.cwd() / "tmp" / "results" / "odyn_results.json")],
         help="One or more raw result JSON files to score.",
     )
-    parser.add_argument("--output", default="/home/user/scoring/scores.json")
+    parser.add_argument("--output", default=str(Path.cwd() / "scoring" / "scores.json"))
     args = parser.parse_args()
 
     result_paths = [Path(path) for path in args.results]

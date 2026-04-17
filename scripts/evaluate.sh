@@ -6,11 +6,14 @@
 
 set -euo pipefail
 
-cd /home/user
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WORKSPACE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+cd "$WORKSPACE_DIR"
 mkdir -p scoring
 
-RESULTS=("/home/user/tmp/results/odyn_results.json")
-OUTPUT="/home/user/scoring/scores.json"
+RESULTS=("$WORKSPACE_DIR/tmp/results/odyn_results.json")
+OUTPUT="$WORKSPACE_DIR/scoring/scores.json"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -34,4 +37,3 @@ while [[ $# -gt 0 ]]; do
 done
 
 python3 -m eval.benchmark --results "${RESULTS[@]}" --output "$OUTPUT"
-
