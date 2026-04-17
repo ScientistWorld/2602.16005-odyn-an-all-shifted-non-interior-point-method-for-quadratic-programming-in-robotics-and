@@ -1,6 +1,6 @@
 # Reproduction Milestones
 
-**Current: method_runs**
+**Current: core_claim**
 
 ## Progress Log
 
@@ -21,3 +21,9 @@
 - Completed a CPU smoke job with the corrected code.
 - ODYN solved all three degenerate QP cases, matching the paper's robustness claim on that small experiment.
 - The Maros slice was skipped by the memory guard, so the next job targets named small benchmark instances before claiming `core_claim`.
+
+### [2026-04-17 05:35] - core_claim
+- Completed a CPU smoke job on 10 named small Maros-Meszaros QPs plus the three degenerate cases.
+- ODYN solved all 10 attempted Maros-Meszaros instances at medium tolerance, giving 0.0% failure rate on this scaled subset.
+- Degenerate case iteration counts were 6, 3, and 9 for redundant inequalities, LICQ failure, and multiple solutions, supporting the paper's robustness claim on the Table IV-style pathologies.
+- The current claim is intentionally scoped to the scaled smoke suite; a broader subset job is queued next to expand toward `core_claim_plus`.
