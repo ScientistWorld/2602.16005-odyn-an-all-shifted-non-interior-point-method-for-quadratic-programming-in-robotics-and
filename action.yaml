@@ -3,6 +3,6 @@
 # only after your turn ends. Sleeping blocks the entire pipeline.
 action: submit
 gpus: 0
-test: true
-milestone: method_runs
-notes: "CPU test run on named small Maros-Meszaros instances plus degenerate cases, after excluding unattempted memory skips from scoring."
+test: false
+milestone: core_claim
+notes: "Broader CPU Maros-Meszaros subset at medium and high tolerances to extend the scaled core claim beyond the 10-problem smoke run."
