@@ -3,6 +3,6 @@
 # only after your turn ends. Sleeping blocks the entire pipeline.
 action: submit
 gpus: 0
-test: false
-milestone: core_claim
-notes: "Broader CPU Maros-Meszaros subset at medium and high tolerances to extend the scaled core claim beyond the 10-problem smoke run."
+test: true
+milestone: core_claim_plus
+notes: "Run OSQP on the same 29 ODYN-attempted broad-subset problems at medium and high tolerances, then rescore ODYN and OSQP together."
