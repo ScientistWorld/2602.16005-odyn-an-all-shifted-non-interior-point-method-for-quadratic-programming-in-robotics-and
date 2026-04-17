@@ -1,6 +1,6 @@
 # Reproduction Milestones
 
-**Current: core_claim_plus**
+**Current: secondary_claims**
 
 ## Progress Log
 
@@ -43,3 +43,10 @@
 - The stabilized ODYN rerun reduced broad-subset failure rates to 17.2% at medium tolerance and 20.7% at high tolerance.
 - All remaining ODYN failures are max-iteration cases; the previous numerical-error failures now solve.
 - Queued one final higher-iteration broad-subset pass to test whether the remaining failures are iteration-budget limited.
+
+
+### [2026-04-17 06:15] - secondary_claims
+- Completed the final higher-iteration broad-subset pass in job 8eebc754-99a.
+- ODYN solved 26 of 29 dense-feasible Maros-Meszaros problems at medium tolerance and 25 of 29 at high tolerance, giving failure rates of 10.3% and 13.8%.
+- The same-subset OSQP baseline remained at 41.4% failure for both tolerances, and the degenerate-QP iteration results remain close to the paper's Table IV.
+- Marked `secondary_claims` because the packaged environment now reproduces both tracked paper result surfaces: benchmark robustness and degenerate-problem robustness.

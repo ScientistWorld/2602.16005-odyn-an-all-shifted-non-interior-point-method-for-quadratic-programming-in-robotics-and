@@ -1,8 +1,8 @@
 # IMPORTANT: Once you set action to 'submit' or 'done', STOP immediately.
 # Do NOT sleep, poll, or wait for jobs. The system reads this file
 # only after your turn ends. Sleeping blocks the entire pipeline.
-action: submit
+action: done
 gpus: 0
 test: true
-milestone: core_claim_plus
-notes: "Final high-iteration CPU test on the broad ODYN subset after numerical stabilization; checks whether the remaining max-iteration failures are budget-limited."
+milestone: secondary_claims
+notes: "Final high-iteration run reproduced ODYN's benchmark robustness on the broad dense-feasible subset and the degenerate-QP secondary results; environment is packaged and validated."

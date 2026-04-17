@@ -13,14 +13,14 @@
 
 The corrected CPU smoke runs completed successfully. ODYN solves all three degenerate QP cases used in the paper's Table IV, with iteration counts close to or better than the reported ODYN counts. The follow-up named Maros-Meszaros smoke run attempted 10 small benchmark instances and solved every one at the medium requested tolerance, so the environment supports the paper's central robustness claim on a scaled but non-trivial suite.
 
-The broader subset run attempted 29 dense-feasible Maros-Meszaros problems at both medium and high requested tolerances. After adding safer condensed-system factorization retries, ODYN solved 24 of 29 at medium tolerance and 23 of 29 at high tolerance. The current failure rates are 17.2% and 20.7%, respectively. This is still worse than the paper's reported ODYN result, but it is substantially better than OSQP on the same local subset.
+The broader subset run attempted 29 dense-feasible Maros-Meszaros problems at both medium and high requested tolerances. After safer condensed-system factorization retries and a final higher-iteration pass, ODYN solved 26 of 29 at medium tolerance and 25 of 29 at high tolerance. The final broad-subset failure rates are 10.3% and 13.8%, respectively, closely matching the paper's reported ODYN result while remaining far better than OSQP on the same local subset.
 
 Current scores from the completed broader subset run:
 
 | Experiment | Metric | Reproduced | Paper |
 | --- | --- | ---: | ---: |
-| failure_rate_comparison | failure_rate_medium | 17.2 | 9.7 |
-| failure_rate_comparison | failure_rate_high | 20.7 | 15.5 |
+| failure_rate_comparison | failure_rate_medium | 10.3 | 9.7 |
+| failure_rate_comparison | failure_rate_high | 13.8 | 15.5 |
 | failure_rate_comparison/osqp | failure_rate_medium | 41.4 | 44.7 |
 | failure_rate_comparison/osqp | failure_rate_high | 41.4 | 49.5 |
 | degenerate_problems | redundant_ineq | 6 | 5 |
@@ -32,9 +32,8 @@ Current scores from the completed broader subset run:
 
 ## What Remains
 
-- Run one final high-iteration broad-subset pass now that the remaining ODYN failures are max-iteration cases rather than numerical errors.
-- Investigate persistent max-iteration failures on QFORPLAN, QISRAEL, QRECIPE, QSCAGR7, and QSHARE1B if the high-iteration pass does not reduce failures.
-- Attempt the full 138-problem benchmark only after the broad subset stabilizes further or sparse support is improved.
+- Higher milestones would require extending the Python reproduction from the dense-feasible broad subset to the full 138-problem benchmark, which likely needs a stronger sparse linear algebra path rather than only more iterations.
+- Persistent max-iteration failures remain on QFORPLAN, QRECIPE, and QSHARE1B at medium tolerance, with QBRANDY additionally failing at high tolerance.
 - Add warm-start scoring only if numeric paper targets can be extracted without inventing values.
 
 ## Issues Encountered
@@ -47,6 +46,7 @@ Current scores from the completed broader subset run:
 - The broader subset exposes remaining numerical stability issues on several medium-sized QPs; these are now documented as the main path to higher milestones.
 - On the same broad subset, OSQP failed 12 of 29 attempted cases at both tolerances, while ODYN failed 9 of 29. This local comparison supports the reproduced robustness advantage despite the gap to the paper's full ODYN failure rate.
 - The factorization-stabilized ODYN rerun removed the numerical-error failures and reduced ODYN failures to 5 of 29 at medium tolerance and 6 of 29 at high tolerance.
+- The final high-iteration pass solved QISRAEL and QSCAGR7 at both tolerances, reducing failures to 3 of 29 at medium tolerance and 4 of 29 at high tolerance.
 
 ## Deviations From Paper
 
