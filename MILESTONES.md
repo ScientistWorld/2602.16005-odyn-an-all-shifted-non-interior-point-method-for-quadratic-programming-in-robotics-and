@@ -43,5 +43,9 @@
 - The next resumed refresh attempt was preempted for SLURM worker drain after persisting 38 medium-tolerance benchmark entries through `GOULDQP2`.
 - Switched the benchmark driver to staged prefix expansion (`40`, `80`, `120`, full) so resumed jobs can make bounded progress across repeated preemptions while keeping the same ODYN benchmark protocol.
 
+### [2026-05-21 01:40] - secondary_claims
+- The staged refresh job finished and regenerated complete patched ODYN medium/high raw files despite multiple scheduler preemptions.
+- Auditing the completed artifacts showed that the OSQP high-tolerance raw file was still only a 16-problem partial because `scripts/run.sh` checked only for file existence; this turn fixes the driver to verify completion counts and resume incomplete baseline files before rescoring.
+
 ## Stop Justification
 - Completed at milestone `secondary_claims`.
