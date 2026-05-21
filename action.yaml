@@ -1,5 +1,3 @@
-action: submit
-gpus: 0
-test: true
+action: done
 milestone: core_claim_plus
-notes: "CPU container smoke validation for updated main scoring metrics and sparse ODYN Armijo line-search patch; expected to regenerate train/test/main scores and pass validate.py --compare."
+notes: "Final verification passed for a partial QP robustness gym; warm-start WCR remains unreproduced, so secondary_claims is not claimed."

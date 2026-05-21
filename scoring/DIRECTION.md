@@ -4,7 +4,7 @@
 This benchmark is about reliable convex quadratic programming for robotics and AI workloads. The scientific question is whether a solver can maintain robustness on difficult, degenerate, and warm-start-relevant QPs without depending on ideal interior-point assumptions.
 
 ## Core Contribution Scope
-Future work should improve primal-dual numerical methods for QPs in the same problem family. The useful contribution is better robustness, convergence, or warm-start behavior under the same benchmark and failure rules.
+Future work should improve numerical QP solvers in the same problem family. The useful contribution is better robustness, convergence, or warm-start behavior under the same benchmark and failure rules.
 
 ## Approach Scope
 In-scope changes include new or improved numerical QP algorithms, linear algebra choices, regularization policies, initialization strategies, stopping checks, and warm-start handling. Implementations may be dense, sparse, or hybrid as long as they solve the same QP formulation and expose comparable raw results.

@@ -53,6 +53,9 @@ def _default_result_paths(workspace: Path) -> list[Path]:
         paths = [workspace / path for path in raw_results if isinstance(path, str)]
         if paths:
             return paths
+    packaged = sorted((workspace / "scoring" / "raw_results").glob("*.json"))
+    if packaged:
+        return packaged
     return sorted((workspace / "tmp" / "results").glob("*.json"))
 
 

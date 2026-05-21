@@ -1,26 +1,28 @@
 # Verification Report
 
 ## Initial Assessment
-The workspace claimed `secondary_claims` and already contained completed ODYN and OSQP raw benchmark artifacts, main/train/test score files, reusable scripts, and environment packaging. The claimed milestone is justified: the implementation is an ODYN QP solver rather than a surrogate, the reproduced ODYN results beat the OSQP baseline on the main failure-rate benchmark, and the degenerate-problem checks reproduce the paper's secondary robustness claim at small scale.
+The workspace had a historical `secondary_claims` log entry, but the active `MILESTONES.md` header had already been corrected to `core_claim_plus`. That correction is justified: the implemented solver is the paper's actual ODYN-style QP algorithm rather than a surrogate, and the core robustness claim is supported against OSQP on the packaged benchmark artifacts, but the paper's warm-start WCR secondary claim is documented and not yet reproduced or scored.
 
 ## Issues Found
-- Minor: `briefing/problem.md` still contained template instruction text.
-- Minor: `briefing/evaluation.md` listed wall-clock solve time as a general metric without making clear that this gym does not score wall-clock speed.
-- Minor: `scoring/DIRECTION.md` used low-level wording that could reveal too much of the paper method to from-scratch agents.
-- Cosmetic: unrelated root/system artifacts (`README.md`, `manifest.json`, and tracked `trajectory/` deletions) were dirty before verification. They were not part of the gym implementation and were left untouched to avoid reverting changes outside this task.
+- Critical: the prior verification report still claimed `secondary_claims`, conflicting with the active milestone and the missing warm-start WCR experiment.
+- Minor: `scripts/evaluate.sh` defaulted to a temporary result path, so standalone evaluation could fail on a clean checkout even though packaged raw artifacts exist.
+- Minor: `briefing/evaluation.md` named the proposed solver in a method-agnostic problem-definition file.
+- Minor: `scoring/DIRECTION.md` used a narrower solver-family phrase than necessary for a method-safe direction document.
+- Cosmetic: ignored container artifacts remain under `environment/`, and unrelated root/system files are dirty in git. They are ignored or outside this verification change and were left untouched.
 
 ## Fixes Applied
-- Rewrote `briefing/problem.md` to be method-agnostic and focused on the QP task, coverage, robustness, degeneracy, convergence, and warm-start usefulness.
-- Clarified `briefing/evaluation.md` so scored metrics are failure rate, attempted count, iteration counts, and degenerate-case behavior; wall-clock timing is documented as paper context only, not a scored gym metric.
-- Generalized `scoring/DIRECTION.md` to describe the allowed solver-research family without exposing paper-specific implementation details.
-- Removed generated Python cache directories produced during validation.
+- Rewrote this verification report to align with `core_claim_plus` and document why `secondary_claims` is not claimed.
+- Updated `eval/benchmark.py`, `eval/train/evaluate.py`, `eval/test/evaluate.py`, and `scripts/evaluate.sh` so standalone scoring discovers `scoring/raw_results/*.json` before falling back to `tmp/results/*.json`.
+- Removed the proposed-solver target table from `briefing/evaluation.md` and replaced it with neutral scoring guidance.
+- Generalized `scoring/DIRECTION.md` to describe numerical QP solver research without exposing a paper-specific algorithm family.
+- Verified the dataset archive URL with `curl -I -L --max-time 15`; it resolves to a 200 `application/zip` response from GitHub codeload.
 
 ## Final Judgment
-The workspace is ready to serve as a research gym. `scripts/download.sh` has a verified reachable GitHub archive URL and contains no `shared/` dependency. No committed method, baseline, evaluation, or script code references `shared/`. `eval/` and `data/` do not import from `method/`. `scripts/evaluate.sh` scores raw solver outputs rather than rerunning the method. `scoring/reference.json` uses scientific metrics rather than reproduction-error metrics, has reasonable weights and coefficients, and contains no scored wall-clock metric. The train/test split artifacts are complete, independently wired, and method-key aligned.
+The workspace is ready to serve as a partial but meaningful research gym. Improve-mode agents can build on the checked-in ODYN implementation and raw artifacts; from-scratch agents can use the method-agnostic problem, data, and evaluation files without seeing the solver design. The scoring contract measures robustness benefits and coverage/convergence constraints, avoids wall-clock metrics and reproduction-error metrics, and `scripts/evaluate.sh` now works standalone from packaged artifacts.
 
-`python3 validate.py --compare` passes after the documentation cleanup.
+Validation passed with `python3 validate.py --compare`. Lightweight syntax checks also passed for the touched Python and shell files.
 
-- Milestone: secondary_claims
-- Ready for gym use: yes
-- Confidence: high
-- Key limitation: ODYN is evaluated on the dense-feasible subset for the reproduced proposed-method run, so `attempted_count` remains an important scored coverage constraint.
+- Milestone: core_claim_plus
+- Ready for gym use: partial
+- Confidence: medium
+- Key limitation: warm-start WCR and other secondary paper experiments remain unreproduced, so the gym currently covers failure-rate robustness and degenerate-case diagnostics only.

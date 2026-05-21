@@ -37,6 +37,13 @@ def load_result(path: Path) -> dict[str, Any]:
     return data
 
 
+def _default_result_paths(workspace: Path) -> list[Path]:
+    packaged = sorted((workspace / "scoring" / "raw_results").glob("*.json"))
+    if packaged:
+        return packaged
+    return sorted((workspace / "tmp" / "results").glob("*.json"))
+
+
 def score_failure_rate(raw: dict[str, Any]) -> dict[str, float] | None:
     benchmark = raw.get("benchmark") or []
     attempted = [item for item in benchmark if _is_attempted(item)]
@@ -85,6 +92,9 @@ def score_degenerate(raw: dict[str, Any]) -> dict[str, float] | None:
 
 
 def build_scores(result_paths: list[Path]) -> dict[str, Any]:
+    if not result_paths:
+        raise ValueError("no raw result JSON files were provided or discovered")
+
     workspace = Path.cwd().resolve()
     provenance_paths = []
     for path in result_paths:
@@ -129,13 +139,14 @@ def main() -> None:
     parser.add_argument(
         "--results",
         nargs="+",
-        default=[str(Path.cwd() / "tmp" / "results" / "odyn_results.json")],
-        help="One or more raw result JSON files to score.",
+        default=None,
+        help="One or more raw result JSON files to score. Defaults to scoring/raw_results/*.json, then tmp/results/*.json.",
     )
     parser.add_argument("--output", default=str(Path.cwd() / "scoring" / "scores.json"))
     args = parser.parse_args()
 
-    result_paths = [Path(path) for path in args.results]
+    workspace = Path.cwd().resolve()
+    result_paths = [Path(path) for path in args.results] if args.results else _default_result_paths(workspace)
     scores = build_scores(result_paths)
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)

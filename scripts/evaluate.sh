@@ -2,6 +2,7 @@
 # Score one or more raw solver result files.
 #
 # Usage:
+#   bash scripts/evaluate.sh
 #   bash scripts/evaluate.sh --results tmp/results/odyn_results.json
 
 set -euo pipefail
@@ -12,7 +13,7 @@ WORKSPACE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$WORKSPACE_DIR"
 mkdir -p scoring
 
-RESULTS=("$WORKSPACE_DIR/tmp/results/odyn_results.json")
+RESULTS=()
 OUTPUT="$WORKSPACE_DIR/scoring/scores.json"
 
 while [[ $# -gt 0 ]]; do
@@ -36,4 +37,9 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-python3 -m eval.benchmark --results "${RESULTS[@]}" --output "$OUTPUT"
+CMD=(python3 -m eval.benchmark --output "$OUTPUT")
+if [[ "${#RESULTS[@]}" -gt 0 ]]; then
+    CMD+=(--results "${RESULTS[@]}")
+fi
+
+"${CMD[@]}"

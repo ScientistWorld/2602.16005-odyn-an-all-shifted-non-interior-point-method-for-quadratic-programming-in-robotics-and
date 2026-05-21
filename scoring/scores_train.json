@@ -4,10 +4,10 @@
     "slice": "train",
     "split_manifest": "eval/train/problem_names.json",
     "raw_results": [
-      "scoring/raw_results/odyn_full_medium.json",
       "scoring/raw_results/odyn_full_high.json",
-      "scoring/raw_results/osqp_full_medium.json",
-      "scoring/raw_results/osqp_full_high.json"
+      "scoring/raw_results/odyn_full_medium.json",
+      "scoring/raw_results/osqp_full_high.json",
+      "scoring/raw_results/osqp_full_medium.json"
     ],
     "target_problem_count": 69,
     "success_criterion": "solver success flag among attempted slice problems; attempted_count exposes coverage, and missing/skipped/failed problems receive the iteration cap for convergence-cost metrics"
@@ -16,18 +16,18 @@
     "failure_rate_comparison": {
       "results": {
         "odyn": {
-          "failure_rate_medium": 16.216216216216218,
-          "mean_iterations_medium": 1724.9855072463768,
-          "attempted_count": 37.0,
           "failure_rate_high": 40.54054054054054,
-          "mean_iterations_high": 3538.3623188405795
+          "mean_iterations_high": 3538.3623188405795,
+          "attempted_count": 37.0,
+          "failure_rate_medium": 16.216216216216218,
+          "mean_iterations_medium": 1724.9855072463768
         },
         "osqp": {
-          "failure_rate_medium": 55.072463768115945,
-          "mean_iterations_medium": 2444.5652173913045,
-          "attempted_count": 69.0,
           "failure_rate_high": 56.52173913043478,
-          "mean_iterations_high": 4923.913043478261
+          "mean_iterations_high": 4923.913043478261,
+          "attempted_count": 69.0,
+          "failure_rate_medium": 55.072463768115945,
+          "mean_iterations_medium": 2444.5652173913045
         }
       }
     }

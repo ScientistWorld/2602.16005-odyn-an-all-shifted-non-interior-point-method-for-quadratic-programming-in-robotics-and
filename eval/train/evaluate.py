@@ -43,6 +43,9 @@ def _workspace_relative(path: Path, workspace: Path) -> str:
 
 
 def _default_result_paths(workspace: Path) -> list[Path]:
+    packaged = sorted((workspace / "scoring" / "raw_results").glob("*.json"))
+    if packaged:
+        return packaged
     return sorted((workspace / "tmp" / "results").glob("*.json"))
 
 
@@ -168,7 +171,7 @@ def main() -> None:
         "--results",
         nargs="+",
         default=None,
-        help="One or more raw result JSON files to score. Defaults to tmp/results/*.json.",
+        help="One or more raw result JSON files to score. Defaults to scoring/raw_results/*.json, then tmp/results/*.json.",
     )
     parser.add_argument("--output", default=str(Path.cwd() / "scoring" / "scores_train.json"))
     args = parser.parse_args()

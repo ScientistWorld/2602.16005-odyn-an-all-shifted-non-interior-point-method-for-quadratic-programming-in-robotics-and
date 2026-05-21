@@ -2,28 +2,28 @@
   "_provenance": {
     "generator": "eval.benchmark",
     "raw_results": [
-      "scoring/raw_results/odyn_full_medium.json",
       "scoring/raw_results/odyn_full_high.json",
-      "scoring/raw_results/osqp_full_medium.json",
-      "scoring/raw_results/osqp_full_high.json"
+      "scoring/raw_results/odyn_full_medium.json",
+      "scoring/raw_results/osqp_full_high.json",
+      "scoring/raw_results/osqp_full_medium.json"
     ]
   },
   "experiments": {
     "failure_rate_comparison": {
       "results": {
         "odyn": {
-          "failure_rate_medium": 16.438356164383563,
-          "mean_iterations_medium": 1720.1376811594203,
-          "attempted_count": 73.0,
           "failure_rate_high": 31.506849315068493,
-          "mean_iterations_high": 3264.2971014492755
+          "mean_iterations_high": 3264.2971014492755,
+          "attempted_count": 73.0,
+          "failure_rate_medium": 16.438356164383563,
+          "mean_iterations_medium": 1720.1376811594203
         },
         "osqp": {
-          "failure_rate_medium": 50.0,
-          "mean_iterations_medium": 2355.4347826086955,
-          "attempted_count": 138.0,
           "failure_rate_high": 50.72463768115942,
-          "mean_iterations_high": 4691.123188405797
+          "mean_iterations_high": 4691.123188405797,
+          "attempted_count": 138.0,
+          "failure_rate_medium": 50.0,
+          "mean_iterations_medium": 2355.4347826086955
         }
       }
     },

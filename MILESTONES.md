@@ -70,5 +70,10 @@
 - Added main-score iteration metrics from existing raw solver artifacts, so `scoring/scores.json` now covers both failure-rate benefits and convergence-cost constraints already declared in `scoring/reference.json`.
 - Patched the sparse ODYN line search to use the same relaxed Armijo condition as the dense backend and queued a container smoke job to exercise that code path.
 
+### [2026-05-21 17:15] - core_claim_plus
+- Final verification kept the honest milestone at `core_claim_plus`: the core robustness and degenerate diagnostics are usable, but warm-start WCR is still not reproduced.
+- Fixed standalone evaluator defaults so `scripts/evaluate.sh`, `scripts/evaluate_train.sh`, and `scripts/evaluate_test.sh` can score the packaged raw artifacts without manual result paths.
+- Removed method identity leakage from method-agnostic evaluation documentation and revalidated with `python3 validate.py --compare`.
+
 ## Stop Justification
-- Not stopped; a verification job is queued for the latest scoring and sparse-line-search patches.
+- Final verification complete at `core_claim_plus`. The workspace is usable as a partial QP robustness gym, but it does not claim `secondary_claims` because the warm-start WCR experiment remains missing.

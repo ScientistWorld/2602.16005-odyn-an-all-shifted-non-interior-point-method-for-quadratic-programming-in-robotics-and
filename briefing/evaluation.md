@@ -14,18 +14,9 @@ The paper also reports wall-clock timing and performance profiles. This gym does
 
 Accuracy levels: **Medium** = tolerance 1e-6, **High** = tolerance 1e-9.
 
-## Baselines and Targets
+## Targets
 
-| Solver | Failure Rate (Medium) | Failure Rate (High) | Warm-start | Backend |
-|--------|----------------------|---------------------|------------|---------|
-| ODYN (proposed) | 9.7% | 15.5% | ✓ | Dense/Sparse |
-| PROXQP (ALM) | 33.0% | 35.9% | ✓ | Dense/Sparse |
-| OSQP (ADMM) | 44.7% | 49.5% | ✓ | Sparse |
-| PIQP (IPM) | 10.7% | 10.7% | ✗ | Sparse |
-| MOSEK (IPM) | 14.6% | 14.6% | ✗ | Dense/Sparse |
-| GUROBI (IPM) | 9.7% | 12.6% | ✗ | Dense/Sparse |
-
-Target: a successful reproduced solver should achieve low medium-accuracy failure rate while preserving high-accuracy robustness and benchmark coverage.
+Paper-reported reference values and reproduced scores are stored in `scoring/reference.json` and `scoring/scores.json`. A successful solver should achieve low medium-accuracy failure rate while preserving high-accuracy robustness and benchmark coverage. Methods that skip difficult instances must report reduced `attempted_count`; the evaluator does not treat skipped problems as invisible.
 
 ## Evaluation Protocol
 
