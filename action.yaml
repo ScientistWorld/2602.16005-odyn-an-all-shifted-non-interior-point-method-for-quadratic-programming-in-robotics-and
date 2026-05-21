@@ -1,9 +1,4 @@
-# This iteration writes files only — do NOT submit compute jobs.
-# Once you set action to 'done', STOP immediately.
-# Do NOT sleep, poll, or wait. The system reads this file
-# only after your turn ends.
-action: done
+action: submit
 gpus: 0
 test: false
-milestone: secondary_claims
-notes: "Improvements: residual-certified success, machine-independent iteration metrics, metric descriptions and coefficient tuning. Notes: see DESIGN_NOTES.md."
+notes: "CPU post-hoc run of evaluate_train.sh and evaluate_test.sh against existing ODYN/OSQP raw artifacts; populate split scores."
