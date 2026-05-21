@@ -10,28 +10,59 @@ set -euo pipefail
 cd /home/user
 mkdir -p tmp/results scoring
 
-echo "=== ODYN full benchmark, medium tolerance (1e-6) ==="
-python3 -m method.run_odyn \
-    --data-dir /home/user/data/maros_meszaros_qpbenchmark/data \
-    --rtol 1e-6 \
-    --max-iter 3000 \
-    --timeout 300 \
-    --resume \
-    --output /home/user/tmp/results/odyn_full_medium.json
+DATA_DIR="/home/user/data/maros_meszaros_qpbenchmark/data"
+TOTAL_PROBLEMS="$(find "$DATA_DIR" -maxdepth 1 -name '*.mat' | wc -l | tr -d ' ')"
 
-echo "=== ODYN full benchmark, high tolerance (1e-9) ==="
-python3 -m method.run_odyn \
-    --data-dir /home/user/data/maros_meszaros_qpbenchmark/data \
-    --rtol 1e-9 \
-    --max-iter 5000 \
-    --timeout 300 \
-    --skip-degenerate \
-    --resume \
-    --output /home/user/tmp/results/odyn_full_high.json
+run_odyn_staged() {
+    local label="$1"
+    local rtol="$2"
+    local max_iter="$3"
+    local timeout="$4"
+    local output="$5"
+    local skip_degenerate="$6"
+
+    local stages=(40 80 120 "$TOTAL_PROBLEMS")
+    local extra_args=()
+    if [[ "$skip_degenerate" == "true" ]]; then
+        extra_args+=(--skip-degenerate)
+    fi
+
+    for stage in "${stages[@]}"; do
+        if (( stage > TOTAL_PROBLEMS )); then
+            continue
+        fi
+        echo "=== ${label} up to ${stage}/${TOTAL_PROBLEMS} problems ==="
+        python3 -m method.run_odyn \
+            --data-dir "$DATA_DIR" \
+            --rtol "$rtol" \
+            --max-iter "$max_iter" \
+            --timeout "$timeout" \
+            --max-problems "$stage" \
+            --resume \
+            --output "$output" \
+            "${extra_args[@]}"
+    done
+}
+
+run_odyn_staged \
+    "ODYN medium tolerance (1e-6)" \
+    1e-6 \
+    3000 \
+    300 \
+    /home/user/tmp/results/odyn_full_medium.json \
+    false
+
+run_odyn_staged \
+    "ODYN high tolerance (1e-9)" \
+    1e-9 \
+    5000 \
+    300 \
+    /home/user/tmp/results/odyn_full_high.json \
+    true
 
 echo "=== OSQP full benchmark, medium tolerance ==="
 python3 -m baseline.run_osqp \
-    --data-dir /home/user/data/maros_meszaros_qpbenchmark/data \
+    --data-dir "$DATA_DIR" \
     --rtol 1e-6 \
     --max-iter 4000 \
     --resume \
@@ -39,7 +70,7 @@ python3 -m baseline.run_osqp \
 
 echo "=== OSQP full benchmark, high tolerance ==="
 python3 -m baseline.run_osqp \
-    --data-dir /home/user/data/maros_meszaros_qpbenchmark/data \
+    --data-dir "$DATA_DIR" \
     --rtol 1e-9 \
     --max-iter 8000 \
     --skip-degenerate \

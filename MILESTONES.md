@@ -39,5 +39,9 @@
 - The first scored-refresh rerun was orphaned by the scheduler before `odyn_full_medium.json` reached its final write, so no refreshed raw outputs were persisted.
 - Patched the ODYN and OSQP runners to checkpoint after each problem and resume from partial JSON files, then rewired the reusable scripts to use `--resume` for long benchmark jobs.
 
+### [2026-05-21 01:05] - secondary_claims
+- The next resumed refresh attempt was preempted for SLURM worker drain after persisting 38 medium-tolerance benchmark entries through `GOULDQP2`.
+- Switched the benchmark driver to staged prefix expansion (`40`, `80`, `120`, full) so resumed jobs can make bounded progress across repeated preemptions while keeping the same ODYN benchmark protocol.
+
 ## Stop Justification
 - Completed at milestone `secondary_claims`.
