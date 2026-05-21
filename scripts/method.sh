@@ -22,6 +22,5 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-python3 -m method.run_odyn --output "$OUTPUT" "${ARGS[@]}"
+python3 -m method.run_odyn --resume --output "$OUTPUT" "${ARGS[@]}"
 bash scripts/evaluate.sh --results "$OUTPUT" --output /home/user/scoring/scores.json
-

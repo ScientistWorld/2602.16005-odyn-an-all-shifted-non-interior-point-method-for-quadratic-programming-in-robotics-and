@@ -35,5 +35,9 @@
 - Audited the continuation workspace and confirmed the implementation is still an ODYN solver rather than a surrogate model.
 - Found that the patched ODYN code had become newer than the active ODYN benchmark artifacts, so this turn resubmits the scored ODYN benchmark to refresh `scoring/scores.json` against the current implementation.
 
+### [2026-05-21 00:35] - secondary_claims
+- The first scored-refresh rerun was orphaned by the scheduler before `odyn_full_medium.json` reached its final write, so no refreshed raw outputs were persisted.
+- Patched the ODYN and OSQP runners to checkpoint after each problem and resume from partial JSON files, then rewired the reusable scripts to use `--resume` for long benchmark jobs.
+
 ## Stop Justification
 - Completed at milestone `secondary_claims`.

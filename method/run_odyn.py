@@ -8,7 +8,7 @@ import json
 import signal
 import time
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 import numpy as np
 import scipy.sparse as spa
@@ -33,6 +33,19 @@ def _matrix_for_solver(matrix: Any, dense: bool) -> Any:
     if not dense and not spa.issparse(matrix):
         return spa.csc_matrix(matrix)
     return matrix
+
+
+def _write_output(path: Path, data: dict[str, Any]) -> None:
+    tmp_path = path.with_suffix(path.suffix + ".tmp")
+    tmp_path.write_text(json.dumps(data, indent=2, allow_nan=True) + "\n")
+    tmp_path.replace(path)
+
+
+def _load_existing_output(path: Path) -> dict[str, Any] | None:
+    if not path.exists():
+        return None
+    with path.open() as handle:
+        return json.load(handle)
 
 
 def run_odyn(
@@ -109,9 +122,19 @@ def run_odyn(
         signal.signal(signal.SIGALRM, old_handler)
 
 
-def run_degenerate(rtol: float, max_iter: int, timeout: int, rho: float | None, rho_min: float | None) -> dict[str, Any]:
-    out: dict[str, Any] = {}
+def run_degenerate(
+    rtol: float,
+    max_iter: int,
+    timeout: int,
+    rho: float | None,
+    rho_min: float | None,
+    existing: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    out: dict[str, Any] = dict(existing or {})
     for name, problem in degenerate_cases().items():
+        if name in out:
+            print(f"degenerate {name}: skip existing")
+            continue
         result = run_odyn(problem, rtol=rtol, max_iter=max_iter, timeout=timeout, dense=True, rho=rho, rho_min=rho_min)
         out[name] = result
         print(f"degenerate {name}: {result['status']} {result['iterations']} it")
@@ -128,10 +151,19 @@ def iter_problem_files(data_dir: Path, max_problems: int | None, problems: list[
     return files
 
 
-def run_benchmark(args: argparse.Namespace) -> list[dict[str, Any]]:
+def run_benchmark(
+    args: argparse.Namespace,
+    existing: list[dict[str, Any]] | None = None,
+    *,
+    checkpoint: Callable[[list[dict[str, Any]]], None] | None = None,
+) -> list[dict[str, Any]]:
     files = iter_problem_files(Path(args.data_dir), args.max_problems, args.problems)
-    raw: list[dict[str, Any]] = []
+    raw: list[dict[str, Any]] = list(existing or [])
+    completed = {str(item.get("name")) for item in raw if item.get("name")}
     for idx, mat_file in enumerate(files, start=1):
+        if mat_file.stem in completed:
+            print(f"[{idx}/{len(files)}] {mat_file.stem} skip existing", flush=True)
+            continue
         print(f"[{idx}/{len(files)}] {mat_file.stem}", flush=True)
         try:
             problem = load_maros_meszaros_problem(mat_file)
@@ -150,6 +182,8 @@ def run_benchmark(args: argparse.Namespace) -> list[dict[str, Any]]:
                 "solve_time": 0.0,
                 "attempted": False,
             })
+            if checkpoint is not None:
+                checkpoint(raw)
             continue
 
         result = run_odyn(
@@ -164,6 +198,8 @@ def run_benchmark(args: argparse.Namespace) -> list[dict[str, Any]]:
         result.update({"name": problem["name"], "dense": dense, "dense_size_gb": dense_gb, "attempted": True})
         print(f"  {result['status']} success={result['success']} it={result['iterations']} time={result['solve_time']:.2f}s")
         raw.append(result)
+        if checkpoint is not None:
+            checkpoint(raw)
     return raw
 
 
@@ -183,6 +219,7 @@ def main() -> None:
     parser.add_argument("--allow-sparse", action="store_true")
     parser.add_argument("--degenerate-only", action="store_true")
     parser.add_argument("--skip-degenerate", action="store_true")
+    parser.add_argument("--resume", action="store_true")
     args = parser.parse_args()
 
     output = Path(args.output)
@@ -201,12 +238,43 @@ def main() -> None:
         "degenerate": {},
         "benchmark": [],
     }
-    if not args.skip_degenerate:
-        data["degenerate"] = run_degenerate(args.rtol, args.max_iter, args.timeout, args.rho, args.rho_min)
-    if not args.degenerate_only:
-        data["benchmark"] = run_benchmark(args)
+    if args.resume:
+        existing = _load_existing_output(output)
+        if existing is not None:
+            if existing.get("method") != "odyn":
+                raise ValueError(f"{output} does not contain ODYN results")
+            existing_meta = existing.get("metadata", {})
+            for key in ("rtol", "max_iter", "timeout", "data_dir", "rho", "rho_min"):
+                if existing_meta.get(key) != data["metadata"].get(key):
+                    raise ValueError(f"{output} metadata mismatch for {key}: {existing_meta.get(key)} != {data['metadata'].get(key)}")
+            data["degenerate"] = existing.get("degenerate", {})
+            data["benchmark"] = existing.get("benchmark", [])
+            print(
+                f"resuming {output} with {len(data['degenerate'])} degenerate and "
+                f"{len(data['benchmark'])} benchmark entries"
+            )
+        else:
+            print(f"starting fresh {output}")
 
-    output.write_text(json.dumps(data, indent=2, allow_nan=True) + "\n")
+    if not args.skip_degenerate:
+        data["degenerate"] = run_degenerate(
+            args.rtol,
+            args.max_iter,
+            args.timeout,
+            args.rho,
+            args.rho_min,
+            existing=data["degenerate"],
+        )
+        _write_output(output, data)
+    if not args.degenerate_only:
+        def _checkpoint(benchmark: list[dict[str, Any]]) -> None:
+            data["benchmark"] = benchmark
+            _write_output(output, data)
+
+        data["benchmark"] = run_benchmark(args, existing=data["benchmark"], checkpoint=_checkpoint)
+        _write_output(output, data)
+
+    _write_output(output, data)
     print(f"wrote {output}")
 
 

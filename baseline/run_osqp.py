@@ -15,6 +15,19 @@ import scipy.sparse as spa
 from data.qplib import degenerate_cases, load_maros_meszaros_problem
 
 
+def _write_output(path: Path, data: dict[str, Any]) -> None:
+    tmp_path = path.with_suffix(path.suffix + ".tmp")
+    tmp_path.write_text(json.dumps(data, indent=2, allow_nan=True) + "\n")
+    tmp_path.replace(path)
+
+
+def _load_existing_output(path: Path) -> dict[str, Any] | None:
+    if not path.exists():
+        return None
+    with path.open() as handle:
+        return json.load(handle)
+
+
 def run_osqp(problem: dict[str, Any], rtol: float, max_iter: int) -> dict[str, Any]:
     try:
         import osqp
@@ -86,6 +99,7 @@ def main() -> None:
     parser.add_argument("--max-problems", type=int, default=None)
     parser.add_argument("--problems", nargs="*", default=None)
     parser.add_argument("--skip-degenerate", action="store_true")
+    parser.add_argument("--resume", action="store_true")
     args = parser.parse_args()
 
     files = sorted(Path(args.data_dir).glob("*.mat"))
@@ -101,12 +115,39 @@ def main() -> None:
         "degenerate": {},
         "benchmark": [],
     }
+    output = Path(args.output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    if args.resume:
+        existing = _load_existing_output(output)
+        if existing is not None:
+            if existing.get("method") != "osqp":
+                raise ValueError(f"{output} does not contain OSQP results")
+            existing_meta = existing.get("metadata", {})
+            for key in ("rtol", "max_iter", "data_dir"):
+                if existing_meta.get(key) != raw["metadata"].get(key):
+                    raise ValueError(f"{output} metadata mismatch for {key}: {existing_meta.get(key)} != {raw['metadata'].get(key)}")
+            raw["degenerate"] = existing.get("degenerate", {})
+            raw["benchmark"] = existing.get("benchmark", [])
+            print(
+                f"resuming {output} with {len(raw['degenerate'])} degenerate and "
+                f"{len(raw['benchmark'])} benchmark entries"
+            )
+        else:
+            print(f"starting fresh {output}")
 
     if not args.skip_degenerate:
         for name, problem in degenerate_cases().items():
+            if name in raw["degenerate"]:
+                print(f"degenerate {name}: skip existing")
+                continue
             raw["degenerate"][name] = run_osqp(problem, args.rtol, args.max_iter)
+            _write_output(output, raw)
 
+    completed = {str(item.get("name")) for item in raw["benchmark"] if item.get("name")}
     for idx, path in enumerate(files, start=1):
+        if path.stem in completed:
+            print(f"[{idx}/{len(files)}] {path.stem} skip existing", flush=True)
+            continue
         print(f"[{idx}/{len(files)}] {path.stem}", flush=True)
         try:
             problem = load_maros_meszaros_problem(path)
@@ -116,10 +157,9 @@ def main() -> None:
         result["name"] = path.stem
         raw["benchmark"].append(result)
         print(f"{path.stem}: {result['status']} success={result['success']} it={result['iterations']}")
+        _write_output(output, raw)
 
-    output = Path(args.output)
-    output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(raw, indent=2, allow_nan=True) + "\n")
+    _write_output(output, raw)
     print(f"wrote {output}")
 
 

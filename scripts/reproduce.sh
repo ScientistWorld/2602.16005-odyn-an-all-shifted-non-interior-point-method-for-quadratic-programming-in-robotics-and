@@ -16,6 +16,7 @@ python3 -m method.run_odyn \
     --rtol 1e-6 \
     --max-iter 3000 \
     --timeout 300 \
+    --resume \
     --output /home/user/tmp/results/odyn_full_medium.json
 
 echo "=== ODYN full benchmark, high tolerance (1e-9) ==="
@@ -25,6 +26,7 @@ python3 -m method.run_odyn \
     --max-iter 5000 \
     --timeout 300 \
     --skip-degenerate \
+    --resume \
     --output /home/user/tmp/results/odyn_full_high.json
 
 echo "=== OSQP full benchmark, medium tolerance ==="
@@ -32,6 +34,7 @@ python3 -m baseline.run_osqp \
     --data-dir /home/user/data/maros_meszaros_qpbenchmark/data \
     --rtol 1e-6 \
     --max-iter 4000 \
+    --resume \
     --output /home/user/tmp/results/osqp_full_medium.json
 
 echo "=== OSQP full benchmark, high tolerance ==="
@@ -40,6 +43,7 @@ python3 -m baseline.run_osqp \
     --rtol 1e-9 \
     --max-iter 8000 \
     --skip-degenerate \
+    --resume \
     --output /home/user/tmp/results/osqp_full_high.json
 
 echo "=== Scoring ==="

@@ -3,7 +3,8 @@
 #
 # The current method code changed, so the previous ODYN raw result files are no
 # longer the exact artifacts behind the active implementation. This job reruns
-# the scored ODYN benchmark end-to-end, reuses the unchanged OSQP baseline raw
+# the scored ODYN benchmark end-to-end, checkpoints after each problem, resumes
+# cleanly after partial job failures, reuses the unchanged OSQP baseline raw
 # outputs if present, and rewrites scoring/scores.json from the refreshed raw
 # files.
 
@@ -18,6 +19,7 @@ python3 -m method.run_odyn \
     --rtol 1e-6 \
     --max-iter 3000 \
     --timeout 300 \
+    --resume \
     --output /home/user/tmp/results/odyn_full_medium.json
 
 echo "=== Patched ODYN full benchmark, high tolerance (1e-9) ==="
@@ -27,6 +29,7 @@ python3 -m method.run_odyn \
     --max-iter 5000 \
     --timeout 300 \
     --skip-degenerate \
+    --resume \
     --output /home/user/tmp/results/odyn_full_high.json
 
 if [[ ! -f /home/user/tmp/results/osqp_full_medium.json ]]; then
@@ -35,6 +38,7 @@ if [[ ! -f /home/user/tmp/results/osqp_full_medium.json ]]; then
         --data-dir /home/user/data/maros_meszaros_qpbenchmark/data \
         --rtol 1e-6 \
         --max-iter 4000 \
+        --resume \
         --output /home/user/tmp/results/osqp_full_medium.json
 fi
 
@@ -45,6 +49,7 @@ if [[ ! -f /home/user/tmp/results/osqp_full_high.json ]]; then
         --rtol 1e-9 \
         --max-iter 8000 \
         --skip-degenerate \
+        --resume \
         --output /home/user/tmp/results/osqp_full_high.json
 fi
 

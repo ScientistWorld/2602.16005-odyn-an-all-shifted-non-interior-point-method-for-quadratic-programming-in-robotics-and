@@ -9,10 +9,10 @@ mkdir -p tmp/results scoring
 
 python3 -m baseline.run_osqp \
     --data-dir /home/user/data/maros_meszaros_qpbenchmark/data \
+    --resume \
     --output /home/user/tmp/results/osqp_results.json \
     "$@"
 
 bash scripts/evaluate.sh \
     --results /home/user/tmp/results/osqp_results.json \
     --output /home/user/scoring/scores.json
-
