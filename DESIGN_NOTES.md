@@ -20,5 +20,8 @@
 ## Runtime Concerns For The Runner
 
 - First split-scoring run (`e1be94a3-626`) completed, but exposed a residual-certificate evaluator artifact: OSQP raw artifacts contain solver success flags and iteration counts but no residual diagnostic fields, and ODYN's `infeasibility` diagnostic is not calibrated to the requested tolerance. The train/test evaluators now use the solver success flag consistently and keep the anti-shortcut coverage guard by scoring missing or skipped slice problems as failures.
+- Corrected split-scoring run (`5550d93c-b95`) completed successfully and populated `scoring/scores_train.json` and `scoring/scores_test.json`. Every metric listed in `scoring/reference.json` has a real numeric value for both `odyn` and `osqp` on both slices, and the method sets match exactly.
+- Train/test failure-rate gaps are comparable rather than collapsed: ODYN medium/high gaps are +4.35 and -5.80 percentage points; OSQP medium/high gaps are -10.14 and -11.59 percentage points. Mean-iteration metrics also differ by slice, so the held-out split is not a train copy.
 - Degenerate-problem scoring is not split because there are only three cases; it remains a triangulation constraint rather than a strong train/test anti-shortcut signal.
+- ODYN attempts only 37 train and 36 test Maros-Meszaros instances because the raw method artifacts skip memory-heavy problems; those skipped slice problems are counted as failures and the `attempted_count` metric exposes the coverage gap.
 - The held-out test scorer aligns to methods present in `scoring/scores_train.json` when that file exists. If a runner invokes test first, it falls back to `tmp/results/*.json`; that is usable but loses the explicit train-method alignment check.
