@@ -2,8 +2,8 @@
 # Once you set action to 'done', STOP immediately.
 # Do NOT sleep, poll, or wait. The system reads this file
 # only after your turn ends.
-action: pending
+action: done
 gpus: 0
 test: false
 milestone: secondary_claims
-notes: ""
+notes: "Deterministic 69/69 Maros-Meszaros problem-name split; 3 shared metrics per failure-rate slice plus 3 degenerate constraint metrics; train/test scripts written, scores produced later."
