@@ -61,8 +61,8 @@ class OdynParams:
     # Line search parameter
     eta: float = 1e-2
 
-    # Merit function parameter
-    gamma: float = 1e-4
+    # Merit function reference multiplier in the relaxed Armijo condition.
+    gamma: float = 1.0
 
     # Max iterations
     max_iter: int = 200
@@ -483,7 +483,7 @@ class DenseOdynSolver:
                 z_new = z + alpha * delta_z if p > 0 else z
 
                 M_new = compute_merit(x_new, s_new, y_new, z_new)
-                if M_new <= M_current + alpha * self.params.eta * dM:
+                if M_new <= self.params.gamma * M_current + alpha * self.params.eta * dM:
                     break
                 alpha *= 0.5
 

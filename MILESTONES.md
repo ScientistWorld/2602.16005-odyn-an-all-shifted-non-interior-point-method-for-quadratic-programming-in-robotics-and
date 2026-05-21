@@ -55,5 +55,10 @@
 - Corrected the Table IV paper transcription in `scoring/reference.json`: OSQP's LICQ-failure entry is a dagger note ("declared dual infeasible"), not a numeric iteration count.
 - Updated the degenerate benchmark scoring contract so the unambiguous `redundant_ineq` case is the primary metric, retained `licq_failure` as a diagnostic constraint, and revalidated the workspace with both `python3 validate.py` and `python3 validate.py --compare`.
 
+### [2026-05-21 17:02] - secondary_claims
+- Audited the reproduction with a parallel explorer and tightened the dense ODYN line-search condition so it explicitly uses the relaxed Armijo `gamma` multiplier.
+- Updated `scripts/run.sh` to execute a fresh ODYN degenerate smoke run in the container before regenerating train/test/main scores from the completed raw benchmark artifacts.
+- Revalidated locally with `python3 validate.py --compare`; the fresh ODYN smoke itself requires the container dependencies because the login Python lacks NumPy.
+
 ## Stop Justification
 - Completed at milestone `secondary_claims`.

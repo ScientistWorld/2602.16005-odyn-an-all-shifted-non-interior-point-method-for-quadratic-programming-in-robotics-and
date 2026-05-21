@@ -2,4 +2,4 @@ action: submit
 gpus: 0
 test: true
 milestone: secondary_claims
-notes: "Container smoke job: regenerate train/test/main scores from completed ODYN and OSQP raw artifacts and run validate.py --compare."
+notes: "Container smoke job: run fresh ODYN degenerate check, regenerate train/test/main scores from completed ODYN and OSQP raw artifacts, and run validate.py --compare."
