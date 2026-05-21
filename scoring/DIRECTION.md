@@ -7,7 +7,7 @@ This benchmark is about reliable convex quadratic programming for robotics and A
 Future work should improve primal-dual numerical methods for QPs in the same problem family. The useful contribution is better robustness, convergence, or warm-start behavior under the same benchmark and failure rules.
 
 ## Approach Scope
-In-scope changes include modifying the residual model, regularization schedule, linear-system reduction, factorization strategy, line search, initialization, stopping checks, or warm-start handling of a QP solver. Implementations may be dense, sparse, or hybrid as long as they solve the same QP formulation and expose comparable raw results.
+In-scope changes include new or improved numerical QP algorithms, linear algebra choices, regularization policies, initialization strategies, stopping checks, and warm-start handling. Implementations may be dense, sparse, or hybrid as long as they solve the same QP formulation and expose comparable raw results.
 
 ## Out Of Bounds
 - Replacing the method with a commercial optimizer and claiming it as the improved research method.
@@ -15,4 +15,3 @@ In-scope changes include modifying the residual model, regularization schedule, 
 - Training a surrogate model that maps problem data to answers instead of running a QP algorithm.
 - Changing the benchmark problems, tolerances, or failure definition to make the method look better.
 - Dropping constraints, variable bounds, or degenerate cases from the scored experiments.
-

@@ -60,5 +60,10 @@
 - Updated `scripts/run.sh` to execute a fresh ODYN degenerate smoke run in the container before regenerating train/test/main scores from the completed raw benchmark artifacts.
 - Revalidated locally with `python3 validate.py --compare`; the fresh ODYN smoke itself requires the container dependencies because the login Python lacks NumPy.
 
+### [2026-05-21 17:05] - secondary_claims
+- Final verification confirmed that `scripts/download.sh` uses a reachable GitHub archive URL, no committed solver or evaluation code references `shared/`, and `eval/` remains independent of `method/`.
+- Cleaned method-agnostic documentation in `briefing/problem.md`, `briefing/evaluation.md`, and `scoring/DIRECTION.md` without changing scored artifacts.
+- Revalidated with `python3 validate.py --compare`; all scoring, import-separation, train/test, and method-output checks pass.
+
 ## Stop Justification
 - Completed at milestone `secondary_claims`.

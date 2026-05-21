@@ -1,5 +1,3 @@
-action: submit
-gpus: 0
-test: true
+action: done
 milestone: secondary_claims
-notes: "Container smoke job: run fresh ODYN degenerate check, regenerate train/test/main scores from completed ODYN and OSQP raw artifacts, and run validate.py --compare."
+notes: "Verified secondary_claims reproduction; validation passes and workspace is ready with documented limitations."
