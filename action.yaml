@@ -1,8 +1,5 @@
-# IMPORTANT: Once you set action to 'submit' or 'done', STOP immediately.
-# Do NOT sleep, poll, or wait for jobs. The system reads this file
-# only after your turn ends. Sleeping blocks the entire pipeline.
-action: pending
-gpus: 1
-test: false
-milestone: core_claim_plus
-notes: ""
+action: submit
+gpus: 0
+test: true
+milestone: secondary_claims
+notes: "CPU packaging check: run ODYN smoke solve, regenerate full-benchmark scores with attempted_count, and validate repository contracts."

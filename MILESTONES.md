@@ -28,4 +28,4 @@
 - Removed evaluator `/home/user` assumptions and added deterministic raw-result provenance to `scoring/scores.json`.
 
 ## Stop Justification
-- Not stopped yet. The next job is a final CPU packaging check after documentation and scoring cleanup.
+- Completed at milestone `secondary_claims`.
