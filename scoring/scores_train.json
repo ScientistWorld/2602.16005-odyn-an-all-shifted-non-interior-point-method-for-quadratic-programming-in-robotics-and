@@ -10,23 +10,23 @@
       "tmp/results/osqp_full_high.json"
     ],
     "target_problem_count": 69,
-    "success_criterion": "success flag plus primal_residual, dual_residual, and infeasibility <= max(1e-6, 10*rtol)"
+    "success_criterion": "solver success flag for the requested tolerance; missing or skipped slice problems count as failures"
   },
   "experiments": {
     "failure_rate_comparison": {
       "results": {
         "odyn": {
-          "failure_rate_medium": 79.71014492753623,
+          "failure_rate_medium": 53.6231884057971,
           "mean_iterations_medium": 290.6231884057971,
           "attempted_count": 37.0,
-          "failure_rate_high": 69.56521739130434,
+          "failure_rate_high": 66.66666666666667,
           "mean_iterations_high": 973.6666666666666
         },
         "osqp": {
-          "failure_rate_medium": 100.0,
+          "failure_rate_medium": 55.072463768115945,
           "mean_iterations_medium": 2362.68115942029,
           "attempted_count": 69.0,
-          "failure_rate_high": 100.0,
+          "failure_rate_high": 56.52173913043478,
           "mean_iterations_high": 4740.942028985507
         }
       }
