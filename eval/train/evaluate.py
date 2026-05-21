@@ -30,6 +30,10 @@ def _finite_number(value: Any, default: float) -> float:
     return number
 
 
+def _nonnegative_finite_number(value: Any, default: float) -> float:
+    return max(0.0, _finite_number(value, default))
+
+
 def _workspace_relative(path: Path, workspace: Path) -> str:
     resolved = path.resolve()
     try:
@@ -66,29 +70,48 @@ def _is_attempted(item: dict[str, Any]) -> bool:
     return bool(item.get("attempted", not status.startswith("skipped_")))
 
 
+def _is_residual_certified_success(item: dict[str, Any], rtol: float) -> bool:
+    if not bool(item.get("success", False)):
+        return False
+    # The raw artifact already records KKT residuals. Requiring them here makes
+    # the score depend on a numerical certificate, not only a solver status flag.
+    threshold = max(1e-6, 10.0 * rtol)
+    for key in ("primal_residual", "dual_residual", "infeasibility"):
+        if abs(_finite_number(item.get(key), float("inf"))) > threshold:
+            return False
+    return True
+
+
 def score_failure_rate(raw: dict[str, Any], problem_names: list[str]) -> dict[str, float]:
     by_name = {
         str(item.get("name")): item
         for item in raw.get("benchmark", [])
         if item.get("name") is not None
     }
+    rtol = float(raw.get("metadata", {}).get("rtol", 1e-6))
+    max_iter = float(raw.get("metadata", {}).get("max_iter", 200))
     failed = 0
     attempted = 0
+    total_iterations = 0.0
 
     for name in problem_names:
         item = by_name.get(name)
         if item is None:
             failed += 1
+            total_iterations += max_iter
             continue
         if _is_attempted(item):
             attempted += 1
-        if not bool(item.get("success", False)):
+        certified_success = _is_residual_certified_success(item, rtol)
+        if not certified_success:
             failed += 1
+        total_iterations += min(_nonnegative_finite_number(item.get("iterations"), max_iter), max_iter)
 
     total = len(problem_names)
     rate = 100.0 * failed / total if total else 100.0
-    metric = _metric_for_tolerance(float(raw.get("metadata", {}).get("rtol", 1e-6)))
-    return {metric: rate, "attempted_count": float(attempted)}
+    metric = _metric_for_tolerance(rtol)
+    iteration_metric = "mean_iterations_high" if metric == "failure_rate_high" else "mean_iterations_medium"
+    return {metric: rate, iteration_metric: total_iterations / total if total else max_iter, "attempted_count": float(attempted)}
 
 
 def score_degenerate(raw: dict[str, Any]) -> dict[str, float] | None:
@@ -126,6 +149,7 @@ def build_scores(result_paths: list[Path]) -> dict[str, Any]:
             "split_manifest": _workspace_relative(Path(__file__).with_name("problem_names.json"), workspace),
             "raw_results": [_workspace_relative(path, workspace) for path in result_paths],
             "target_problem_count": len(problem_names),
+            "success_criterion": "success flag plus primal_residual, dual_residual, and infeasibility <= max(1e-6, 10*rtol)",
         },
         "experiments": {},
     }
