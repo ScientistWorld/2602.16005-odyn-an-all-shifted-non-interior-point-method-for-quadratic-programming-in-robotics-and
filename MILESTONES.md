@@ -51,5 +51,9 @@
 - The OSQP baseline repair job resumed `osqp_full_high.json` from 16 persisted problems to the full 138-problem benchmark and then regenerated `scoring/scores.json`.
 - The workspace is internally consistent again: ODYN medium/high and OSQP medium/high raw files are all complete, and `python3 validate.py --compare` passes on the final scored artifacts.
 
+### [2026-05-21 16:50] - secondary_claims
+- Corrected the Table IV paper transcription in `scoring/reference.json`: OSQP's LICQ-failure entry is a dagger note ("declared dual infeasible"), not a numeric iteration count.
+- Updated the degenerate benchmark scoring contract so the unambiguous `redundant_ineq` case is the primary metric, retained `licq_failure` as a diagnostic constraint, and revalidated the workspace with both `python3 validate.py` and `python3 validate.py --compare`.
+
 ## Stop Justification
 - Completed at milestone `secondary_claims`.

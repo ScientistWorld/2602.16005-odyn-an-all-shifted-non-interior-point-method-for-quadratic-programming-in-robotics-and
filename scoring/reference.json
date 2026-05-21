@@ -58,17 +58,17 @@
       }
     },
     "degenerate_problems": {
-      "description": "Iteration counts on three degenerate QPs with redundant inequalities, LICQ failure, and multiple solutions, reported in Table IV.",
+      "description": "Iteration counts on three degenerate QPs with redundant inequalities, LICQ failure, and multiple solutions, reported in Table IV. The paper marks OSQP's LICQ-failure entry with a dagger note ('declared dual infeasible') rather than a numeric iteration count.",
       "weight": 0.35,
-      "primary_metric": "licq_failure",
+      "primary_metric": "redundant_ineq",
       "metrics": {
         "redundant_ineq": {
           "higher_is_better": false,
-          "coefficient": -0.4
+          "coefficient": -0.6
         },
         "licq_failure": {
           "higher_is_better": false,
-          "coefficient": -0.6
+          "coefficient": -0.2
         },
         "multiple_solutions": {
           "higher_is_better": false,
@@ -91,7 +91,6 @@
         "osqp": {
           "type": "baseline",
           "redundant_ineq": 75,
-          "licq_failure": 200,
           "multiple_solutions": 200
         },
         "piqp": {

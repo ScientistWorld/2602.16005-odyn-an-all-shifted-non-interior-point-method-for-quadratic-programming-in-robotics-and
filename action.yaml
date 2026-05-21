@@ -1,3 +1,3 @@
 action: done
 milestone: secondary_claims
-notes: "Completed a trustworthy secondary_claims reproduction. ODYN and OSQP raw benchmark artifacts are complete at both scored tolerances, scoring/scores.json matches the current implementation, and validate.py --compare passes."
+notes: "Completed a trustworthy secondary_claims reproduction. ODYN and OSQP raw benchmark artifacts are complete at both scored tolerances, the degenerate-score reference has been corrected to match Table IV's dagger note, and both validate.py and validate.py --compare pass."
