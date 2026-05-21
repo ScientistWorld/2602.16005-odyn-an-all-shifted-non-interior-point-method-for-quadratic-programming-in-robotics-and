@@ -2,4 +2,4 @@ action: submit
 gpus: 0
 test: false
 milestone: secondary_claims
-notes: "CPU rerun of the patched ODYN benchmark with staged prefix expansion (40, 80, 120, full) and resume enabled. The existing medium partial has 38 entries through GOULDQP2, so this submission should continue from there and make bounded progress even if the cluster preempts again."
+notes: "CPU baseline repair job: ODYN raw files are complete, so scripts/run.sh now skips them and resumes only incomplete OSQP artifacts. The immediate goal is to extend osqp_full_high.json from 16 to 138 problems and then regenerate scoring/scores.json from the complete baseline set."
