@@ -47,5 +47,9 @@
 - The staged refresh job finished and regenerated complete patched ODYN medium/high raw files despite multiple scheduler preemptions.
 - Auditing the completed artifacts showed that the OSQP high-tolerance raw file was still only a 16-problem partial because `scripts/run.sh` checked only for file existence; this turn fixes the driver to verify completion counts and resume incomplete baseline files before rescoring.
 
+### [2026-05-21 16:35] - secondary_claims
+- The OSQP baseline repair job resumed `osqp_full_high.json` from 16 persisted problems to the full 138-problem benchmark and then regenerated `scoring/scores.json`.
+- The workspace is internally consistent again: ODYN medium/high and OSQP medium/high raw files are all complete, and `python3 validate.py --compare` passes on the final scored artifacts.
+
 ## Stop Justification
 - Completed at milestone `secondary_claims`.

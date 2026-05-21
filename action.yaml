@@ -1,5 +1,3 @@
-action: submit
-gpus: 0
-test: false
+action: done
 milestone: secondary_claims
-notes: "CPU baseline repair job: ODYN raw files are complete, so scripts/run.sh now skips them and resumes only incomplete OSQP artifacts. The immediate goal is to extend osqp_full_high.json from 16 to 138 problems and then regenerate scoring/scores.json from the complete baseline set."
+notes: "Completed a trustworthy secondary_claims reproduction. ODYN and OSQP raw benchmark artifacts are complete at both scored tolerances, scoring/scores.json matches the current implementation, and validate.py --compare passes."
