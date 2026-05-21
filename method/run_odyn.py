@@ -17,6 +17,9 @@ from data.qplib import degenerate_cases, estimated_dense_size_gb, load_maros_mes
 from method.odyn_solver import DenseOdynSolver, OdynParams, SparseOdynSolver
 
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
+
 class SolverTimeout(RuntimeError):
     pass
 
@@ -205,8 +208,8 @@ def run_benchmark(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--data-dir", default="/home/user/data/maros_meszaros_qpbenchmark/data")
-    parser.add_argument("--output", default="/home/user/tmp/results/odyn_results.json")
+    parser.add_argument("--data-dir", default=str(REPO_ROOT / "data/maros_meszaros_qpbenchmark/data"))
+    parser.add_argument("--output", default=str(REPO_ROOT / "tmp/results/odyn_results.json"))
     parser.add_argument("--rtol", type=float, default=1e-6)
     parser.add_argument("--max-iter", type=int, default=250)
     parser.add_argument("--timeout", type=int, default=120)

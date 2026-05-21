@@ -1,5 +1,5 @@
-action: submit
+action: done
 gpus: 0
 test: false
 milestone: secondary_claims
-notes: "Rerun split scoring after fixing attempted-problem failure rates, dropping unsplittable degenerate cases from train/test scores, and rebalancing manifests; local validate.py --post-design passes."
+notes: "Made download and run entrypoints resolve paths from the checkout and verified public benchmark URL plus validation checks."

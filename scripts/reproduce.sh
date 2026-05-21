@@ -7,10 +7,13 @@
 
 set -euo pipefail
 
-cd /home/user
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WORKSPACE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+cd "$WORKSPACE_DIR"
 mkdir -p tmp/results scoring
 
-DATA_DIR="/home/user/data/maros_meszaros_qpbenchmark/data"
+DATA_DIR="$WORKSPACE_DIR/data/maros_meszaros_qpbenchmark/data"
 TOTAL_PROBLEMS="$(find "$DATA_DIR" -maxdepth 1 -name '*.mat' | wc -l | tr -d ' ')"
 
 run_odyn_staged() {
@@ -49,7 +52,7 @@ run_odyn_staged \
     1e-6 \
     3000 \
     300 \
-    /home/user/tmp/results/odyn_full_medium.json \
+    "$WORKSPACE_DIR/tmp/results/odyn_full_medium.json" \
     false
 
 run_odyn_staged \
@@ -57,7 +60,7 @@ run_odyn_staged \
     1e-9 \
     5000 \
     300 \
-    /home/user/tmp/results/odyn_full_high.json \
+    "$WORKSPACE_DIR/tmp/results/odyn_full_high.json" \
     true
 
 echo "=== OSQP full benchmark, medium tolerance ==="
@@ -66,7 +69,7 @@ python3 -m baseline.run_osqp \
     --rtol 1e-6 \
     --max-iter 4000 \
     --resume \
-    --output /home/user/tmp/results/osqp_full_medium.json
+    --output "$WORKSPACE_DIR/tmp/results/osqp_full_medium.json"
 
 echo "=== OSQP full benchmark, high tolerance ==="
 python3 -m baseline.run_osqp \
@@ -75,15 +78,15 @@ python3 -m baseline.run_osqp \
     --max-iter 8000 \
     --skip-degenerate \
     --resume \
-    --output /home/user/tmp/results/osqp_full_high.json
+    --output "$WORKSPACE_DIR/tmp/results/osqp_full_high.json"
 
 echo "=== Scoring ==="
 bash scripts/evaluate.sh \
     --results \
-        /home/user/tmp/results/odyn_full_medium.json \
-        /home/user/tmp/results/odyn_full_high.json \
-        /home/user/tmp/results/osqp_full_medium.json \
-        /home/user/tmp/results/osqp_full_high.json \
-    --output /home/user/scoring/scores.json
+        "$WORKSPACE_DIR/tmp/results/odyn_full_medium.json" \
+        "$WORKSPACE_DIR/tmp/results/odyn_full_high.json" \
+        "$WORKSPACE_DIR/tmp/results/osqp_full_medium.json" \
+        "$WORKSPACE_DIR/tmp/results/osqp_full_high.json" \
+    --output "$WORKSPACE_DIR/scoring/scores.json"
 
 python3 validate.py --compare

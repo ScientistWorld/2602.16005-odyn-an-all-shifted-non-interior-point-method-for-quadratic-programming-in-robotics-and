@@ -4,15 +4,18 @@
 
 set -euo pipefail
 
-cd /home/user
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WORKSPACE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+cd "$WORKSPACE_DIR"
 mkdir -p tmp/results scoring
 
 python3 -m baseline.run_osqp \
-    --data-dir /home/user/data/maros_meszaros_qpbenchmark/data \
+    --data-dir "$WORKSPACE_DIR/data/maros_meszaros_qpbenchmark/data" \
     --resume \
-    --output /home/user/tmp/results/osqp_results.json \
+    --output "$WORKSPACE_DIR/tmp/results/osqp_results.json" \
     "$@"
 
 bash scripts/evaluate.sh \
-    --results /home/user/tmp/results/osqp_results.json \
-    --output /home/user/scoring/scores.json
+    --results "$WORKSPACE_DIR/tmp/results/osqp_results.json" \
+    --output "$WORKSPACE_DIR/scoring/scores.json"

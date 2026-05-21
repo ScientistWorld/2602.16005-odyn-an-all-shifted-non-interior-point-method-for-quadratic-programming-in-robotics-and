@@ -3,10 +3,13 @@
 
 set -euo pipefail
 
-cd /home/user
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WORKSPACE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+cd "$WORKSPACE_DIR"
 mkdir -p tmp/results scoring
 
-OUTPUT="/home/user/tmp/results/odyn_results.json"
+OUTPUT="$WORKSPACE_DIR/tmp/results/odyn_results.json"
 ARGS=()
 
 while [[ $# -gt 0 ]]; do
@@ -23,4 +26,4 @@ while [[ $# -gt 0 ]]; do
 done
 
 python3 -m method.run_odyn --resume --output "$OUTPUT" "${ARGS[@]}"
-bash scripts/evaluate.sh --results "$OUTPUT" --output /home/user/scoring/scores.json
+bash scripts/evaluate.sh --results "$OUTPUT" --output "$WORKSPACE_DIR/scoring/scores.json"

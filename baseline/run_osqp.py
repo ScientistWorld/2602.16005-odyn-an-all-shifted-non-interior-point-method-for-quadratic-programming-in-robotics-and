@@ -15,6 +15,9 @@ import scipy.sparse as spa
 from data.qplib import degenerate_cases, load_maros_meszaros_problem
 
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
+
 def _write_output(path: Path, data: dict[str, Any]) -> None:
     tmp_path = path.with_suffix(path.suffix + ".tmp")
     tmp_path.write_text(json.dumps(data, indent=2, allow_nan=True) + "\n")
@@ -92,8 +95,8 @@ def run_osqp(problem: dict[str, Any], rtol: float, max_iter: int) -> dict[str, A
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--data-dir", default="/home/user/data/maros_meszaros_qpbenchmark/data")
-    parser.add_argument("--output", default="/home/user/tmp/results/osqp_results.json")
+    parser.add_argument("--data-dir", default=str(REPO_ROOT / "data/maros_meszaros_qpbenchmark/data"))
+    parser.add_argument("--output", default=str(REPO_ROOT / "tmp/results/osqp_results.json"))
     parser.add_argument("--rtol", type=float, default=1e-6)
     parser.add_argument("--max-iter", type=int, default=2000)
     parser.add_argument("--max-problems", type=int, default=None)

@@ -6,7 +6,10 @@
 
 set -euo pipefail
 
-cd /home/user
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WORKSPACE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+cd "$WORKSPACE_DIR"
 
 mkdir -p data/downloads
 
@@ -34,4 +37,3 @@ PY
 fi
 
 echo "Maros-Meszaros data is available at $TARGET/data"
-
