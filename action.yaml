@@ -1,5 +1,5 @@
-action: done
+action: submit
 gpus: 0
-test: false
+test: true
 milestone: secondary_claims
-notes: "Made download and run entrypoints resolve paths from the checkout and verified public benchmark URL plus validation checks."
+notes: "Container smoke job: regenerate train/test/main scores from completed ODYN and OSQP raw artifacts and run validate.py --compare."
