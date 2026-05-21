@@ -1,10 +1,10 @@
 #!/bin/bash
-# Final packaging and scoring validation for the ODYN reproduction.
+# Containerized smoke validation for the ODYN update-rule patch.
 #
-# The full benchmark protocol lives in scripts/reproduce.sh. This scheduler
-# check verifies the reusable scripts, regenerates scoring/scores.json from the
-# completed raw full-benchmark outputs, and runs a tiny ODYN smoke solve without
-# overwriting the full benchmark scores.
+# The full benchmark protocol still lives in scripts/reproduce.sh. This
+# scheduler check verifies that the paper-directed solver changes run inside the
+# packaged environment, regenerates scoring/scores.json from the completed full
+# benchmark outputs, and avoids overwriting those heavier raw result files.
 
 set -euo pipefail
 
@@ -17,7 +17,7 @@ python3 -m method.run_odyn \
     --rtol 1e-6 \
     --max-iter 300 \
     --timeout 60 \
-    --output /home/user/tmp/results/package_smoke_odyn.json
+    --output /home/user/tmp/results/update_rule_smoke_odyn.json
 
 bash scripts/evaluate.sh \
     --results \

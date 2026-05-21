@@ -29,6 +29,11 @@ def _inf_norm(arr):
     return np.linalg.norm(arr, np.inf) if arr.size > 0 else 0.0
 
 
+def _hard_threshold(value: float, threshold: float) -> float:
+    """Apply the paper's threshold operator T(x; t)."""
+    return 0.0 if value < threshold else value
+
+
 @dataclass
 class OdynParams:
     """ODYN hyperparameters. Defaults from Table II of the paper (double precision)."""
@@ -73,6 +78,8 @@ class OdynParams:
     def single_precision(cls):
         """Single precision settings: increase rho and mu_min by 10^4."""
         p = cls()
+        p.rho = 1e-5
+        p.rho_min = 1e-5
         p.mu_min = 1e-12
         return p
 
@@ -251,6 +258,16 @@ class DenseOdynSolver:
             r_d, r_eq, r_i, r_g = compute_residuals(x, s, y, z)
             r_p = np.concatenate([r_eq, r_i])
             return 0.5 * (np.dot(r_d, r_d) + np.dot(r_p, r_p) + np.dot(r_g, r_g))
+
+        def residual_summary(r_d, r_eq, r_i, r_g):
+            """Per-residual infinity norms used by ODYN's update rules."""
+            r_p = np.concatenate([r_eq, r_i]) if (r_eq.size or r_i.size) else np.array([])
+            return {
+                "dual": _inf_norm(r_d),
+                "primal": _inf_norm(r_p),
+                "ncp": _inf_norm(r_g),
+                "all": _inf_norm(np.concatenate([r_d, r_eq, r_i, r_g])),
+            }
 
         # Warm-start: adjust regularization if needed
         if x_init is not None:
@@ -486,42 +503,57 @@ class DenseOdynSolver:
             y = y_new
             z = z_new
 
-            # Update centering parameter and barrier
             old_mu = mu
-            mu_pred = np.sum(np.minimum(s, z) ** 2) / max(p, 1) if p > 0 else 0.0
-            mu = max(self.params.mu_min, sigma * mu_pred)
-
-            # Compute residual norm for centering update
             r_d_new, r_eq_new, r_i_new, r_g_new = compute_residuals(x, s, y, z)
-            r_old_norm = _inf_norm(np.concatenate([r_d, r_eq, r_i, r_g]))
-            r_new_norm = _inf_norm(np.concatenate([r_d_new, r_eq_new, r_i_new, r_g_new]))
+            old_stats = residual_summary(r_d, r_eq, r_i, r_g)
+            new_stats = residual_summary(r_d_new, r_eq_new, r_i_new, r_g_new)
 
-            # Neighborhood condition check
-            neighborhood_ok = r_new_norm <= self.params.theta_n * r_old_norm + self.params.beta * mu
+            # Relaxed neighborhood condition from Eq. (51). ODYN updates the
+            # centering, interpolation, and proximal references only after an
+            # accepted step lands inside this neighborhood.
+            neighborhood_ok = (
+                new_stats["all"] <= self.params.theta_n * old_stats["all"] + self.params.beta * old_mu
+            )
 
             if neighborhood_ok:
-                sigma = max(self.params.sigma_min, sigma - self.params.theta_minus * sigma)
+                mu_pred = np.sum(np.minimum(s, z) ** 2) / max(p, 1) if p > 0 else 0.0
+                mu = max(self.params.mu_min, sigma * mu_pred)
+                if old_stats["all"] > 0 and new_stats["all"] <= self.params.theta_u * old_stats["all"]:
+                    sigma = max(self.params.sigma_min, sigma - self.params.theta_minus * sigma)
+                else:
+                    sigma = min(self.params.sigma_max, sigma + self.params.theta_plus * (1 - sigma))
+                    mu = min(mu, old_mu)
+
+                if old_stats["dual"] > 0 and new_stats["dual"] <= self.params.theta_l * old_stats["dual"]:
+                    theta_d = _hard_threshold(
+                        max(0.0, theta_d - self.params.theta_minus * theta_d),
+                        self.params.theta_min,
+                    )
+                    rho_d = max(self.params.rho_min, rho_d / self.params.delta)
+                elif old_stats["dual"] > 0 and new_stats["dual"] >= self.params.theta_u * old_stats["dual"]:
+                    theta_d = min(1.0, theta_d + self.params.theta_plus * (1.0 - theta_d))
+
+                if old_stats["primal"] > 0 and new_stats["primal"] <= self.params.theta_l * old_stats["primal"]:
+                    theta_p = _hard_threshold(
+                        max(0.0, theta_p - self.params.theta_minus * theta_p),
+                        self.params.theta_min,
+                    )
+                    rho_e = max(self.params.rho_min, rho_e / self.params.delta)
+                    rho_i = max(self.params.rho_min, rho_i / self.params.delta)
+                elif old_stats["primal"] > 0 and new_stats["primal"] >= self.params.theta_u * old_stats["primal"]:
+                    theta_p = min(1.0, theta_p + self.params.theta_plus * (1.0 - theta_p))
+
+                if old_stats["ncp"] > 0 and new_stats["ncp"] <= self.params.theta_l * old_stats["ncp"]:
+                    rho_n = max(self.params.rho_min, rho_n / self.params.delta)
+
+                # Proximal estimate update from Eq. (48).
+                x_E = x + theta_d * (x_prev - x)
+                y_E = y + theta_p * (y_prev - y)
+                z_E = z + theta_p * (z_prev - z)
+                s_E = s + theta_p * (s_prev - s)
             else:
                 sigma = min(self.params.sigma_max, sigma + self.params.theta_plus * (1 - sigma))
-                mu = max(mu, old_mu)
-
-            # Update step-length and proximal regularization from residual improvement.
-            if r_old_norm > 0 and r_new_norm <= self.params.theta_l * r_old_norm:
-                theta_d = max(self.params.theta_min, theta_d - self.params.theta_minus * theta_d)
-                theta_p = max(self.params.theta_min, theta_p - self.params.theta_minus * theta_p)
-                rho_d = max(self.params.rho_min, rho_d / self.params.delta)
-                rho_e = max(self.params.rho_min, rho_e / self.params.delta)
-                rho_i = max(self.params.rho_min, rho_i / self.params.delta)
-                rho_n = max(self.params.rho_min, rho_n / self.params.delta)
-            elif r_old_norm > 0 and r_new_norm >= self.params.theta_u * r_old_norm:
-                theta_d = min(1.0, theta_d + self.params.theta_plus * (1.0 - theta_d))
-                theta_p = min(1.0, theta_p + self.params.theta_plus * (1.0 - theta_p))
-
-            # Proximal estimate update from Eq. (48).
-            x_E = x + theta_d * (x_prev - x)
-            y_E = y + theta_p * (y_prev - y)
-            z_E = z + theta_p * (z_prev - z)
-            s_E = s + theta_p * (s_prev - s)
+                mu = old_mu
 
             # Per-iteration diagnostics
             self._iteration_history[-1].update({
@@ -696,6 +728,15 @@ class SparseOdynSolver:
 
             return r_d, r_eq, r_i, r_g
 
+        def residual_summary(r_d, r_eq, r_i, r_g):
+            r_p = np.concatenate([r_eq, r_i]) if (r_eq.size or r_i.size) else np.array([])
+            return {
+                "dual": _inf_norm(r_d),
+                "primal": _inf_norm(r_p),
+                "ncp": _inf_norm(r_g),
+                "all": _inf_norm(np.concatenate([r_d, r_eq, r_i, r_g])),
+            }
+
         status = "optimal"
         iterations = 0
 
@@ -704,10 +745,27 @@ class SparseOdynSolver:
 
             r_d, r_eq, r_i, r_g = residuals(x, s, y, z)
 
-            # Check stopping
-            if (_inf_norm(r_d) < atol and
-                (m == 0 or _inf_norm(r_eq) < atol) and
-                (p == 0 or _inf_norm(np.minimum(s, z)) < atol)):
+            # Stopping criteria from Eq. (52), matching the dense backend.
+            scale_d = max(
+                _inf_norm(Q @ x),
+                _inf_norm(c),
+                _inf_norm(A.T @ y) if m > 0 else 0.0,
+                _inf_norm(G.T @ z) if p > 0 else 0.0,
+                1e-10,
+            )
+            scale_eq = max(_inf_norm(A @ x) if m > 0 else 0.0, _inf_norm(b) if b is not None else 0.0, 1.0)
+            scale_i = max(
+                _inf_norm(G @ x) if p > 0 else 0.0,
+                _inf_norm(s),
+                _inf_norm(h) if h is not None else 0.0,
+            )
+            scale_n = max(_inf_norm(s), _inf_norm(z), _inf_norm(r_g), 1e-3)
+            if (
+                _inf_norm(r_d) <= atol + rtol * scale_d
+                and (m == 0 or _inf_norm(r_eq) <= atol + rtol * scale_eq)
+                and (p == 0 or _inf_norm(r_i) <= atol + rtol * scale_i)
+                and (p == 0 or _inf_norm(np.minimum(s, z)) <= atol + rtol * scale_n)
+            ):
                 status = "optimal"
                 break
 
@@ -813,37 +871,52 @@ class SparseOdynSolver:
             y = yn
             z = zn
 
-            # Update barrier
             old_mu = mu
-            mu_pred = np.sum(np.minimum(s, z) ** 2) / max(p, 1) if p > 0 else 0.0
-            mu = max(self.params.mu_min, sigma * mu_pred)
-
             rd_new, req_new, ri_new, rg_new = residuals(x, s, y, z)
-            r_old_norm = _inf_norm(np.concatenate([r_d, r_eq, r_i, r_g]))
-            r_new_norm = _inf_norm(np.concatenate([rd_new, req_new, ri_new, rg_new]))
-            if r_new_norm <= self.params.theta_n * r_old_norm + self.params.beta * mu:
-                sigma = max(self.params.sigma_min, sigma - self.params.theta_minus * sigma)
+            old_stats = residual_summary(r_d, r_eq, r_i, r_g)
+            new_stats = residual_summary(rd_new, req_new, ri_new, rg_new)
+            neighborhood_ok = (
+                new_stats["all"] <= self.params.theta_n * old_stats["all"] + self.params.beta * old_mu
+            )
+
+            if neighborhood_ok:
+                mu_pred = np.sum(np.minimum(s, z) ** 2) / max(p, 1) if p > 0 else 0.0
+                mu = max(self.params.mu_min, sigma * mu_pred)
+                if old_stats["all"] > 0 and new_stats["all"] <= self.params.theta_u * old_stats["all"]:
+                    sigma = max(self.params.sigma_min, sigma - self.params.theta_minus * sigma)
+                else:
+                    sigma = min(self.params.sigma_max, sigma + self.params.theta_plus * (1.0 - sigma))
+                    mu = min(mu, old_mu)
+
+                if old_stats["dual"] > 0 and new_stats["dual"] <= self.params.theta_l * old_stats["dual"]:
+                    theta_d = _hard_threshold(
+                        max(0.0, theta_d - self.params.theta_minus * theta_d),
+                        self.params.theta_min,
+                    )
+                    rho_d = max(self.params.rho_min, rho_d / self.params.delta)
+                elif old_stats["dual"] > 0 and new_stats["dual"] >= self.params.theta_u * old_stats["dual"]:
+                    theta_d = min(1.0, theta_d + self.params.theta_plus * (1.0 - theta_d))
+
+                if old_stats["primal"] > 0 and new_stats["primal"] <= self.params.theta_l * old_stats["primal"]:
+                    theta_p = _hard_threshold(
+                        max(0.0, theta_p - self.params.theta_minus * theta_p),
+                        self.params.theta_min,
+                    )
+                    rho_e = max(self.params.rho_min, rho_e / self.params.delta)
+                    rho_i = max(self.params.rho_min, rho_i / self.params.delta)
+                elif old_stats["primal"] > 0 and new_stats["primal"] >= self.params.theta_u * old_stats["primal"]:
+                    theta_p = min(1.0, theta_p + self.params.theta_plus * (1.0 - theta_p))
+
+                if old_stats["ncp"] > 0 and new_stats["ncp"] <= self.params.theta_l * old_stats["ncp"]:
+                    rho_n = max(self.params.rho_min, rho_n / self.params.delta)
+
+                x_E = x + theta_d * (x_prev - x)
+                y_E = y + theta_p * (y_prev - y)
+                z_E = z + theta_p * (z_prev - z)
+                s_E = s + theta_p * (s_prev - s)
             else:
                 sigma = min(self.params.sigma_max, sigma + self.params.theta_plus * (1.0 - sigma))
-                mu = max(mu, old_mu)
-
-            # Update proximal estimates
-            x_E = x + theta_d * (x_prev - x)
-            y_E = y + theta_p * (y_prev - y)
-            z_E = z + theta_p * (z_prev - z)
-            s_E = s + theta_p * (s_prev - s)
-
-            # Update regularization
-            if r_old_norm > 0 and r_new_norm <= self.params.theta_l * r_old_norm:
-                theta_d = max(self.params.theta_min, theta_d - self.params.theta_minus * theta_d)
-                theta_p = max(self.params.theta_min, theta_p - self.params.theta_minus * theta_p)
-                rho_d = max(self.params.rho_min, rho_d / self.params.delta)
-                rho_e = max(self.params.rho_min, rho_e / self.params.delta)
-                rho_i = max(self.params.rho_min, rho_i / self.params.delta)
-                rho_n = max(self.params.rho_min, rho_n / self.params.delta)
-            elif r_old_norm > 0 and r_new_norm >= self.params.theta_u * r_old_norm:
-                theta_d = min(1.0, theta_d + self.params.theta_plus * (1.0 - theta_d))
-                theta_p = min(1.0, theta_p + self.params.theta_plus * (1.0 - theta_p))
+                mu = old_mu
 
         else:
             status = "max_iterations"

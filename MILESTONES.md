@@ -27,5 +27,9 @@
 - Verified `eval/` is independent of `method/` and that current scores are regenerated from raw solver result JSON files.
 - Removed evaluator `/home/user` assumptions and added deterministic raw-result provenance to `scoring/scores.json`.
 
+### [2026-05-21 00:00] - secondary_claims
+- Tightened the ODYN solver updates to match the paper more closely: neighborhood-gated proximal estimate refresh, per-residual interpolation and regularization updates, and Eq. (52)-style stopping checks in the sparse backend.
+- Queued a containerized smoke validation job before changing any reported benchmark numbers.
+
 ## Stop Justification
 - Completed at milestone `secondary_claims`.
