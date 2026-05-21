@@ -1,5 +1,5 @@
 action: submit
 gpus: 0
-test: true
+test: false
 milestone: secondary_claims
-notes: "CPU packaging check: run ODYN smoke solve, regenerate full-benchmark scores with attempted_count, and validate repository contracts."
+notes: "CPU full rerun of ODYN medium/high benchmark after the solver update-rule patch, then rescore against the existing OSQP baseline raw outputs and rerun validate.py so scores match the current implementation."
