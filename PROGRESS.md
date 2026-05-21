@@ -13,10 +13,14 @@
 - Made the ODYN and OSQP raw-result runners checkpoint atomically after each problem and resume from partial JSON files, so long CPU benchmark jobs can survive scheduler interruptions.
 - Tightened the dense ODYN line search to use the relaxed Armijo `gamma` multiplier explicitly.
 - Updated the submitted job script to run a fresh ODYN degenerate smoke check before rescoring completed benchmark artifacts.
+- Added machine-independent mean-iteration metrics to the main evaluator, assigning the iteration cap to skipped and failed benchmark entries.
+- Tightened the sparse ODYN line search to use the same relaxed Armijo condition as the dense backend.
 
 ## Results Achieved
 
-The current implementation reproduces the paper's main QP-solver robustness claim and one secondary robustness claim. ODYN uses the same all-shifted NCP residual, proximal primal-dual regularization, condensed Newton system, Armijo merit line search, centering update, and proximal estimate update described in the paper. The implementation is Python/NumPy/SciPy rather than the paper's optimized C++/Eigen code.
+The current implementation reproducibly supports `core_claim_plus`: it implements the paper's ODYN algorithm and shows the expected robustness advantage over OSQP on the available Maros-Meszaros benchmark run at two tolerances, plus a degenerate-case diagnostic. It no longer claims `secondary_claims` because the paper's warm-start WCR experiment remains documented but not scored.
+
+ODYN uses the same all-shifted NCP residual, proximal primal-dual regularization, condensed Newton system, Armijo merit line search, centering update, and proximal estimate update described in the paper. The implementation is Python/NumPy/SciPy rather than the paper's optimized C++/Eigen code.
 
 ### Broad Same-Subset Comparison
 
@@ -40,8 +44,12 @@ The refreshed full benchmark artifacts now cover all 138 Maros-Meszaros files at
 | --- | --- | ---: | ---: |
 | failure_rate_comparison/odyn | failure_rate_medium | 16.44 | 9.7 |
 | failure_rate_comparison/odyn | failure_rate_high | 31.51 | 15.5 |
+| failure_rate_comparison/odyn | mean_iterations_medium | 1720.14 | not reported |
+| failure_rate_comparison/odyn | mean_iterations_high | 3264.30 | not reported |
 | failure_rate_comparison/osqp | failure_rate_medium | 50.00 | 44.7 |
 | failure_rate_comparison/osqp | failure_rate_high | 50.72 | 49.5 |
+| failure_rate_comparison/osqp | mean_iterations_medium | 2355.43 | not reported |
+| failure_rate_comparison/osqp | mean_iterations_high | 4691.12 | not reported |
 | failure_rate_comparison/odyn | attempted_count | 73 | 138 |
 | failure_rate_comparison/osqp | attempted_count | 138 | 138 |
 | degenerate_problems/odyn | redundant_ineq | 6 | 5 |
@@ -52,7 +60,7 @@ ODYN attempted 73 dense-feasible problems; the memory guard excluded larger or s
 
 ## What Remains
 
-- Warm-start WCR experiment from Fig. 4 is not reproduced. The paper reports this mainly as performance-profile plots rather than table values, so it is documented as a remaining gap rather than a scored numeric target.
+- Warm-start WCR experiment from Fig. 4 is not reproduced. This is the main blocker for a defensible `secondary_claims` milestone.
 - Performance-profile plots from Fig. 3 are not reproduced.
 - Dense per-iteration timing from Fig. 5 is not reproduced.
 - PROXQP, PIQP, MOSEK, and GUROBI baselines are recorded from the paper in `scoring/reference.json` but not rerun locally.
@@ -75,6 +83,7 @@ ODYN attempted 73 dense-feasible problems; the memory guard excluded larger or s
 - The markdown OCR makes one degenerate case ambiguous; the implemented case is documented in `data/qplib.py`.
 - The Python dense backend lacks the paper's optimized sparse C++/Eigen implementation and iterative refinement, explaining remaining high-tolerance failures.
 - The current login-node Python environment lacks NumPy, so fresh method smoke execution is deferred to the submitted container job where `environment/setup.sh` installs the required packages.
+- A milestone audit found that claiming `secondary_claims` overreached because warm-start WCR is not scored. The current honest milestone is `core_claim_plus`.
 
 ## Deviations From Paper
 

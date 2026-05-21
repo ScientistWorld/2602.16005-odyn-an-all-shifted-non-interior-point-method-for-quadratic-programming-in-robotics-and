@@ -1,0 +1,977 @@
+{
+  "method": "osqp",
+  "metadata": {
+    "rtol": 1e-09,
+    "max_iter": 8000,
+    "data_dir": "/home/user/data/maros_meszaros_qpbenchmark/data"
+  },
+  "degenerate": {},
+  "benchmark": [
+    {
+      "success": true,
+      "iterations": 75,
+      "solve_time": 0.05668044090270996,
+      "status": "solved",
+      "name": "AUG2D"
+    },
+    {
+      "success": true,
+      "iterations": 75,
+      "solve_time": 0.054940223693847656,
+      "status": "solved",
+      "name": "AUG2DC"
+    },
+    {
+      "success": true,
+      "iterations": 1900,
+      "solve_time": 1.1192259788513184,
+      "status": "solved",
+      "name": "AUG2DCQP"
+    },
+    {
+      "success": true,
+      "iterations": 1600,
+      "solve_time": 1.0186867713928223,
+      "status": "solved",
+      "name": "AUG2DQP"
+    },
+    {
+      "success": true,
+      "iterations": 50,
+      "solve_time": 0.0070574283599853516,
+      "status": "solved",
+      "name": "AUG3D"
+    },
+    {
+      "success": true,
+      "iterations": 50,
+      "solve_time": 0.006548643112182617,
+      "status": "solved",
+      "name": "AUG3DC"
+    },
+    {
+      "success": true,
+      "iterations": 150,
+      "solve_time": 0.02013683319091797,
+      "status": "solved",
+      "name": "AUG3DCQP"
+    },
+    {
+      "success": true,
+      "iterations": 125,
+      "solve_time": 0.018141508102416992,
+      "status": "solved",
+      "name": "AUG3DQP"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 28.26206636428833,
+      "status": "maximum iterations reached",
+      "name": "BOYD1"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 31.559358596801758,
+      "status": "maximum iterations reached",
+      "name": "BOYD2"
+    },
+    {
+      "success": true,
+      "iterations": 4300,
+      "solve_time": 0.9877853393554688,
+      "status": "solved",
+      "name": "CONT-050"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 10.098353385925293,
+      "status": "maximum iterations reached",
+      "name": "CONT-100"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 10.820409059524536,
+      "status": "maximum iterations reached",
+      "name": "CONT-101"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 89.58435678482056,
+      "status": "maximum iterations reached",
+      "name": "CONT-200"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 88.42638373374939,
+      "status": "maximum iterations reached",
+      "name": "CONT-201"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 227.2299346923828,
+      "status": "maximum iterations reached",
+      "name": "CONT-300"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 92.99688625335693,
+      "status": "maximum iterations reached",
+      "name": "CVXQP1_L"
+    },
+    {
+      "success": true,
+      "iterations": 3225,
+      "solve_time": 0.5485000610351562,
+      "status": "solved",
+      "name": "CVXQP1_M"
+    },
+    {
+      "success": true,
+      "iterations": 800,
+      "solve_time": 0.005349159240722656,
+      "status": "solved",
+      "name": "CVXQP1_S"
+    },
+    {
+      "success": true,
+      "iterations": 2325,
+      "solve_time": 20.336591958999634,
+      "status": "solved",
+      "name": "CVXQP2_L"
+    },
+    {
+      "success": true,
+      "iterations": 325,
+      "solve_time": 0.05311775207519531,
+      "status": "solved",
+      "name": "CVXQP2_M"
+    },
+    {
+      "success": true,
+      "iterations": 125,
+      "solve_time": 0.0014696121215820312,
+      "status": "solved",
+      "name": "CVXQP2_S"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 104.66859531402588,
+      "status": "maximum iterations reached",
+      "name": "CVXQP3_L"
+    },
+    {
+      "success": true,
+      "iterations": 3400,
+      "solve_time": 0.6586925983428955,
+      "status": "solved",
+      "name": "CVXQP3_M"
+    },
+    {
+      "success": true,
+      "iterations": 200,
+      "solve_time": 0.0022842884063720703,
+      "status": "solved",
+      "name": "CVXQP3_S"
+    },
+    {
+      "success": true,
+      "iterations": 75,
+      "solve_time": 0.0016562938690185547,
+      "status": "solved",
+      "name": "DPKLO1"
+    },
+    {
+      "success": true,
+      "iterations": 25,
+      "solve_time": 0.018949031829833984,
+      "status": "solved",
+      "name": "DTOC3"
+    },
+    {
+      "success": true,
+      "iterations": 375,
+      "solve_time": 0.005018472671508789,
+      "status": "solved",
+      "name": "DUAL1"
+    },
+    {
+      "success": true,
+      "iterations": 75,
+      "solve_time": 0.0023903846740722656,
+      "status": "solved",
+      "name": "DUAL2"
+    },
+    {
+      "success": true,
+      "iterations": 125,
+      "solve_time": 0.0038518905639648438,
+      "status": "solved",
+      "name": "DUAL3"
+    },
+    {
+      "success": true,
+      "iterations": 100,
+      "solve_time": 0.001848459243774414,
+      "status": "solved",
+      "name": "DUAL4"
+    },
+    {
+      "success": true,
+      "iterations": 1825,
+      "solve_time": 0.008616447448730469,
+      "status": "solved",
+      "name": "DUALC1"
+    },
+    {
+      "success": true,
+      "iterations": 350,
+      "solve_time": 0.0021822452545166016,
+      "status": "solved",
+      "name": "DUALC2"
+    },
+    {
+      "success": true,
+      "iterations": 175,
+      "solve_time": 0.0017457008361816406,
+      "status": "solved",
+      "name": "DUALC5"
+    },
+    {
+      "success": true,
+      "iterations": 125,
+      "solve_time": 0.002155303955078125,
+      "status": "solved",
+      "name": "DUALC8"
+    },
+    {
+      "success": true,
+      "iterations": 1575,
+      "solve_time": 6.004384994506836,
+      "status": "solved",
+      "name": "EXDATA"
+    },
+    {
+      "success": true,
+      "iterations": 75,
+      "solve_time": 0.0009181499481201172,
+      "status": "solved",
+      "name": "GENHS28"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.3105659484863281,
+      "status": "solved inaccurate",
+      "name": "GOULDQP2"
+    },
+    {
+      "success": true,
+      "iterations": 175,
+      "solve_time": 0.013865470886230469,
+      "status": "solved",
+      "name": "GOULDQP3"
+    },
+    {
+      "success": true,
+      "iterations": 1750,
+      "solve_time": 0.0018436908721923828,
+      "status": "solved",
+      "name": "HS118"
+    },
+    {
+      "success": true,
+      "iterations": 125,
+      "solve_time": 0.0005700588226318359,
+      "status": "solved",
+      "name": "HS21"
+    },
+    {
+      "success": true,
+      "iterations": 675,
+      "solve_time": 0.0009150505065917969,
+      "status": "solved",
+      "name": "HS268"
+    },
+    {
+      "success": true,
+      "iterations": 50,
+      "solve_time": 0.0006070137023925781,
+      "status": "solved",
+      "name": "HS35"
+    },
+    {
+      "success": true,
+      "iterations": 50,
+      "solve_time": 0.0006275177001953125,
+      "status": "solved",
+      "name": "HS35MOD"
+    },
+    {
+      "success": true,
+      "iterations": 75,
+      "solve_time": 0.0006520748138427734,
+      "status": "solved",
+      "name": "HS51"
+    },
+    {
+      "success": true,
+      "iterations": 50,
+      "solve_time": 0.0007965564727783203,
+      "status": "solved",
+      "name": "HS52"
+    },
+    {
+      "success": true,
+      "iterations": 50,
+      "solve_time": 0.0006453990936279297,
+      "status": "solved",
+      "name": "HS53"
+    },
+    {
+      "success": true,
+      "iterations": 75,
+      "solve_time": 0.0008089542388916016,
+      "status": "solved",
+      "name": "HS76"
+    },
+    {
+      "success": false,
+      "iterations": 300,
+      "solve_time": 0.07593441009521484,
+      "status": "primal infeasible",
+      "name": "HUES-MOD"
+    },
+    {
+      "success": false,
+      "iterations": 75,
+      "solve_time": 0.03835010528564453,
+      "status": "primal infeasible",
+      "name": "HUESTIS"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.313251256942749,
+      "status": "maximum iterations reached",
+      "name": "KSIP"
+    },
+    {
+      "success": true,
+      "iterations": 175,
+      "solve_time": 0.01783895492553711,
+      "status": "solved",
+      "name": "LASER"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 2.574000597000122,
+      "status": "maximum iterations reached",
+      "name": "LISWET1"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 2.49824595451355,
+      "status": "maximum iterations reached",
+      "name": "LISWET10"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 2.504319190979004,
+      "status": "maximum iterations reached",
+      "name": "LISWET11"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 2.49539852142334,
+      "status": "maximum iterations reached",
+      "name": "LISWET12"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 2.504585027694702,
+      "status": "maximum iterations reached",
+      "name": "LISWET2"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 2.5171854496002197,
+      "status": "maximum iterations reached",
+      "name": "LISWET3"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 2.51412034034729,
+      "status": "maximum iterations reached",
+      "name": "LISWET4"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 2.5304465293884277,
+      "status": "maximum iterations reached",
+      "name": "LISWET5"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 2.5353481769561768,
+      "status": "maximum iterations reached",
+      "name": "LISWET6"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 2.6550753116607666,
+      "status": "maximum iterations reached",
+      "name": "LISWET7"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 2.7365095615386963,
+      "status": "maximum iterations reached",
+      "name": "LISWET8"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 2.58685302734375,
+      "status": "maximum iterations reached",
+      "name": "LISWET9"
+    },
+    {
+      "success": true,
+      "iterations": 275,
+      "solve_time": 0.0006215572357177734,
+      "status": "solved",
+      "name": "LOTSCHD"
+    },
+    {
+      "success": true,
+      "iterations": 1875,
+      "solve_time": 0.17043495178222656,
+      "status": "solved",
+      "name": "MOSARQP1"
+    },
+    {
+      "success": true,
+      "iterations": 425,
+      "solve_time": 0.026846647262573242,
+      "status": "solved",
+      "name": "MOSARQP2"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 10.480610370635986,
+      "status": "maximum iterations reached",
+      "name": "POWELL20"
+    },
+    {
+      "success": true,
+      "iterations": 150,
+      "solve_time": 0.0060117244720458984,
+      "status": "solved",
+      "name": "PRIMAL1"
+    },
+    {
+      "success": true,
+      "iterations": 50,
+      "solve_time": 0.009059906005859375,
+      "status": "solved",
+      "name": "PRIMAL2"
+    },
+    {
+      "success": true,
+      "iterations": 125,
+      "solve_time": 0.03209519386291504,
+      "status": "solved",
+      "name": "PRIMAL3"
+    },
+    {
+      "success": true,
+      "iterations": 175,
+      "solve_time": 0.022031068801879883,
+      "status": "solved",
+      "name": "PRIMAL4"
+    },
+    {
+      "success": false,
+      "iterations": 525,
+      "solve_time": 0.005673408508300781,
+      "status": "dual infeasible",
+      "name": "PRIMALC1"
+    },
+    {
+      "success": false,
+      "iterations": 450,
+      "solve_time": 0.00893402099609375,
+      "status": "dual infeasible",
+      "name": "PRIMALC2"
+    },
+    {
+      "success": false,
+      "iterations": 75,
+      "solve_time": 0.0017826557159423828,
+      "status": "dual infeasible",
+      "name": "PRIMALC5"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.2603013515472412,
+      "status": "maximum iterations reached",
+      "name": "PRIMALC8"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 2.4545302391052246,
+      "status": "maximum iterations reached",
+      "name": "Q25FV47"
+    },
+    {
+      "success": true,
+      "iterations": 3275,
+      "solve_time": 0.017716407775878906,
+      "status": "solved",
+      "name": "QADLITTL"
+    },
+    {
+      "success": true,
+      "iterations": 325,
+      "solve_time": 0.0010294914245605469,
+      "status": "solved",
+      "name": "QAFIRO"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.168715238571167,
+      "status": "maximum iterations reached",
+      "name": "QBANDM"
+    },
+    {
+      "success": true,
+      "iterations": 6575,
+      "solve_time": 0.1691150665283203,
+      "status": "solved",
+      "name": "QBEACONF"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.13729095458984375,
+      "status": "maximum iterations reached",
+      "name": "QBORE3D"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.18461322784423828,
+      "status": "maximum iterations reached",
+      "name": "QBRANDY"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.22894787788391113,
+      "status": "maximum iterations reached",
+      "name": "QCAPRI"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.17907357215881348,
+      "status": "maximum iterations reached",
+      "name": "QE226"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 1.033452033996582,
+      "status": "maximum iterations reached",
+      "name": "QETAMACR"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.613365888595581,
+      "status": "maximum iterations reached",
+      "name": "QFFFFF80"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.17436432838439941,
+      "status": "maximum iterations reached",
+      "name": "QFORPLAN"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.23193621635437012,
+      "status": "maximum iterations reached",
+      "name": "QGFRDXPN"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.34624290466308594,
+      "status": "maximum iterations reached",
+      "name": "QGROW15"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.5140855312347412,
+      "status": "maximum iterations reached",
+      "name": "QGROW22"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.15970611572265625,
+      "status": "maximum iterations reached",
+      "name": "QGROW7"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.09273171424865723,
+      "status": "maximum iterations reached",
+      "name": "QISRAEL"
+    },
+    {
+      "success": true,
+      "iterations": 3075,
+      "solve_time": 0.011398077011108398,
+      "status": "solved",
+      "name": "QPCBLEND"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.25005030632019043,
+      "status": "maximum iterations reached",
+      "name": "QPCBOEI1"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.07565665245056152,
+      "status": "maximum iterations reached",
+      "name": "QPCBOEI2"
+    },
+    {
+      "success": true,
+      "iterations": 3200,
+      "solve_time": 0.10257172584533691,
+      "status": "solved",
+      "name": "QPCSTAIR"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 1.540799856185913,
+      "status": "maximum iterations reached",
+      "name": "QPILOTNO"
+    },
+    {
+      "success": true,
+      "iterations": 75,
+      "solve_time": 0.0006146430969238281,
+      "status": "solved",
+      "name": "QPTEST"
+    },
+    {
+      "success": false,
+      "iterations": 25,
+      "solve_time": 0.0010380744934082031,
+      "status": "dual infeasible",
+      "name": "QRECIPE"
+    },
+    {
+      "success": true,
+      "iterations": 350,
+      "solve_time": 0.0032951831817626953,
+      "status": "solved",
+      "name": "QSC205"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.12230086326599121,
+      "status": "maximum iterations reached",
+      "name": "QSCAGR25"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.03225874900817871,
+      "status": "maximum iterations reached",
+      "name": "QSCAGR7"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.17517566680908203,
+      "status": "maximum iterations reached",
+      "name": "QSCFXM1"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.3751220703125,
+      "status": "maximum iterations reached",
+      "name": "QSCFXM2"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.6049666404724121,
+      "status": "maximum iterations reached",
+      "name": "QSCFXM3"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.09829449653625488,
+      "status": "maximum iterations reached",
+      "name": "QSCORPIO"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.2707340717315674,
+      "status": "maximum iterations reached",
+      "name": "QSCRS8"
+    },
+    {
+      "success": true,
+      "iterations": 2550,
+      "solve_time": 0.05119180679321289,
+      "status": "solved",
+      "name": "QSCSD1"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.29404520988464355,
+      "status": "maximum iterations reached",
+      "name": "QSCSD6"
+    },
+    {
+      "success": true,
+      "iterations": 2750,
+      "solve_time": 0.2151932716369629,
+      "status": "solved",
+      "name": "QSCSD8"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.12643718719482422,
+      "status": "maximum iterations reached",
+      "name": "QSCTAP1"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.5953421592712402,
+      "status": "maximum iterations reached",
+      "name": "QSCTAP2"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.7994956970214844,
+      "status": "maximum iterations reached",
+      "name": "QSCTAP3"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.3059358596801758,
+      "status": "maximum iterations reached",
+      "name": "QSEBA"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.06793713569641113,
+      "status": "maximum iterations reached",
+      "name": "QSHARE1B"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.03562045097351074,
+      "status": "maximum iterations reached",
+      "name": "QSHARE2B"
+    },
+    {
+      "success": true,
+      "iterations": 3800,
+      "solve_time": 0.6227536201477051,
+      "status": "solved",
+      "name": "QSHELL"
+    },
+    {
+      "success": true,
+      "iterations": 7650,
+      "solve_time": 0.37502193450927734,
+      "status": "solved",
+      "name": "QSHIP04L"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.2875542640686035,
+      "status": "maximum iterations reached",
+      "name": "QSHIP04S"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 3.1080894470214844,
+      "status": "maximum iterations reached",
+      "name": "QSHIP08L"
+    },
+    {
+      "success": true,
+      "iterations": 6975,
+      "solve_time": 0.886641263961792,
+      "status": "solved",
+      "name": "QSHIP08S"
+    },
+    {
+      "success": true,
+      "iterations": 5225,
+      "solve_time": 3.3642051219940186,
+      "status": "solved",
+      "name": "QSHIP12L"
+    },
+    {
+      "success": true,
+      "iterations": 5450,
+      "solve_time": 0.8424127101898193,
+      "status": "solved",
+      "name": "QSHIP12S"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.715968132019043,
+      "status": "maximum iterations reached",
+      "name": "QSIERRA"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.2793569564819336,
+      "status": "maximum iterations reached",
+      "name": "QSTAIR"
+    },
+    {
+      "success": true,
+      "iterations": 2800,
+      "solve_time": 0.08275175094604492,
+      "status": "solved",
+      "name": "QSTANDAT"
+    },
+    {
+      "success": true,
+      "iterations": 675,
+      "solve_time": 0.0007622241973876953,
+      "status": "solved",
+      "name": "S268"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.7723269462585449,
+      "status": "maximum iterations reached",
+      "name": "STADAT1"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.7663862705230713,
+      "status": "maximum iterations reached",
+      "name": "STADAT2"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 1.611748456954956,
+      "status": "maximum iterations reached",
+      "name": "STADAT3"
+    },
+    {
+      "success": true,
+      "iterations": 100,
+      "solve_time": 0.0510258674621582,
+      "status": "solved",
+      "name": "STCQP1"
+    },
+    {
+      "success": true,
+      "iterations": 175,
+      "solve_time": 0.10887789726257324,
+      "status": "solved",
+      "name": "STCQP2"
+    },
+    {
+      "success": true,
+      "iterations": 75,
+      "solve_time": 0.0005896091461181641,
+      "status": "solved",
+      "name": "TAME"
+    },
+    {
+      "success": true,
+      "iterations": 25,
+      "solve_time": 0.029917240142822266,
+      "status": "solved",
+      "name": "UBH1"
+    },
+    {
+      "success": true,
+      "iterations": 2125,
+      "solve_time": 0.028831958770751953,
+      "status": "solved",
+      "name": "VALUES"
+    },
+    {
+      "success": false,
+      "iterations": 8000,
+      "solve_time": 0.4800224304199219,
+      "status": "primal infeasible inaccurate",
+      "name": "YAO"
+    },
+    {
+      "success": true,
+      "iterations": 175,
+      "solve_time": 0.00044155120849609375,
+      "status": "solved",
+      "name": "ZECEVIC2"
+    }
+  ]
+}

@@ -10,6 +10,7 @@ cd "$WORKSPACE_DIR"
 mkdir -p tmp/results scoring
 
 OUTPUT="$WORKSPACE_DIR/tmp/results/odyn_results.json"
+RESUME_ARGS=(--resume)
 ARGS=()
 
 while [[ $# -gt 0 ]]; do
@@ -18,6 +19,10 @@ while [[ $# -gt 0 ]]; do
             OUTPUT="$2"
             shift 2
             ;;
+        --fresh|--no-resume)
+            RESUME_ARGS=()
+            shift
+            ;;
         *)
             ARGS+=("$1")
             shift
@@ -25,5 +30,5 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-python3 -m method.run_odyn --resume --output "$OUTPUT" "${ARGS[@]}"
+python3 -m method.run_odyn "${RESUME_ARGS[@]}" --output "$OUTPUT" "${ARGS[@]}"
 bash scripts/evaluate.sh --results "$OUTPUT" --output "$WORKSPACE_DIR/scoring/scores.json"

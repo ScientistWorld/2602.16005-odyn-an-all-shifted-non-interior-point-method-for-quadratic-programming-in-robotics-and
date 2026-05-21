@@ -584,7 +584,7 @@ class DenseOdynSolver:
             iterations=iterations,
             solve_time=solve_time,
             status=status,
-            primal_residual=_inf_norm(r_eq) if m > 0 else 0,
+            primal_residual=max(_inf_norm(r_eq), _inf_norm(r_i)),
             dual_residual=_inf_norm(r_d),
             infeasibility=np.linalg.norm(r_n, np.inf) if p > 0 else 0,
         )
@@ -844,6 +844,18 @@ class SparseOdynSolver:
             # Line search
             alpha = 1.0
             M_cur = 0.5 * (np.dot(r_d, r_d) + np.dot(r_eq, r_eq) + np.dot(r_i, r_i) + np.dot(r_g, r_g))
+            rd_step, req_step, ri_step, rg_step = residuals(
+                x + delta_x,
+                s + delta_s if p > 0 else s,
+                y + delta_y if m > 0 else y,
+                z + delta_z if p > 0 else z,
+            )
+            dM = (
+                np.dot(r_d, rd_step - r_d)
+                + np.dot(r_eq, req_step - r_eq)
+                + np.dot(r_i, ri_step - r_i)
+                + np.dot(r_g, rg_step - r_g)
+            )
 
             for ls_iter in range(20):
                 xn = x + alpha * delta_x
@@ -853,7 +865,7 @@ class SparseOdynSolver:
 
                 rd_n, req_n, ri_n, rg_n = residuals(xn, sn, yn, zn)
                 M_n = 0.5 * (np.dot(rd_n, rd_n) + np.dot(req_n, req_n) + np.dot(ri_n, ri_n) + np.dot(rg_n, rg_n))
-                if M_n <= M_cur + alpha * self.params.eta * (np.dot(r_d, r_d) - np.dot(rd_n, rd_n)):
+                if M_n <= self.params.gamma * M_cur + alpha * self.params.eta * dM:
                     break
                 alpha *= 0.5
 
@@ -933,7 +945,7 @@ class SparseOdynSolver:
             iterations=iterations,
             solve_time=solve_time,
             status=status,
-            primal_residual=_inf_norm(r_eq) if m > 0 else 0,
+            primal_residual=max(_inf_norm(r_eq), _inf_norm(r_i)),
             dual_residual=_inf_norm(r_d),
             infeasibility=np.linalg.norm(np.minimum(s, z), np.inf) if p > 0 else 0,
         )

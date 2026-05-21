@@ -1,6 +1,6 @@
 # Reproduction Milestones
 
-**Current: secondary_claims**
+**Current: core_claim_plus**
 
 ## Progress Log
 
@@ -65,5 +65,10 @@
 - Cleaned method-agnostic documentation in `briefing/problem.md`, `briefing/evaluation.md`, and `scoring/DIRECTION.md` without changing scored artifacts.
 - Revalidated with `python3 validate.py --compare`; all scoring, import-separation, train/test, and method-output checks pass.
 
+### [2026-05-21 17:09] - core_claim_plus
+- Re-audited milestone scope against the paper and downgraded the current claim from `secondary_claims` to `core_claim_plus` because the warm-start WCR secondary claim is documented but not yet reproduced or scored.
+- Added main-score iteration metrics from existing raw solver artifacts, so `scoring/scores.json` now covers both failure-rate benefits and convergence-cost constraints already declared in `scoring/reference.json`.
+- Patched the sparse ODYN line search to use the same relaxed Armijo condition as the dense backend and queued a container smoke job to exercise that code path.
+
 ## Stop Justification
-- Completed at milestone `secondary_claims`.
+- Not stopped; a verification job is queued for the latest scoring and sparse-line-search patches.

@@ -1,3 +1,5 @@
-action: done
-milestone: secondary_claims
-notes: "Verified secondary_claims reproduction; validation passes and workspace is ready with documented limitations."
+action: submit
+gpus: 0
+test: true
+milestone: core_claim_plus
+notes: "CPU container smoke validation for updated main scoring metrics and sparse ODYN Armijo line-search patch; expected to regenerate train/test/main scores and pass validate.py --compare."

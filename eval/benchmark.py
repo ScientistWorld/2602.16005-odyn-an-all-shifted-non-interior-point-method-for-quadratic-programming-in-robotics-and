@@ -39,17 +39,32 @@ def load_result(path: Path) -> dict[str, Any]:
 
 def score_failure_rate(raw: dict[str, Any]) -> dict[str, float] | None:
     benchmark = raw.get("benchmark") or []
-    attempted = [
-        item for item in benchmark
-        if bool(item.get("attempted", not str(item.get("status", "")).startswith("skipped_")))
-    ]
+    attempted = [item for item in benchmark if _is_attempted(item)]
     if not attempted:
         return None
     failed = sum(1 for item in attempted if not bool(item.get("success", False)))
     total = len(attempted)
     rate = 100.0 * failed / total if total else 100.0
     metric = _metric_for_tolerance(float(raw.get("metadata", {}).get("rtol", 1e-6)))
-    return {metric: rate, "attempted_count": float(total)}
+    iteration_metric = "mean_iterations_high" if metric == "failure_rate_high" else "mean_iterations_medium"
+    max_iter = float(raw.get("metadata", {}).get("max_iter", 200))
+    iteration_denominator = len(benchmark) if benchmark else total
+    total_iterations = 0.0
+    for item in benchmark:
+        if _is_attempted(item) and bool(item.get("success", False)):
+            total_iterations += min(max(_finite_number(item.get("iterations"), max_iter), 0.0), max_iter)
+        else:
+            total_iterations += max_iter
+    return {
+        metric: rate,
+        iteration_metric: total_iterations / iteration_denominator if iteration_denominator else max_iter,
+        "attempted_count": float(total),
+    }
+
+
+def _is_attempted(item: dict[str, Any]) -> bool:
+    status = str(item.get("status", ""))
+    return bool(item.get("attempted", not status.startswith("skipped_")))
 
 
 def score_degenerate(raw: dict[str, Any]) -> dict[str, float] | None:
@@ -62,8 +77,10 @@ def score_degenerate(raw: dict[str, Any]) -> dict[str, float] | None:
         item = degenerate.get(key)
         if not item:
             continue
-        default = max_iter
-        out[key] = _finite_number(item.get("iterations"), default)
+        if bool(item.get("success", False)):
+            out[key] = _finite_number(item.get("iterations"), max_iter)
+        else:
+            out[key] = max_iter
     return out or None
 
 

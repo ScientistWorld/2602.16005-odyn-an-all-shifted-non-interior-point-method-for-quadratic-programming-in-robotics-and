@@ -14,6 +14,9 @@ cd "$WORKSPACE_DIR"
 mkdir -p tmp/results scoring
 
 DATA_DIR="$WORKSPACE_DIR/data/maros_meszaros_qpbenchmark/data"
+if [[ ! -d "$DATA_DIR" ]]; then
+    bash scripts/download.sh
+fi
 TOTAL_PROBLEMS="$(find "$DATA_DIR" -maxdepth 1 -name '*.mat' | wc -l | tr -d ' ')"
 
 run_odyn_staged() {

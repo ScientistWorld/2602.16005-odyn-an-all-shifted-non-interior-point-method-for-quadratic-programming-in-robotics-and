@@ -36,7 +36,7 @@
 - [x] `method_runs` — executes end-to-end without errors
 - [x] `core_claim` — minimum experiment supports central claim
 - [x] `core_claim_plus` — additional settings
-- [x] `secondary_claims` — degenerate QP robustness experiment reproduced
+- [ ] `secondary_claims` — warm-start WCR experiment not yet reproduced
 - [ ] `majority`
 - [ ] `near_complete`
 - [ ] `full`
