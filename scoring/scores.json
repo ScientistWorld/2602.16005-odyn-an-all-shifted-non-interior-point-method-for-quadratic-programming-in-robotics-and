@@ -18,8 +18,8 @@
         },
         "osqp": {
           "failure_rate_medium": 50.0,
-          "attempted_count": 16.0,
-          "failure_rate_high": 43.75
+          "attempted_count": 138.0,
+          "failure_rate_high": 50.72463768115942
         }
       }
     },
