@@ -1,0 +1,50 @@
+{
+  "_provenance": {
+    "generator": "eval.test.evaluate",
+    "slice": "test",
+    "split_manifest": "eval/test/problem_names.json",
+    "raw_results": [
+      "tmp/results/odyn_full_medium.json",
+      "tmp/results/odyn_full_high.json",
+      "tmp/results/osqp_full_medium.json",
+      "tmp/results/osqp_full_high.json"
+    ],
+    "target_problem_count": 69,
+    "train_scores": "scoring/scores_train.json",
+    "success_criterion": "success flag plus primal_residual, dual_residual, and infeasibility <= max(1e-6, 10*rtol)"
+  },
+  "experiments": {
+    "failure_rate_comparison": {
+      "results": {
+        "odyn": {
+          "failure_rate_medium": 76.81159420289855,
+          "mean_iterations_medium": 323.5652173913044,
+          "attempted_count": 36.0,
+          "failure_rate_high": 65.21739130434783,
+          "mean_iterations_high": 628.1159420289855
+        },
+        "osqp": {
+          "failure_rate_medium": 100.0,
+          "mean_iterations_medium": 2021.376811594203,
+          "attempted_count": 69.0,
+          "failure_rate_high": 100.0,
+          "mean_iterations_high": 3966.6666666666665
+        }
+      }
+    },
+    "degenerate_problems": {
+      "results": {
+        "odyn": {
+          "redundant_ineq": 6.0,
+          "licq_failure": 3.0,
+          "multiple_solutions": 9.0
+        },
+        "osqp": {
+          "redundant_ineq": 75.0,
+          "licq_failure": 50.0,
+          "multiple_solutions": 75.0
+        }
+      }
+    }
+  }
+}
