@@ -2,4 +2,4 @@ action: submit
 gpus: 0
 test: false
 milestone: secondary_claims
-notes: "Resume-safe CPU refresh of the patched ODYN medium/high benchmark: runners now checkpoint after each problem and resume from partial JSON files, so this submission should continue past the previous orphaned job and regenerate scoring/scores.json against the current implementation."
+notes: "CPU rerun of the patched ODYN benchmark with staged prefix expansion (40, 80, 120, full) and resume enabled. The existing medium partial has 38 entries through GOULDQP2, so this submission should continue from there and make bounded progress even if the cluster preempts again."
