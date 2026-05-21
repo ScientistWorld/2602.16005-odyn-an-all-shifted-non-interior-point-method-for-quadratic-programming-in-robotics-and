@@ -8,12 +8,12 @@
         "failure_rate_medium": {
           "higher_is_better": false,
           "coefficient": -1.0,
-          "description": "Residual-certified failure percentage at 1e-6 requested accuracy on the evaluated Maros-Meszaros slice."
+          "description": "Failure percentage at 1e-6 requested accuracy on the evaluated Maros-Meszaros slice, counting missing or skipped slice problems as failures."
         },
         "failure_rate_high": {
           "higher_is_better": false,
           "coefficient": -0.7,
-          "description": "Residual-certified failure percentage at 1e-9 requested accuracy, used to catch methods that only work at looser tolerances."
+          "description": "Failure percentage at 1e-9 requested accuracy, used to catch methods that only work at looser tolerances."
         },
         "mean_iterations_medium": {
           "higher_is_better": false,

@@ -11,14 +11,14 @@
 
 ## Changed
 
-- Fixed a shortcut risk where failure-rate scoring trusted the raw `success` flag alone. Both train and test now require a residual certificate: `success` plus finite `primal_residual`, `dual_residual`, and `infeasibility` no larger than `max(1e-6, 10*rtol)`.
-- Added train/test provenance text documenting the residual-certified success criterion.
+- Kept failure-rate scoring on the raw solver `success` flag while counting missing or skipped slice problems as failures. A runtime test showed residual fields were not comparable across artifacts: OSQP did not report them at all, while ODYN's stored `infeasibility` diagnostic was not calibrated to the requested tolerance and made medium-tolerance results look worse than high-tolerance results.
+- Added train/test provenance text documenting the success-and-coverage criterion.
 - Added `mean_iterations_medium` and `mean_iterations_high` to the failure-rate experiment. These are machine-independent convergence-cost metrics and assign the iteration cap to missing or failed problems, so methods cannot improve reliability scores by skipping hard cases or hiding slow convergence.
 - Reduced the coefficient on `attempted_count` so it remains a coverage guardrail without dominating the failure-rate objective.
 - Added required metric descriptions throughout `scoring/reference.json`.
 
 ## Runtime Concerns For The Runner
 
-- The residual threshold may expose any raw result files that mark `success: true` while recording stale, missing, or non-finite residual fields. That is intended, but the next runner should check whether old artifacts need regeneration.
+- First split-scoring run (`e1be94a3-626`) completed, but exposed a residual-certificate evaluator artifact: OSQP raw artifacts contain solver success flags and iteration counts but no residual diagnostic fields, and ODYN's `infeasibility` diagnostic is not calibrated to the requested tolerance. The train/test evaluators now use the solver success flag consistently and keep the anti-shortcut coverage guard by scoring missing or skipped slice problems as failures.
 - Degenerate-problem scoring is not split because there are only three cases; it remains a triangulation constraint rather than a strong train/test anti-shortcut signal.
 - The held-out test scorer aligns to methods present in `scoring/scores_train.json` when that file exists. If a runner invokes test first, it falls back to `tmp/results/*.json`; that is usable but loses the explicit train-method alignment check.

@@ -1,4 +1,4 @@
 action: submit
 gpus: 0
 test: false
-notes: "CPU post-hoc run of evaluate_train.sh and evaluate_test.sh against existing ODYN/OSQP raw artifacts; populate split scores."
+notes: "Rerun corrected split evaluators after removing residual-field artifact from failure-rate scoring; populate updated scores_train/test."

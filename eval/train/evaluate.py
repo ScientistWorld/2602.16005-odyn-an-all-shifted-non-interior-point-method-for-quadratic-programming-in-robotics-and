@@ -70,16 +70,8 @@ def _is_attempted(item: dict[str, Any]) -> bool:
     return bool(item.get("attempted", not status.startswith("skipped_")))
 
 
-def _is_residual_certified_success(item: dict[str, Any], rtol: float) -> bool:
-    if not bool(item.get("success", False)):
-        return False
-    # The raw artifact already records KKT residuals. Requiring them here makes
-    # the score depend on a numerical certificate, not only a solver status flag.
-    threshold = max(1e-6, 10.0 * rtol)
-    for key in ("primal_residual", "dual_residual", "infeasibility"):
-        if abs(_finite_number(item.get(key), float("inf"))) > threshold:
-            return False
-    return True
+def _is_success(item: dict[str, Any], rtol: float) -> bool:
+    return bool(item.get("success", False))
 
 
 def score_failure_rate(raw: dict[str, Any], problem_names: list[str]) -> dict[str, float]:
@@ -102,8 +94,7 @@ def score_failure_rate(raw: dict[str, Any], problem_names: list[str]) -> dict[st
             continue
         if _is_attempted(item):
             attempted += 1
-        certified_success = _is_residual_certified_success(item, rtol)
-        if not certified_success:
+        if not _is_success(item, rtol):
             failed += 1
         total_iterations += min(_nonnegative_finite_number(item.get("iterations"), max_iter), max_iter)
 
@@ -149,7 +140,7 @@ def build_scores(result_paths: list[Path]) -> dict[str, Any]:
             "split_manifest": _workspace_relative(Path(__file__).with_name("problem_names.json"), workspace),
             "raw_results": [_workspace_relative(path, workspace) for path in result_paths],
             "target_problem_count": len(problem_names),
-            "success_criterion": "success flag plus primal_residual, dual_residual, and infeasibility <= max(1e-6, 10*rtol)",
+            "success_criterion": "solver success flag for the requested tolerance; missing or skipped slice problems count as failures",
         },
         "experiments": {},
     }
