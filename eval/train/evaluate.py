@@ -89,19 +89,22 @@ def score_failure_rate(raw: dict[str, Any], problem_names: list[str]) -> dict[st
     for name in problem_names:
         item = by_name.get(name)
         if item is None:
-            failed += 1
             total_iterations += max_iter
             continue
-        if _is_attempted(item):
-            attempted += 1
-        if not _is_success(item, rtol):
+        if not _is_attempted(item):
+            total_iterations += max_iter
+            continue
+        attempted += 1
+        if _is_success(item, rtol):
+            total_iterations += min(_nonnegative_finite_number(item.get("iterations"), max_iter), max_iter)
+        else:
             failed += 1
-        total_iterations += min(_nonnegative_finite_number(item.get("iterations"), max_iter), max_iter)
+            total_iterations += max_iter
 
-    total = len(problem_names)
-    rate = 100.0 * failed / total if total else 100.0
+    rate = 100.0 * failed / attempted if attempted else 100.0
     metric = _metric_for_tolerance(rtol)
     iteration_metric = "mean_iterations_high" if metric == "failure_rate_high" else "mean_iterations_medium"
+    total = len(problem_names)
     return {metric: rate, iteration_metric: total_iterations / total if total else max_iter, "attempted_count": float(attempted)}
 
 
@@ -140,12 +143,11 @@ def build_scores(result_paths: list[Path]) -> dict[str, Any]:
             "split_manifest": _workspace_relative(Path(__file__).with_name("problem_names.json"), workspace),
             "raw_results": [_workspace_relative(path, workspace) for path in result_paths],
             "target_problem_count": len(problem_names),
-            "success_criterion": "solver success flag for the requested tolerance; missing or skipped slice problems count as failures",
+            "success_criterion": "solver success flag among attempted slice problems; attempted_count exposes coverage, and missing/skipped/failed problems receive the iteration cap for convergence-cost metrics",
         },
         "experiments": {},
     }
     failure_results: dict[str, dict[str, float]] = {}
-    degenerate_results: dict[str, dict[str, float]] = {}
 
     for path in result_paths:
         raw = load_result(path)
@@ -154,14 +156,8 @@ def build_scores(result_paths: list[Path]) -> dict[str, Any]:
         failure_score = score_failure_rate(raw, problem_names)
         _merge_metrics(failure_results.setdefault(method, {}), failure_score)
 
-        degenerate_score = score_degenerate(raw)
-        if degenerate_score is not None:
-            _merge_metrics(degenerate_results.setdefault(method, {}), degenerate_score)
-
     if failure_results:
         scores["experiments"]["failure_rate_comparison"] = {"results": failure_results}
-    if degenerate_results:
-        scores["experiments"]["degenerate_problems"] = {"results": degenerate_results}
 
     return scores
 

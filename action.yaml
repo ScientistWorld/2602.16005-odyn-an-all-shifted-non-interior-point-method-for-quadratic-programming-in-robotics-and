@@ -1,4 +1,5 @@
-action: done
+action: submit
 gpus: 0
 test: false
-notes: "Disjoint Maros-Meszaros train/test split plus unsplit degenerate triangulation; 16 train metric values, 16 test metric values; failure gaps are comparable (ODYN +4.35/-5.80 pp medium/high, OSQP -10.14/-11.59 pp); caveats: degenerate cases are identical across slices and ODYN coverage is limited by skipped memory-heavy problems."
+milestone: secondary_claims
+notes: "Rerun split scoring after fixing attempted-problem failure rates, dropping unsplittable degenerate cases from train/test scores, and rebalancing manifests; local validate.py --post-design passes."

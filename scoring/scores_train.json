@@ -10,38 +10,24 @@
       "tmp/results/osqp_full_high.json"
     ],
     "target_problem_count": 69,
-    "success_criterion": "solver success flag for the requested tolerance; missing or skipped slice problems count as failures"
+    "success_criterion": "solver success flag among attempted slice problems; attempted_count exposes coverage, and missing/skipped/failed problems receive the iteration cap for convergence-cost metrics"
   },
   "experiments": {
     "failure_rate_comparison": {
       "results": {
         "odyn": {
-          "failure_rate_medium": 53.6231884057971,
-          "mean_iterations_medium": 290.6231884057971,
+          "failure_rate_medium": 16.216216216216218,
+          "mean_iterations_medium": 1724.9855072463768,
           "attempted_count": 37.0,
-          "failure_rate_high": 66.66666666666667,
-          "mean_iterations_high": 973.6666666666666
+          "failure_rate_high": 40.54054054054054,
+          "mean_iterations_high": 3538.3623188405795
         },
         "osqp": {
           "failure_rate_medium": 55.072463768115945,
-          "mean_iterations_medium": 2362.68115942029,
+          "mean_iterations_medium": 2444.5652173913045,
           "attempted_count": 69.0,
           "failure_rate_high": 56.52173913043478,
-          "mean_iterations_high": 4740.942028985507
-        }
-      }
-    },
-    "degenerate_problems": {
-      "results": {
-        "odyn": {
-          "redundant_ineq": 6.0,
-          "licq_failure": 3.0,
-          "multiple_solutions": 9.0
-        },
-        "osqp": {
-          "redundant_ineq": 75.0,
-          "licq_failure": 50.0,
-          "multiple_solutions": 75.0
+          "mean_iterations_high": 4923.913043478261
         }
       }
     }

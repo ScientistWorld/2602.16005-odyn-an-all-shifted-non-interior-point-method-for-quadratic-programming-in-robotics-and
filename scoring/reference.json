@@ -8,7 +8,7 @@
         "failure_rate_medium": {
           "higher_is_better": false,
           "coefficient": -1.0,
-          "description": "Failure percentage at 1e-6 requested accuracy on the evaluated Maros-Meszaros slice, counting missing or skipped slice problems as failures."
+          "description": "Failure percentage among attempted Maros-Meszaros slice problems at 1e-6 requested accuracy; coverage is scored separately by attempted_count."
         },
         "failure_rate_high": {
           "higher_is_better": false,
