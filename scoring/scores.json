@@ -12,14 +12,14 @@
     "failure_rate_comparison": {
       "results": {
         "odyn": {
-          "failure_rate_medium": 12.32876712328767,
+          "failure_rate_medium": 16.438356164383563,
           "attempted_count": 73.0,
-          "failure_rate_high": 23.28767123287671
+          "failure_rate_high": 31.506849315068493
         },
         "osqp": {
           "failure_rate_medium": 50.0,
-          "attempted_count": 138.0,
-          "failure_rate_high": 50.72463768115942
+          "attempted_count": 16.0,
+          "failure_rate_high": 43.75
         }
       }
     },
@@ -29,6 +29,11 @@
           "redundant_ineq": 6.0,
           "licq_failure": 3.0,
           "multiple_solutions": 9.0
+        },
+        "osqp": {
+          "redundant_ineq": 75.0,
+          "licq_failure": 50.0,
+          "multiple_solutions": 75.0
         }
       }
     }
