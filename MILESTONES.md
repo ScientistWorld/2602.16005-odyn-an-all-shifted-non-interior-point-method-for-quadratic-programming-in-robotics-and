@@ -31,5 +31,9 @@
 - Tightened the ODYN solver updates to match the paper more closely: neighborhood-gated proximal estimate refresh, per-residual interpolation and regularization updates, and Eq. (52)-style stopping checks in the sparse backend.
 - Queued a containerized smoke validation job before changing any reported benchmark numbers.
 
+### [2026-05-21 00:15] - secondary_claims
+- Audited the continuation workspace and confirmed the implementation is still an ODYN solver rather than a surrogate model.
+- Found that the patched ODYN code had become newer than the active ODYN benchmark artifacts, so this turn resubmits the scored ODYN benchmark to refresh `scoring/scores.json` against the current implementation.
+
 ## Stop Justification
 - Completed at milestone `secondary_claims`.
