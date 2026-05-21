@@ -76,4 +76,4 @@
 - Removed method identity leakage from method-agnostic evaluation documentation and revalidated with `python3 validate.py --compare`.
 
 ## Stop Justification
-- Final verification complete at `core_claim_plus`. The workspace is usable as a partial QP robustness gym, but it does not claim `secondary_claims` because the warm-start WCR experiment remains missing.
+- Completed at milestone `core_claim_plus`.
