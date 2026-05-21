@@ -2,4 +2,4 @@ action: submit
 gpus: 0
 test: false
 milestone: secondary_claims
-notes: "CPU full rerun of ODYN medium/high benchmark after the solver update-rule patch, then rescore against the existing OSQP baseline raw outputs and rerun validate.py so scores match the current implementation."
+notes: "Resume-safe CPU refresh of the patched ODYN medium/high benchmark: runners now checkpoint after each problem and resume from partial JSON files, so this submission should continue past the previous orphaned job and regenerate scoring/scores.json against the current implementation."
