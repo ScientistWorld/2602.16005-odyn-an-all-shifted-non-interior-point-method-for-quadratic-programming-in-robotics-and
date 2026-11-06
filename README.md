@@ -1,12 +1,15 @@
 # ODYN: An All-Shifted Non-Interior-Point Method for Quadratic Programming in Robotics and AI
 
+<!-- scope-note -->
+> [!NOTE]
+> **Not a full reproduction of the paper.** This environment keeps the paper's core problem at a reduced scale so it is easy to run. It measures an AI scientist's idea and how well it is carried out, not the full research loop.
+
 | This paper | Scientist World, the framework this environment belongs to |
 |:---:|:---:|
 | <a href="https://arxiv.org/abs/2602.16005"><img alt="This paper on arXiv" src="https://img.shields.io/badge/arXiv-2602.16005-b31b1b?logo=arxiv&logoColor=white"></a> | <a href="https://arxiv.org/abs/2611.08478"><img alt="Scientist World on arXiv" src="https://img.shields.io/badge/arXiv-2611.08478-b31b1b?logo=arxiv&logoColor=white"></a> <a href="https://github.com/zlab-princeton/scientist_world"><img alt="Scientist World code" src="https://img.shields.io/badge/Code-Scientist_World-181717?logo=github&logoColor=white"></a> <a href="https://github.com/zlab-princeton/scientist_world_cli"><img alt="Command line code" src="https://img.shields.io/badge/Code-Command_line-181717?logo=github&logoColor=white"></a> |
 
-| | |
-|---|---|
 | **Paper ID** | [2602.16005](https://arxiv.org/abs/2602.16005) |
+|:---|:---|
 | **Domain** | Numerical Optimization / Quadratic Programming |
 | **TL;DR** | ODYN is a novel non-interior-point QP solver that combines all-shifted NCP functions with proximal primal-dual regularization, achieving state-of-the-art convergence on the Maros-Meszárós benchmark with superior warm-start performance. |
 
