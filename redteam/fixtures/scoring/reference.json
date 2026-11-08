@@ -1,0 +1,133 @@
+{
+  "experiments": {
+    "failure_rate_comparison": {
+      "description": "Failure rates on the Maros-Meszaros QP benchmark at medium (1e-6) and high (1e-9) requested accuracy, reported in Table III.",
+      "weight": 0.65,
+      "primary_metric": "failure_rate_medium",
+      "metrics": {
+        "failure_rate_medium": {
+          "higher_is_better": false,
+          "coefficient": -1.0,
+          "description": "Failure percentage among attempted Maros-Meszaros slice problems at 1e-6 requested accuracy; coverage is scored separately by attempted_count."
+        },
+        "failure_rate_high": {
+          "higher_is_better": false,
+          "coefficient": -0.7,
+          "description": "Failure percentage at 1e-9 requested accuracy, used to catch methods that only work at looser tolerances."
+        },
+        "mean_iterations_medium": {
+          "higher_is_better": false,
+          "coefficient": -0.15,
+          "description": "Mean solver iterations at 1e-6 requested accuracy, assigning the iteration cap to missing or failed problems as a machine-independent convergence cost."
+        },
+        "mean_iterations_high": {
+          "higher_is_better": false,
+          "coefficient": -0.1,
+          "description": "Mean solver iterations at 1e-9 requested accuracy, assigning the iteration cap to missing or failed problems as a machine-independent convergence cost."
+        },
+        "attempted_count": {
+          "higher_is_better": true,
+          "coefficient": 0.05,
+          "description": "Number of benchmark instances actually attempted, so reduced coverage cannot masquerade as robustness."
+        }
+      },
+      "results": {
+        "odyn": {
+          "type": "proposed",
+          "failure_rate_medium": 9.7,
+          "failure_rate_high": 15.5,
+          "attempted_count": 138
+        },
+        "proxqp": {
+          "type": "baseline",
+          "failure_rate_medium": 33.0,
+          "failure_rate_high": 35.9,
+          "attempted_count": 138
+        },
+        "piqp": {
+          "type": "baseline",
+          "failure_rate_medium": 10.7,
+          "failure_rate_high": 10.7,
+          "attempted_count": 138
+        },
+        "osqp": {
+          "type": "baseline",
+          "failure_rate_medium": 44.7,
+          "failure_rate_high": 49.5,
+          "attempted_count": 138
+        },
+        "mosek": {
+          "type": "baseline",
+          "failure_rate_medium": 14.6,
+          "failure_rate_high": 14.6,
+          "attempted_count": 138
+        },
+        "gurobi": {
+          "type": "baseline",
+          "failure_rate_medium": 9.7,
+          "failure_rate_high": 12.6,
+          "attempted_count": 138
+        }
+      }
+    },
+    "degenerate_problems": {
+      "description": "Iteration counts on three degenerate QPs with redundant inequalities, LICQ failure, and multiple solutions, reported in Table IV. The paper marks OSQP's LICQ-failure entry with a dagger note ('declared dual infeasible') rather than a numeric iteration count.",
+      "weight": 0.35,
+      "primary_metric": "redundant_ineq",
+      "metrics": {
+        "redundant_ineq": {
+          "higher_is_better": false,
+          "coefficient": -0.6,
+          "description": "Iteration count on the redundant-inequality degenerate QP."
+        },
+        "licq_failure": {
+          "higher_is_better": false,
+          "coefficient": -0.2,
+          "description": "Iteration count on the degenerate QP that violates LICQ."
+        },
+        "multiple_solutions": {
+          "higher_is_better": false,
+          "coefficient": -0.4,
+          "description": "Iteration count on the degenerate QP with non-unique primal solutions."
+        }
+      },
+      "results": {
+        "odyn": {
+          "type": "proposed",
+          "redundant_ineq": 5,
+          "licq_failure": 10,
+          "multiple_solutions": 6
+        },
+        "proxqp": {
+          "type": "baseline",
+          "redundant_ineq": 12,
+          "licq_failure": 30,
+          "multiple_solutions": 10
+        },
+        "osqp": {
+          "type": "baseline",
+          "redundant_ineq": 75,
+          "multiple_solutions": 200
+        },
+        "piqp": {
+          "type": "baseline",
+          "redundant_ineq": 5,
+          "licq_failure": 8,
+          "multiple_solutions": 6
+        },
+        "mosek": {
+          "type": "baseline",
+          "redundant_ineq": 4,
+          "licq_failure": 14,
+          "multiple_solutions": 5
+        },
+        "gurobi": {
+          "type": "baseline",
+          "redundant_ineq": 11,
+          "licq_failure": 8,
+          "multiple_solutions": 9
+        }
+      }
+    }
+  }
+}
