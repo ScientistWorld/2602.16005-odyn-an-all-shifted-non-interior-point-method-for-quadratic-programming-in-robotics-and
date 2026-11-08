@@ -21,3 +21,8 @@ actual computation and must be submitted as a job. Individual `run.sh` scripts
 can also be submitted as jobs. A completed case is resumable using its saved
 scores; delete its `complete.json` to repeat it. The three reference seeds start
 from independent solver executions, rather than rescore one saved execution.
+
+The first CPU job was cancelled after a scheduler worker-drain preemption left
+it without new output for over forty minutes. Its per-problem checkpoints and
+completed cases are preserved. The resumed suite runs inexpensive shortcut
+cases before the remaining solver configurations and independent seed reruns.
