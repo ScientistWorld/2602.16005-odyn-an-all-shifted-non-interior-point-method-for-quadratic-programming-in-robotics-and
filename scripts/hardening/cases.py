@@ -109,6 +109,12 @@ def cmd_smoke(_: argparse.Namespace) -> None:
         rec = json.loads(line)
         print("smoke:", rec["solver"], rec["instance"], rec["tolerance"], rec["solved"], rec["reason"],
               {k: f"{v:.1e}" for k, v in (rec.get("ratios") or {}).items()}, rec.get("reported"))
+    shown = 0
+    for line in (WS / "tmp" / "eval_runs" / "smoke" / "outcomes.jsonl").read_text().splitlines():
+        rec = json.loads(line)
+        if rec.get("log_tail") and shown < 4:
+            shown += 1
+            print(f"smoke: log tail for {rec['solver']} {rec['instance']} {rec['tolerance']}:\n{rec['log_tail']}")
     if not ok:
         raise SystemExit("smoke test failed")
 

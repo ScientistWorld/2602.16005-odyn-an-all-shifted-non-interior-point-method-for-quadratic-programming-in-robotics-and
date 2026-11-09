@@ -667,7 +667,8 @@ def _solver_env() -> dict[str, str]:
     return env
 
 
-_LIMIT_SH = 'ulimit -c 0; ulimit -H -t {hard} && ulimit -S -t {soft} && exec "$@"'
+# Soft limit first (soft <= current hard), then lower the hard limit to soft + 5 s.
+_LIMIT_SH = 'ulimit -c 0; ulimit -S -t {soft} && ulimit -H -t {hard} && exec "$@"'
 
 
 def run_limited(cmd: list[str], log_path: Path) -> dict[str, Any]:
@@ -712,14 +713,16 @@ def _cache_dir(key: str) -> Path | None:
 def run_job(solver: str, spec: dict[str, Any], inst: Instance, tol_name: str, tol: float,
             workdir: Path) -> dict[str, Any]:
     key = hashlib.sha256(
-        f"{PROTOCOL}|{spec['fingerprint']}|{inst.content_hash}|{tol!r}|{CPU_LIMIT_S}".encode()
+        f"{PROTOCOL}|{spec['fingerprint']}|{inst.content_hash}|{tol!r}|{CPU_LIMIT_S}|{_LIMIT_SH}".encode()
     ).hexdigest()
     cache = _cache_dir(key)
     cache_hit = False
     run_info: dict[str, Any]
+    log_file: Path
     if cache is not None and (cache / "meta.json").is_file():
         run_info = json.loads((cache / "meta.json").read_text())
         output = cache / "output.npz"
+        log_file = cache / "solver.log"
         cache_hit = True
     else:
         job_dir = workdir / "runs" / solver / f"{inst.instance_id.replace('/', '__')}__{tol_name}"
@@ -728,7 +731,8 @@ def run_job(solver: str, spec: dict[str, Any], inst: Instance, tol_name: str, to
         if output.exists():
             output.unlink()
         cmd = [*spec["cmd"], "--problem", str(inst.path), "--output", str(output), "--tol", repr(tol)]
-        run_info = run_limited(cmd, job_dir / "solver.log")
+        log_file = job_dir / "solver.log"
+        run_info = run_limited(cmd, log_file)
         if cache is not None:
             tmp = cache.parent / f".{key}.{os.getpid()}.{threading.get_ident()}.tmp"
             shutil.rmtree(tmp, ignore_errors=True)
@@ -742,7 +746,10 @@ def run_job(solver: str, spec: dict[str, Any], inst: Instance, tol_name: str, to
             else:
                 os.replace(tmp, cache)
             output = cache / "output.npz"
+            log_file = cache / "solver.log"
     record = verify(inst, output, tol)
+    if (run_info.get("returncode") or not output.is_file()) and log_file.is_file():
+        record["log_tail"] = log_file.read_bytes()[-1500:].decode("utf-8", "replace")
     record.update({
         "solver": solver,
         "instance": inst.instance_id,
