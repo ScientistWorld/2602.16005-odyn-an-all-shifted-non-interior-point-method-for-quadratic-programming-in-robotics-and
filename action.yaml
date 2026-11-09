@@ -1,8 +1,8 @@
 # Once you set action to 'submit' or 'done', STOP immediately.
 # Do NOT sleep, poll, or wait for jobs. The system reads this file
 # only after your turn ends.
-action: pending
+action: submit
 gpus: 0
 test: false
 milestone: core_claim_plus
-notes: ""
+notes: "Hardening verification: smoke test, hidden test (evaluator-run, KKT-verified) for reference ODYN + OSQP baseline, paper-level scores on unperturbed problems, better/weaker variants and shortcut probes via isolated workspaces, train scores, analysis + validate. Resumable via tmp/eval_cache."
