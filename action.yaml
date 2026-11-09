@@ -5,4 +5,4 @@ action: submit
 gpus: 0
 test: false
 milestone: core_claim_plus
-notes: "Rescore all cached raw outputs (reference, OSQP, variants, shortcuts; test/train/paper) with the paper-faithful verification (Eq. 52 from the returned point + sqrt(eps) gap guard); uncached rerun of the reference on the hidden test for run-to-run noise; analysis + validate."
+notes: "Final hardening audit after train/test rebalance: reference ODYN + OSQP through the hidden test from final code, paper-level and train scores, variants/shortcuts in isolated workspaces, uncached rerun noise, analysis + validate."
