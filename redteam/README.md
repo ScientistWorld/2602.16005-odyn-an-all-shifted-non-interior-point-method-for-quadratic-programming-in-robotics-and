@@ -33,9 +33,11 @@ success changes, reproduction comparison, independent seed commands, raw
 hashes, and unchanged evaluator hashes. `finalize_evidence.py` only reads small
 saved JSON files and checks these facts; it does not perform solver computation.
 
-`evaluate_fresh_job.sh` is submitted separately after the candidate-generation
-job exits. It reruns the original hidden script without arguments on all saved
-submissions, executes no candidate code, and requires byte-identical scores.
-It saves each result as `scores_test_fresh_job.json` and the combined comparison
+`evaluate_fresh_job.sh` ran separately after the candidate-generation job exited.
+It reran the original hidden script without arguments on all saved submissions,
+executed no candidate code, and obtained byte-identical scores for all 16 cases.
+Each result is saved as `scores_test_fresh_job.json` and the combined comparison
 as `fresh_job_verification.json`. The direct-score-write shortcut's forged
-output is put back before this job, so that control is exercised again too.
+output was put back before this job, so that control was exercised again too.
+Job metadata is archived in `job_records.json`; the temporary root job script is
+restored and generated root job records are removed when finishing the audit.

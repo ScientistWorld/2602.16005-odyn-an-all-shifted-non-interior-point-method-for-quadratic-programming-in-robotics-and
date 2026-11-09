@@ -1,0 +1,83 @@
+{
+  "4f71ff83-20b": {
+    "metadata": {
+      "run_id": "4f71ff83-20b",
+      "project_id": "swarm-2602.16005",
+      "command": "bash /home/user/scripts/run.sh",
+      "num_gpus": 0,
+      "num_cpus": 1,
+      "status": "running",
+      "submitted_at": 1794169349.3727984,
+      "started_at": 1794169368.599861,
+      "completed_at": null,
+      "returncode": null,
+      "last_checkpoint_at": null,
+      "checkpoint_count": 0,
+      "timeout_sec": 21600,
+      "resource": "gpu-cpu,gpu-cpu-test",
+      "hive_job_id": "b8faa11c"
+    }
+  },
+  "72191c51-767": {
+    "metadata": {
+      "run_id": "72191c51-767",
+      "project_id": "swarm-2602.16005",
+      "command": "bash /home/user/scripts/run.sh",
+      "num_gpus": 0,
+      "num_cpus": 1,
+      "status": "completed",
+      "submitted_at": 1794179905.4285765,
+      "started_at": 1794179949.8141572,
+      "completed_at": 1794188216.1376157,
+      "returncode": 0,
+      "last_checkpoint_at": 1794187233.308056,
+      "checkpoint_count": 6,
+      "timeout_sec": 21600,
+      "resource": "gpu-cpu,gpu-cpu-test",
+      "actual_resource": "gpu-cpu-test",
+      "hive_job_id": "d01cf172"
+    },
+    "result": {
+      "run_id": "72191c51-767",
+      "project_id": "swarm-2602.16005",
+      "command": "bash /home/user/scripts/run.sh",
+      "status": "completed",
+      "returncode": 0,
+      "duration": 8266.323458433151,
+      "submitted_at": 1794179905.4285765,
+      "started_at": 1794179949.8141572,
+      "completed_at": 1794188216.1376157
+    }
+  },
+  "8e193924-7ec": {
+    "metadata": {
+      "run_id": "8e193924-7ec",
+      "project_id": "swarm-2602.16005",
+      "command": "bash /home/user/scripts/run.sh",
+      "num_gpus": 0,
+      "num_cpus": 1,
+      "status": "completed",
+      "submitted_at": 1794188615.0532012,
+      "started_at": 1794188617.9272623,
+      "completed_at": 1794188636.3325508,
+      "returncode": 0,
+      "last_checkpoint_at": null,
+      "checkpoint_count": 0,
+      "timeout_sec": 21600,
+      "resource": "gpu-cpu,gpu-cpu-test",
+      "actual_resource": "gpu-cpu-test",
+      "hive_job_id": "7621864b"
+    },
+    "result": {
+      "run_id": "8e193924-7ec",
+      "project_id": "swarm-2602.16005",
+      "command": "bash /home/user/scripts/run.sh",
+      "status": "completed",
+      "returncode": 0,
+      "duration": 18.405288457870483,
+      "submitted_at": 1794188615.0532012,
+      "started_at": 1794188617.9272623,
+      "completed_at": 1794188636.3325508
+    }
+  }
+}
