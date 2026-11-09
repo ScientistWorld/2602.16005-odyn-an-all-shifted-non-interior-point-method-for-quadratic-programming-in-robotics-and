@@ -13,7 +13,8 @@
       "maros_meszaros": 73,
       "degenerate": 3
     },
-    "success_criterion": "evaluator-computed residuals of the returned (x, y, z) are within the tolerance for primal feasibility, dual feasibility, multiplier sign, complementarity, and duality gap; solver-reported status/iterations are ignored; every manifest instance counts, unsolved or missing ones as failures",
+    "verification": "paper-eq52-from-returned-point+sqrt-eps-gap-guard",
+    "success_criterion": "the paper's stopping test (Eq. 52 with absolute = relative tolerance eps) recomputed by the evaluator from the returned (x, y, z) with slack s = h - Gx: equality residual, stationarity residual and NCP residual min(s, z) within eps of their scales, plus relative duality gap <= sqrt(eps); solver-reported status/iterations are ignored; every manifest instance counts, unsolved or missing ones as failures",
     "solvers": [
       "odyn",
       "osqp"
@@ -25,52 +26,38 @@
       "maros_meszaros": {
         "medium": {
           "instances": 73,
-          "verified_solved": 40,
+          "verified_solved": 58,
           "failure_reasons": {
-            "kkt:complementarity,dual_sign,gap": 4,
-            "kkt:complementarity,dual_sign,gap,primal_ineq": 1,
-            "kkt:complementarity,gap": 1,
-            "kkt:dual,dual_sign,gap": 1,
+            "kkt:dual": 1,
             "kkt:dual,gap": 1,
-            "kkt:dual_sign": 3,
-            "kkt:dual_sign,gap": 5,
-            "kkt:gap": 8,
-            "kkt:gap,primal_ineq": 6,
-            "kkt:primal_ineq": 1,
+            "kkt:gap": 5,
+            "kkt:gap,ncp": 5,
+            "kkt:ncp": 1,
             "no_output": 2
           },
-          "median_reported_iterations_unverified_unscored": 16.0
+          "median_reported_iterations_unverified_unscored": 21.5
         },
         "high": {
           "instances": 73,
-          "verified_solved": 39,
+          "verified_solved": 53,
           "failure_reasons": {
-            "kkt:complementarity": 1,
-            "kkt:complementarity,dual,dual_sign,gap": 2,
-            "kkt:complementarity,dual,dual_sign,gap,primal_ineq": 2,
-            "kkt:complementarity,dual,gap": 1,
-            "kkt:complementarity,dual_sign,gap": 1,
-            "kkt:complementarity,dual_sign,gap,primal_ineq": 1,
-            "kkt:dual,dual_sign,gap": 1,
-            "kkt:dual,gap": 3,
-            "kkt:dual_sign": 5,
-            "kkt:gap": 5,
-            "kkt:gap,primal_eq,primal_ineq": 1,
-            "kkt:gap,primal_ineq": 2,
-            "kkt:primal_ineq": 2,
+            "kkt:dual": 3,
+            "kkt:dual,gap": 1,
+            "kkt:dual,gap,ncp": 5,
+            "kkt:gap,ncp": 1,
+            "kkt:gap,primal_eq": 1,
+            "kkt:ncp": 2,
             "no_output": 7
           },
-          "median_reported_iterations_unverified_unscored": 18.0
+          "median_reported_iterations_unverified_unscored": 24.0
         }
       },
       "degenerate": {
         "medium": {
           "instances": 3,
-          "verified_solved": 2,
-          "failure_reasons": {
-            "kkt:gap": 1
-          },
-          "median_reported_iterations_unverified_unscored": 5.5
+          "verified_solved": 3,
+          "failure_reasons": {},
+          "median_reported_iterations_unverified_unscored": 5.0
         },
         "high": {
           "instances": 3,
@@ -86,15 +73,13 @@
           "instances": 73,
           "verified_solved": 43,
           "failure_reasons": {
-            "kkt:complementarity,dual,gap,primal_eq,primal_ineq": 11,
-            "kkt:complementarity,dual,gap,primal_ineq": 11,
-            "kkt:complementarity,gap,primal_eq,primal_ineq": 1,
             "kkt:dual,gap": 1,
-            "kkt:dual,gap,primal_eq,primal_ineq": 1,
-            "kkt:dual,gap,primal_ineq": 2,
-            "kkt:gap": 1,
-            "kkt:gap,primal_eq,primal_ineq": 1,
-            "kkt:primal_ineq": 1
+            "kkt:dual,gap,ncp": 5,
+            "kkt:dual,gap,ncp,primal_eq": 9,
+            "kkt:dual,ncp": 8,
+            "kkt:dual,ncp,primal_eq": 3,
+            "kkt:gap,ncp,primal_eq": 2,
+            "kkt:ncp": 2
           },
           "median_reported_iterations_unverified_unscored": 125.0
         },
@@ -102,14 +87,14 @@
           "instances": 73,
           "verified_solved": 42,
           "failure_reasons": {
-            "kkt:complementarity,dual,gap": 1,
-            "kkt:complementarity,dual,gap,primal_eq,primal_ineq": 20,
-            "kkt:complementarity,dual,gap,primal_ineq": 6,
             "kkt:dual": 1,
-            "kkt:dual,gap,primal_ineq": 1,
-            "kkt:primal_ineq": 2
+            "kkt:dual,gap,ncp": 6,
+            "kkt:dual,gap,ncp,primal_eq": 18,
+            "kkt:dual,ncp": 2,
+            "kkt:dual,ncp,primal_eq": 2,
+            "kkt:ncp": 2
           },
-          "median_reported_iterations_unverified_unscored": 187.5
+          "median_reported_iterations_unverified_unscored": 237.5
         }
       },
       "degenerate": {
@@ -132,8 +117,8 @@
     "failure_rate_comparison": {
       "results": {
         "odyn": {
-          "failure_rate_medium": 45.205479452054796,
-          "failure_rate_high": 46.57534246575342
+          "failure_rate_medium": 20.54794520547945,
+          "failure_rate_high": 27.397260273972602
         },
         "osqp": {
           "failure_rate_medium": 41.0958904109589,
@@ -144,7 +129,7 @@
     "degenerate_problems": {
       "results": {
         "odyn": {
-          "degenerate_failure_rate_medium": 33.333333333333336,
+          "degenerate_failure_rate_medium": 0.0,
           "degenerate_failure_rate_high": 0.0
         },
         "osqp": {
