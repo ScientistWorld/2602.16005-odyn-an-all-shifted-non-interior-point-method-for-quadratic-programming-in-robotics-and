@@ -5,4 +5,4 @@ action: submit
 gpus: 0
 test: false
 milestone: core_claim_plus
-notes: "Hardening verification: smoke test, hidden test (evaluator-run, KKT-verified) for reference ODYN + OSQP baseline, paper-level scores on unperturbed problems, better/weaker variants and shortcut probes via isolated workspaces, train scores, analysis + validate. Resumable via tmp/eval_cache."
+notes: "Rerun hardening verification after fixing the evaluator's CPU-limit wrapper (ulimit order). Smoke, hidden test for reference + OSQP, paper-level scores, variants/shortcuts in isolated workspaces, train scores, analysis + validate."
