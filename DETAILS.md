@@ -22,20 +22,20 @@ ODYN is a warm-startable QP solver based on all-shifted non-interior-point metho
 
 ## Research Question
 
-Build a convex quadratic programming (QP) solver that remains reliable across difficult benchmark problems, sequential warm-started problem families, and degenerate or ill-conditioned cases such as redundant constraints, rank-deficient matrices, and non-unique solutions.
+Build a convex quadratic programming (QP) solver that remains reliable across difficult benchmark problems and degenerate or ill-conditioned cases such as redundant constraints, rank-deficient constraint matrices, failed constraint qualifications, and non-unique solutions.
 
 ## Why It Matters
 
-QP solvers are foundational in robotics and AI. They underpin model predictive control, contact simulation, whole-body control, SQP-based trajectory optimization, and differentiable optimization layers in neural networks. These applications require solvers that handle related QP sequences efficiently, solve hard and degenerate problems robustly, and achieve high accuracy.
+QP solvers are foundational in robotics and AI. They underpin model predictive control, contact simulation, whole-body control, SQP-based trajectory optimization, and differentiable optimization layers in neural networks. These applications need solvers that solve hard and degenerate problems robustly, to high accuracy, within a fixed compute budget.
 
 ## Success Criteria
 
 A successful QP solver should:
-1. **Low failure rate**: solve the vast majority of Maros-Meszaros benchmark problems within fixed limits at medium (1e-6) and high (1e-9) requested accuracy.
-2. **High coverage**: report how many benchmark instances were attempted, so robustness cannot be inflated by silently skipping difficult problems.
-3. **Degenerate robustness**: solve problems with redundant constraints, failed regularity assumptions, positive semidefinite cost matrices, and non-unique solutions.
-4. **Efficient convergence**: use fewer iterations where possible while preserving the same problem definitions, tolerances, and failure rules.
-5. **Warm-start usefulness**: on related QP sequences, reduce iteration count relative to cold starts without changing the target problem.
+1. **Low failure rate on hard problems**: return a verified optimal primal-dual point for as many Maros-Meszaros-derived instances as possible at medium (1e-6) and high (1e-9) accuracy, within a fixed CPU budget per instance.
+2. **Degenerate robustness**: do the same on problems with redundant active constraints, failed regularity assumptions, positive semidefinite cost matrices, and non-unique solutions.
+3. **Generalization**: the held-out instances are unseen perturbations and freshly generated degenerate problems, so behaviour tuned to particular public instances does not carry over.
+
+Efficiency (iterations) and warm-start behaviour on related QP sequences matter for the applications above but are not scored here, because a solver's own iteration count cannot be verified independently.
 
 ---
 
@@ -81,31 +81,72 @@ Note: The paper's GitHub URL is not directly provided in the paper text. The sol
 
 # Evaluation
 
-This page defines how a candidate QP solver is evaluated. It describes the task and metrics only; solver design choices belong outside the problem definition.
+This page defines how a candidate convex-QP solver is evaluated. It describes the task, the solver interface, and the metrics; solver design choices belong elsewhere.
 
-## Metrics
+## What is scored
 
-1. **Failure Rate (%)**: Percentage of problems that fail to converge within 120 seconds or encounter errors. Lower is better.
-2. **Attempted Count**: Number of benchmark instances actually attempted. Higher is better because reduced coverage must be visible.
-3. **Iteration Count**: Number of solver iterations to convergence. Fewer is better.
-4. **Degenerate-Case Iterations**: Iteration counts on small pathological QPs with redundant constraints, violated constraint qualifications, and non-unique solutions. Fewer is better.
-5. **Warm-to-Cold Ratio (WCR)**: Iterations with a warm start divided by iterations from a cold start on perturbed QP sequences. Lower is better.
+The evaluator runs your solver itself on instances it constructs, checks every returned point with its own residual computation, and reports **failure rates**. Lower is better.
 
-The paper also reports wall-clock timing and performance profiles. This gym does not score wall-clock time because hardware varies across runs; it uses failure rates, coverage, and iteration counts as machine-independent quantities.
+| Experiment | Metric | Meaning |
+|---|---|---|
+| `failure_rate_comparison` | `failure_rate_medium` (primary), `failure_rate_high` | % of Maros–Meszaros instances without a verified solution at tolerance 1e-6 / 1e-9 |
+| `degenerate_problems` | `degenerate_failure_rate_high` (primary), `degenerate_failure_rate_medium` | % of degenerate instances without a verified solution at 1e-9 / 1e-6 |
 
-Accuracy levels: **Medium** = tolerance 1e-6, **High** = tolerance 1e-9.
+Every instance in the fixed manifest is in the denominator. A missing, unreadable, wrongly shaped, or non-finite output counts as a failure, as do a crash and an over-budget run. Status strings, iteration counts, or residuals written by the solver are never used for scoring. Wall-clock time is not scored.
 
-## Targets
+## Instances
 
-Paper-reported reference values and reproduced scores are stored in `scoring/reference.json` and `scoring/scores.json`. A successful solver should achieve low medium-accuracy failure rate while preserving high-accuracy robustness and benchmark coverage. Methods that skip difficult instances must report reduced `attempted_count`; the evaluator does not treat skipped problems as invisible.
+The evaluator loads each problem as `minimize 1/2 x'Qx + c'x subject to Ax = b, Gx <= h`, with Q symmetric positive semidefinite.
 
-## Evaluation Protocol
+- **Maros–Meszaros**: the subset of the standard test set whose data fit in 2 GB as dense arrays with at most 1000 variables (73 problems). The problems are split into a visible train slice (37) and a held-out test slice (36), balanced for difficulty. Variable bounds are explicit inequality rows, and fixed variables become equality rows. The `.mat` files are checked against pinned SHA-256 hashes; altered data aborts scoring.
+  - The train slice scores each problem as published plus one small perturbation.
+  - The test slice scores two hidden perturbations of each problem.
+  - Perturbations are masked relative changes (at most min(10%, 20) entries): of the cost vector, an only-increasing change to positive Hessian diagonal entries, and an only-relaxing change to inequality right-hand sides. Feasibility and convexity are preserved.
+- **Degenerate QPs**: generated families with a known degenerate optimum. There are 12 instances of each kind, n ∈ {8, 16, 32, 64}; the test family uses a hidden seed. The train slice also includes the three small degenerate examples from the source paper. The three kinds are:
+  - redundant active inequalities (duplicated, rescaled, and looser parallel copies; more active rows than variables; weakly active constraints);
+  - constraint-qualification failure (equality rows repeated as inequalities and duplicated, variables pinned at active bounds, cost data spanning many orders of magnitude);
+  - non-unique solutions (positive-semidefinite Hessian with a flat optimal face, plus always-active zero rows `0'x <= 0`).
 
-1. **Benchmark**: run each solver on the Maros-Meszaros QP test set at both requested accuracy levels.
-2. **Failure Rules**: count solver errors, timeouts, numerical failures, and iteration-limit exits as failures.
-3. **Coverage**: report attempted problem count alongside failure rates.
-4. **Degenerate Cases**: run the redundant-constraint, LICQ-failure, and multiple-solution QPs and report iteration counts.
-5. **Reusable Scoring**: write raw solver result JSON files, then score them with `scripts/evaluate.sh` so evaluation remains independent of any particular solver implementation.
+## Success test
+
+For tolerance ε ∈ {1e-6, 1e-9}, the returned point (x, y, z) is checked with slack s = h − Gx. Norms are ∞-norms; the absolute and relative tolerances are both ε.
+
+- equality residual: ‖Ax − b‖ ≤ ε (1 + max(‖Ax‖, ‖b‖))
+- stationarity: ‖Qx + c + Aᵀy + Gᵀz‖ ≤ ε (1 + max(‖Qx‖, ‖c‖, ‖Aᵀy‖, ‖Gᵀz‖))
+- complementarity (also enforces inequality feasibility and z ≥ 0): ‖min(s, z)‖ ≤ ε (1 + max(‖s‖, ‖z‖))
+- relative duality gap: |xᵀQx + cᵀx + bᵀy + hᵀz| ≤ √ε (1 + max(|xᵀQx|, |cᵀx|, |bᵀy + hᵀz|))
+
+## Budget
+
+Each solve gets **120 CPU-seconds**. The solver process and its threads are limited with `ulimit -t`, BLAS thread variables are set to 1, and there is a generous wall-clock backstop. Each solver also gets **7200 CPU-seconds in total** per evaluation; instances that remain after this is exhausted count as failures.
+
+## Solver contract
+
+Register a solver by adding an executable `scripts/solvers/<name>.sh`. Its file stem is the method name in every scores file; `osqp` is reserved for the evaluator's baseline. The evaluator calls it once per instance and tolerance, with the workspace root as working directory:
+
+```
+bash scripts/solvers/<name>.sh --problem INSTANCE.npz --output SOLUTION.npz --tol TOL
+```
+
+- `INSTANCE.npz` holds `n, m, p`; CSC arrays `Q_data/Q_indices/Q_indptr` (n×n); `A_*` (m×n) and `G_*` (p×n); and vectors `c, b, h`.
+- The solver writes `SOLUTION.npz` with `x` (n), `y` (m), `z` (p), using the sign convention `Qx + c + Aᵀy + Gᵀz = 0`, `z ≥ 0`.
+- Extra entries such as `iterations` or `status` are kept as unscored diagnostics.
+- `data/qp_format.py` reads and writes this format.
+- Instances are anonymous files. The tolerance is the only other input, and nothing else about the instance is passed.
+
+## Running
+
+```
+bash scripts/evaluate_train.sh       # visible train slice   -> scoring/scores_train.json
+bash scripts/evaluate.sh             # published problems     -> scoring/scores.json
+bash scripts/evaluate_test.sh        # held-out slice (hidden) -> scoring/scores_test.json
+```
+
+Each run scores every registered solver plus the baseline: OSQP with fixed settings (eps_abs = eps_rel = ε; 4000 / 8000 iterations). `--solvers NAME ...` restricts a development run. Per-instance outcomes, including residual ratios and failure reasons, are written to `tmp/eval_runs/<slice>/outcomes.jsonl`. The optional `QP_GYM_EVAL_CACHE=<dir>` reuses raw outputs of unchanged solver code; scores are always recomputed from the raw outputs.
+
+## Ranking
+
+Methods are compared with the coefficients and weights in `scoring/reference.json`: 0.65 for the Maros–Meszaros experiment and 0.35 for the degenerate experiment. Within the Maros–Meszaros experiment high-accuracy failures count 0.7 as much as medium; within the degenerate experiment medium-accuracy failures count 0.7 as much as high. Improvements are taken in each metric's better direction.
 
 ---
 
@@ -766,6 +807,94 @@ Paper-reported reference values and reproduced scores are stored in `scoring/ref
 - Final verification kept the honest milestone at `core_claim_plus`: the core robustness and degenerate diagnostics are usable, but warm-start WCR is still not reproduced.
 - Fixed standalone evaluator defaults so `scripts/evaluate.sh`, `scripts/evaluate_train.sh`, and `scripts/evaluate_test.sh` can score the packaged raw artifacts without manual result paths.
 - Removed method identity leakage from method-agnostic evaluation documentation and revalidated with `python3 validate.py --compare`.
+
+</details>
+
+### Iteration 11: claude-opus-5-5 (hardener)
+- **Milestone**: `core_claim_plus` | **Status**: done
+- **Working time**: 42m | **GPU**: 0.0h
+- **Jobs**: 4 total (3 completed, 1 failed)
+
+<details>
+<summary>Progress Log</summary>
+
+### [2026-04-17 01:32] - method_runs
+- Ran the Python ODYN implementation end-to-end on degenerate QPs and a 10-problem Maros-Meszaros smoke subset.
+- Confirmed the solver writes raw method results and `scripts/evaluate.sh` scores them without importing from `method/`.
+
+### [2026-04-17 01:51] - core_claim
+- Ran ODYN and OSQP on a shared 29-problem dense-feasible Maros-Meszaros subset at medium and high tolerances.
+- ODYN solved the subset with 17.24% medium and 20.69% high failure rates, versus OSQP's 41.38% at both tolerances.
+- Degenerate QP cases ran successfully, matching the paper's robustness target at small scale.
+
+### [2026-04-17 02:13] - core_claim_plus
+- Increased ODYN iteration budgets on the same subset.
+- ODYN improved to 10.35% medium and 13.79% high failure rates, near the paper's reported 9.7% and 15.5% despite this reproduction using a Python dense backend.
+
+### [2026-04-17 07:49] - secondary_claims
+- Completed the full Maros-Meszaros benchmark pass with ODYN attempting all dense-feasible cases and OSQP attempting all 138 problems.
+- ODYN achieved 12.33% medium and 23.29% high failure rates over 73 dense-feasible attempted instances; OSQP was around 50% failure over all 138.
+- Added reusable scoring, baseline, reproduction, download, and environment scripts.
+
+### [2026-04-17 12:47] - secondary_claims
+- Audited the restored workspace and confirmed the implementation is the paper's ODYN algorithm rather than a surrogate.
+- Verified `eval/` is independent of `method/` and that current scores are regenerated from raw solver result JSON files.
+- Removed evaluator `/home/user` assumptions and added deterministic raw-result provenance to `scoring/scores.json`.
+
+### [2026-05-21 00:00] - secondary_claims
+- Tightened the ODYN solver updates to match the paper more closely: neighborhood-gated proximal estimate refresh, per-residual interpolation and regularization updates, and Eq. (52)-style stopping checks in the sparse backend.
+- Queued a containerized smoke validation job before changing any reported benchmark numbers.
+
+### [2026-05-21 00:15] - secondary_claims
+- Audited the continuation workspace and confirmed the implementation is still an ODYN solver rather than a surrogate model.
+- Found that the patched ODYN code had become newer than the active ODYN benchmark artifacts, so this turn resubmits the scored ODYN benchmark to refresh `scoring/scores.json` against the current implementation.
+
+### [2026-05-21 00:35] - secondary_claims
+- The first scored-refresh rerun was orphaned by the scheduler before `odyn_full_medium.json` reached its final write, so no refreshed raw outputs were persisted.
+- Patched the ODYN and OSQP runners to checkpoint after each problem and resume from partial JSON files, then rewired the reusable scripts to use `--resume` for long benchmark jobs.
+
+### [2026-05-21 01:05] - secondary_claims
+- The next resumed refresh attempt was preempted for SLURM worker drain after persisting 38 medium-tolerance benchmark entries through `GOULDQP2`.
+- Switched the benchmark driver to staged prefix expansion (`40`, `80`, `120`, full) so resumed jobs can make bounded progress across repeated preemptions while keeping the same ODYN benchmark protocol.
+
+### [2026-05-21 01:40] - secondary_claims
+- The staged refresh job finished and regenerated complete patched ODYN medium/high raw files despite multiple scheduler preemptions.
+- Auditing the completed artifacts showed that the OSQP high-tolerance raw file was still only a 16-problem partial because `scripts/run.sh` checked only for file existence; this turn fixes the driver to verify completion counts and resume incomplete baseline files before rescoring.
+
+### [2026-05-21 16:35] - secondary_claims
+- The OSQP baseline repair job resumed `osqp_full_high.json` from 16 persisted problems to the full 138-problem benchmark and then regenerated `scoring/scores.json`.
+- The workspace is internally consistent again: ODYN medium/high and OSQP medium/high raw files are all complete, and `python3 validate.py --compare` passes on the final scored artifacts.
+
+### [2026-05-21 16:50] - secondary_claims
+- Corrected the Table IV paper transcription in `scoring/reference.json`: OSQP's LICQ-failure entry is a dagger note ("declared dual infeasible"), not a numeric iteration count.
+- Updated the degenerate benchmark scoring contract so the unambiguous `redundant_ineq` case is the primary metric, retained `licq_failure` as a diagnostic constraint, and revalidated the workspace with both `python3 validate.py` and `python3 validate.py --compare`.
+
+### [2026-05-21 17:02] - secondary_claims
+- Audited the reproduction with a parallel explorer and tightened the dense ODYN line-search condition so it explicitly uses the relaxed Armijo `gamma` multiplier.
+- Updated `scripts/run.sh` to execute a fresh ODYN degenerate smoke run in the container before regenerating train/test/main scores from the completed raw benchmark artifacts.
+- Revalidated locally with `python3 validate.py --compare`; the fresh ODYN smoke itself requires the container dependencies because the login Python lacks NumPy.
+
+### [2026-05-21 17:05] - secondary_claims
+- Final verification confirmed that `scripts/download.sh` uses a reachable GitHub archive URL, no committed solver or evaluation code references `shared/`, and `eval/` remains independent of `method/`.
+- Cleaned method-agnostic documentation in `briefing/problem.md`, `briefing/evaluation.md`, and `scoring/DIRECTION.md` without changing scored artifacts.
+- Revalidated with `python3 validate.py --compare`; all scoring, import-separation, train/test, and method-output checks pass.
+
+### [2026-05-21 17:09] - core_claim_plus
+- Re-audited milestone scope against the paper and downgraded the current claim from `secondary_claims` to `core_claim_plus` because the warm-start WCR secondary claim is documented but not yet reproduced or scored.
+- Added main-score iteration metrics from existing raw solver artifacts, so `scoring/scores.json` now covers both failure-rate benefits and convergence-cost constraints already declared in `scoring/reference.json`.
+- Patched the sparse ODYN line search to use the same relaxed Armijo condition as the dense backend and queued a container smoke job to exercise that code path.
+
+### [2026-05-21 17:15] - core_claim_plus
+- Final verification kept the honest milestone at `core_claim_plus`: the core robustness and degenerate diagnostics are usable, but warm-start WCR is still not reproduced.
+- Fixed standalone evaluator defaults so `scripts/evaluate.sh`, `scripts/evaluate_train.sh`, and `scripts/evaluate_test.sh` can score the packaged raw artifacts without manual result paths.
+- Removed method identity leakage from method-agnostic evaluation documentation and revalidated with `python3 validate.py --compare`.
+
+### [2026-11-09] - core_claim_plus (hardening)
+- Replaced the trusting scorer: `eval/{train,test}` now run every registered solver (`scripts/solvers/*.sh`) and an evaluator-owned OSQP baseline under a fixed CPU budget. An instance counts as solved only if the paper's Eq. (52) test, recomputed from the returned point, passes, plus a sqrt(eps) duality-gap guard. Every manifest instance counts.
+- Hidden test: two hidden-seed perturbations of each of 36 tractable Maros-Meszaros problems, plus a hidden family of 36 generated degenerate QPs (the previously unscored Table IV experiment). Problem files are SHA-256 pinned; the download is pinned to an upstream commit.
+- Reference vs baseline on the hidden test: ODYN 20.8 / 20.8 % failures vs OSQP 47.2 / 44.4 % (medium / high); degenerate 5.6 / 8.3 % vs 2.8 / 33.3 %. On the unperturbed problems: 21.9 / 26.0 % vs 41.1 / 42.5 %.
+- The better variant (2x iteration cap) ranks +8.40 (paired CI [2.3, 16.7]). Every red-team shortcut now scores between -59 and -143, ties exactly, or aborts scoring. See `HARDENING.md`.
+- The milestone stays `core_claim_plus`: the core robustness claim and the degenerate robustness claim (at high accuracy) reproduce; the warm-start (WCR) claim is still not reproduced.
 
 </details>
 
