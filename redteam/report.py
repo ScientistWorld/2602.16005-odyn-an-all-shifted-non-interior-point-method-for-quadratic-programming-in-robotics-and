@@ -21,6 +21,7 @@ summary = {'results': results,
                       'mean_iterations_medium': [0, None], 'mean_iterations_high': [0, None],
                       'attempted_count': [0, 69]},
            'reference_metrics_at_best_bound': [],
+           'implemented_iteration_lower_bound': 'unbounded: raw metadata.max_iter accepts negative numbers',
            'declared_but_unscored_experiment': 'degenerate_problems',
            'declared_but_unscored_weight': 0.35}
 (ROOT / 'audit_summary.json').write_text(json.dumps(summary, indent=2) + '\n')

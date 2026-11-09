@@ -443,6 +443,7 @@
     ]
   },
   "reference_metrics_at_best_bound": [],
+  "implemented_iteration_lower_bound": "unbounded: raw metadata.max_iter accepts negative numbers",
   "declared_but_unscored_experiment": "degenerate_problems",
   "declared_but_unscored_weight": 0.35
 }

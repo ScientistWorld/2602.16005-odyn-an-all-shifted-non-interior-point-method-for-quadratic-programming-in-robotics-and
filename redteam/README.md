@@ -26,3 +26,16 @@ The first CPU job was cancelled after a scheduler worker-drain preemption left
 it without new output for over forty minutes. Its per-problem checkpoints and
 completed cases are preserved. The resumed suite runs inexpensive shortcut
 cases before the remaining solver configurations and independent seed reruns.
+
+All 16 cases are now complete. See `../REDTEAM.md` for the verdict,
+`audit_summary.json` for rankings, and `verification.json` for the paired
+success changes, reproduction comparison, independent seed commands, raw
+hashes, and unchanged evaluator hashes. `finalize_evidence.py` only reads small
+saved JSON files and checks these facts; it does not perform solver computation.
+
+`evaluate_fresh_job.sh` is submitted separately after the candidate-generation
+job exits. It reruns the original hidden script without arguments on all saved
+submissions, executes no candidate code, and requires byte-identical scores.
+It saves each result as `scores_test_fresh_job.json` and the combined comparison
+as `fresh_job_verification.json`. The direct-score-write shortcut's forged
+output is put back before this job, so that control is exercised again too.

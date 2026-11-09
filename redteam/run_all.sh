@@ -11,3 +11,4 @@ for case in \
   bash "redteam/$case/run.sh"
 done
 python3 redteam/report.py
+python3 redteam/finalize_evidence.py

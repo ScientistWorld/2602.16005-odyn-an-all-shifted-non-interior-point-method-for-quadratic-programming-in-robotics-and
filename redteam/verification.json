@@ -1,0 +1,584 @@
+{
+  "completed_cases": 16,
+  "case_checks": {
+    "packaged_reference": {
+      "rank_recomputed": true,
+      "raw_hashes_match": true,
+      "pristine_evaluator_sha256": {
+        "scripts/evaluate_test.sh": "9221057c179204d1dabaee337ded02b3d969094050e244bd49afaa05467103be",
+        "eval/test/evaluate.py": "ebab3a3ba7ec0776cc4c184d971bc07a8cc746399ec1d2520ad912e82b3329fc",
+        "eval/test/problem_names.json": "518684a9b8a853e987c5e5618de2705b99639ef3a95fcfe2ab0a15a18c59d12d",
+        "eval/train/evaluate.py": "85c1631382d794e3c90e8ebd5c58cf5265f72260ebcf26b032643b2ca0d27187"
+      }
+    },
+    "reference_seed_0": {
+      "rank_recomputed": true,
+      "raw_hashes_match": true,
+      "pristine_evaluator_sha256": {
+        "scripts/evaluate_test.sh": "9221057c179204d1dabaee337ded02b3d969094050e244bd49afaa05467103be",
+        "eval/test/evaluate.py": "ebab3a3ba7ec0776cc4c184d971bc07a8cc746399ec1d2520ad912e82b3329fc",
+        "eval/test/problem_names.json": "518684a9b8a853e987c5e5618de2705b99639ef3a95fcfe2ab0a15a18c59d12d",
+        "eval/train/evaluate.py": "85c1631382d794e3c90e8ebd5c58cf5265f72260ebcf26b032643b2ca0d27187"
+      }
+    },
+    "shortcut_low_budget_weak_variant": {
+      "rank_recomputed": true,
+      "raw_hashes_match": true,
+      "pristine_evaluator_sha256": {
+        "scripts/evaluate_test.sh": "9221057c179204d1dabaee337ded02b3d969094050e244bd49afaa05467103be",
+        "eval/test/evaluate.py": "ebab3a3ba7ec0776cc4c184d971bc07a8cc746399ec1d2520ad912e82b3329fc",
+        "eval/test/problem_names.json": "518684a9b8a853e987c5e5618de2705b99639ef3a95fcfe2ab0a15a18c59d12d",
+        "eval/train/evaluate.py": "85c1631382d794e3c90e8ebd5c58cf5265f72260ebcf26b032643b2ca0d27187"
+      }
+    },
+    "stronger_regularization": {
+      "rank_recomputed": true,
+      "raw_hashes_match": true,
+      "pristine_evaluator_sha256": {
+        "scripts/evaluate_test.sh": "9221057c179204d1dabaee337ded02b3d969094050e244bd49afaa05467103be",
+        "eval/test/evaluate.py": "ebab3a3ba7ec0776cc4c184d971bc07a8cc746399ec1d2520ad912e82b3329fc",
+        "eval/test/problem_names.json": "518684a9b8a853e987c5e5618de2705b99639ef3a95fcfe2ab0a15a18c59d12d",
+        "eval/train/evaluate.py": "85c1631382d794e3c90e8ebd5c58cf5265f72260ebcf26b032643b2ca0d27187"
+      }
+    },
+    "stronger_more_iterations": {
+      "rank_recomputed": true,
+      "raw_hashes_match": true,
+      "pristine_evaluator_sha256": {
+        "scripts/evaluate_test.sh": "9221057c179204d1dabaee337ded02b3d969094050e244bd49afaa05467103be",
+        "eval/test/evaluate.py": "ebab3a3ba7ec0776cc4c184d971bc07a8cc746399ec1d2520ad912e82b3329fc",
+        "eval/test/problem_names.json": "518684a9b8a853e987c5e5618de2705b99639ef3a95fcfe2ab0a15a18c59d12d",
+        "eval/train/evaluate.py": "85c1631382d794e3c90e8ebd5c58cf5265f72260ebcf26b032643b2ca0d27187"
+      }
+    },
+    "reference_seed_1": {
+      "rank_recomputed": true,
+      "raw_hashes_match": true,
+      "pristine_evaluator_sha256": {
+        "scripts/evaluate_test.sh": "9221057c179204d1dabaee337ded02b3d969094050e244bd49afaa05467103be",
+        "eval/test/evaluate.py": "ebab3a3ba7ec0776cc4c184d971bc07a8cc746399ec1d2520ad912e82b3329fc",
+        "eval/test/problem_names.json": "518684a9b8a853e987c5e5618de2705b99639ef3a95fcfe2ab0a15a18c59d12d",
+        "eval/train/evaluate.py": "85c1631382d794e3c90e8ebd5c58cf5265f72260ebcf26b032643b2ca0d27187"
+      }
+    },
+    "reference_seed_2": {
+      "rank_recomputed": true,
+      "raw_hashes_match": true,
+      "pristine_evaluator_sha256": {
+        "scripts/evaluate_test.sh": "9221057c179204d1dabaee337ded02b3d969094050e244bd49afaa05467103be",
+        "eval/test/evaluate.py": "ebab3a3ba7ec0776cc4c184d971bc07a8cc746399ec1d2520ad912e82b3329fc",
+        "eval/test/problem_names.json": "518684a9b8a853e987c5e5618de2705b99639ef3a95fcfe2ab0a15a18c59d12d",
+        "eval/train/evaluate.py": "85c1631382d794e3c90e8ebd5c58cf5265f72260ebcf26b032643b2ca0d27187"
+      }
+    },
+    "shortcut_success_flags": {
+      "rank_recomputed": true,
+      "raw_hashes_match": true,
+      "pristine_evaluator_sha256": {
+        "scripts/evaluate_test.sh": "9221057c179204d1dabaee337ded02b3d969094050e244bd49afaa05467103be",
+        "eval/test/evaluate.py": "ebab3a3ba7ec0776cc4c184d971bc07a8cc746399ec1d2520ad912e82b3329fc",
+        "eval/test/problem_names.json": "518684a9b8a853e987c5e5618de2705b99639ef3a95fcfe2ab0a15a18c59d12d",
+        "eval/train/evaluate.py": "85c1631382d794e3c90e8ebd5c58cf5265f72260ebcf26b032643b2ca0d27187"
+      }
+    },
+    "shortcut_visible_cache": {
+      "rank_recomputed": true,
+      "raw_hashes_match": true,
+      "pristine_evaluator_sha256": {
+        "scripts/evaluate_test.sh": "9221057c179204d1dabaee337ded02b3d969094050e244bd49afaa05467103be",
+        "eval/test/evaluate.py": "ebab3a3ba7ec0776cc4c184d971bc07a8cc746399ec1d2520ad912e82b3329fc",
+        "eval/test/problem_names.json": "518684a9b8a853e987c5e5618de2705b99639ef3a95fcfe2ab0a15a18c59d12d",
+        "eval/train/evaluate.py": "85c1631382d794e3c90e8ebd5c58cf5265f72260ebcf26b032643b2ca0d27187"
+      }
+    },
+    "shortcut_hide_failures": {
+      "rank_recomputed": true,
+      "raw_hashes_match": true,
+      "pristine_evaluator_sha256": {
+        "scripts/evaluate_test.sh": "9221057c179204d1dabaee337ded02b3d969094050e244bd49afaa05467103be",
+        "eval/test/evaluate.py": "ebab3a3ba7ec0776cc4c184d971bc07a8cc746399ec1d2520ad912e82b3329fc",
+        "eval/test/problem_names.json": "518684a9b8a853e987c5e5618de2705b99639ef3a95fcfe2ab0a15a18c59d12d",
+        "eval/train/evaluate.py": "85c1631382d794e3c90e8ebd5c58cf5265f72260ebcf26b032643b2ca0d27187"
+      }
+    },
+    "shortcut_negative_cap": {
+      "rank_recomputed": true,
+      "raw_hashes_match": true,
+      "pristine_evaluator_sha256": {
+        "scripts/evaluate_test.sh": "9221057c179204d1dabaee337ded02b3d969094050e244bd49afaa05467103be",
+        "eval/test/evaluate.py": "ebab3a3ba7ec0776cc4c184d971bc07a8cc746399ec1d2520ad912e82b3329fc",
+        "eval/test/problem_names.json": "518684a9b8a853e987c5e5618de2705b99639ef3a95fcfe2ab0a15a18c59d12d",
+        "eval/train/evaluate.py": "85c1631382d794e3c90e8ebd5c58cf5265f72260ebcf26b032643b2ca0d27187"
+      }
+    },
+    "shortcut_zero_cap_all_fail": {
+      "rank_recomputed": true,
+      "raw_hashes_match": true,
+      "pristine_evaluator_sha256": {
+        "scripts/evaluate_test.sh": "9221057c179204d1dabaee337ded02b3d969094050e244bd49afaa05467103be",
+        "eval/test/evaluate.py": "ebab3a3ba7ec0776cc4c184d971bc07a8cc746399ec1d2520ad912e82b3329fc",
+        "eval/test/problem_names.json": "518684a9b8a853e987c5e5618de2705b99639ef3a95fcfe2ab0a15a18c59d12d",
+        "eval/train/evaluate.py": "85c1631382d794e3c90e8ebd5c58cf5265f72260ebcf26b032643b2ca0d27187"
+      }
+    },
+    "shortcut_ignore_degenerate": {
+      "rank_recomputed": true,
+      "raw_hashes_match": true,
+      "pristine_evaluator_sha256": {
+        "scripts/evaluate_test.sh": "9221057c179204d1dabaee337ded02b3d969094050e244bd49afaa05467103be",
+        "eval/test/evaluate.py": "ebab3a3ba7ec0776cc4c184d971bc07a8cc746399ec1d2520ad912e82b3329fc",
+        "eval/test/problem_names.json": "518684a9b8a853e987c5e5618de2705b99639ef3a95fcfe2ab0a15a18c59d12d",
+        "eval/train/evaluate.py": "85c1631382d794e3c90e8ebd5c58cf5265f72260ebcf26b032643b2ca0d27187"
+      }
+    },
+    "shortcut_replace_problem_loader": {
+      "rank_recomputed": true,
+      "raw_hashes_match": true,
+      "pristine_evaluator_sha256": {
+        "scripts/evaluate_test.sh": "9221057c179204d1dabaee337ded02b3d969094050e244bd49afaa05467103be",
+        "eval/test/evaluate.py": "ebab3a3ba7ec0776cc4c184d971bc07a8cc746399ec1d2520ad912e82b3329fc",
+        "eval/test/problem_names.json": "518684a9b8a853e987c5e5618de2705b99639ef3a95fcfe2ab0a15a18c59d12d",
+        "eval/train/evaluate.py": "85c1631382d794e3c90e8ebd5c58cf5265f72260ebcf26b032643b2ca0d27187"
+      }
+    },
+    "shortcut_move_baseline": {
+      "rank_recomputed": true,
+      "raw_hashes_match": true,
+      "pristine_evaluator_sha256": {
+        "scripts/evaluate_test.sh": "9221057c179204d1dabaee337ded02b3d969094050e244bd49afaa05467103be",
+        "eval/test/evaluate.py": "ebab3a3ba7ec0776cc4c184d971bc07a8cc746399ec1d2520ad912e82b3329fc",
+        "eval/test/problem_names.json": "518684a9b8a853e987c5e5618de2705b99639ef3a95fcfe2ab0a15a18c59d12d",
+        "eval/train/evaluate.py": "85c1631382d794e3c90e8ebd5c58cf5265f72260ebcf26b032643b2ca0d27187"
+      }
+    },
+    "shortcut_write_scores_only": {
+      "rank_recomputed": true,
+      "raw_hashes_match": true,
+      "pristine_evaluator_sha256": {
+        "scripts/evaluate_test.sh": "9221057c179204d1dabaee337ded02b3d969094050e244bd49afaa05467103be",
+        "eval/test/evaluate.py": "ebab3a3ba7ec0776cc4c184d971bc07a8cc746399ec1d2520ad912e82b3329fc",
+        "eval/test/problem_names.json": "518684a9b8a853e987c5e5618de2705b99639ef3a95fcfe2ab0a15a18c59d12d",
+        "eval/train/evaluate.py": "85c1631382d794e3c90e8ebd5c58cf5265f72260ebcf26b032643b2ca0d27187"
+      }
+    }
+  },
+  "seed_runs": [
+    {
+      "seed": 0,
+      "rank_improvement": 2.3651207729468675,
+      "metrics": {
+        "failure_rate_high": 19.444444444444443,
+        "mean_iterations_high": 2971.5942028985505,
+        "attempted_count": 36.0,
+        "failure_rate_medium": 16.666666666666668,
+        "mean_iterations_medium": 1716.4202898550725
+      },
+      "commands": [
+        "COMMAND ['/usr/local/bin/python3', '-c', 'import random, numpy as np, runpy, sys; random.seed(0); np.random.seed(0); sys.argv=[\"method.run_odyn\"]+sys.argv[1:]; runpy.run_module(\"method.run_odyn\", run_name=\"__main__\")', '--rtol', '1e-6', '--max-iter', '3000', '--timeout', '300', '--output', 'tmp/results/medium.json', '--resume']",
+        "COMMAND ['/usr/local/bin/python3', '-c', 'import random, numpy as np, runpy, sys; random.seed(0); np.random.seed(0); sys.argv=[\"method.run_odyn\"]+sys.argv[1:]; runpy.run_module(\"method.run_odyn\", run_name=\"__main__\")', '--rtol', '1e-9', '--max-iter', '5000', '--timeout', '300', '--output', 'tmp/results/high.json', '--resume', '--skip-degenerate']",
+        "COMMAND ['/usr/local/bin/python3', '-c', 'import random, numpy as np, runpy, sys; random.seed(0); np.random.seed(0); sys.argv=[\"method.run_odyn\"]+sys.argv[1:]; runpy.run_module(\"method.run_odyn\", run_name=\"__main__\")', '--rtol', '1e-6', '--max-iter', '3000', '--timeout', '300', '--output', 'tmp/results/medium.json', '--resume']",
+        "COMMAND ['/usr/local/bin/python3', '-c', 'import random, numpy as np, runpy, sys; random.seed(0); np.random.seed(0); sys.argv=[\"method.run_odyn\"]+sys.argv[1:]; runpy.run_module(\"method.run_odyn\", run_name=\"__main__\")', '--rtol', '1e-9', '--max-iter', '5000', '--timeout', '300', '--output', 'tmp/results/high.json', '--resume', '--skip-degenerate']"
+      ],
+      "raw_sha256": {
+        "medium.json": "7a6b7e2c1306a56a003416489bdaf834c02a266eada41f31f5abe2fa49f2cfc8",
+        "high.json": "2c151c18b84c411180e7f4c01e5a7ef8a28ca054dfa38db115bf4e21658de694"
+      },
+      "metadata": {
+        "medium": {
+          "rtol": 1e-06,
+          "max_iter": 3000,
+          "timeout": 300,
+          "data_dir": "/home/user/redteam/reference_seed_0/workspace/data/maros_meszaros_qpbenchmark/data",
+          "rho": null,
+          "rho_min": null
+        },
+        "high": {
+          "rtol": 1e-09,
+          "max_iter": 5000,
+          "timeout": 300,
+          "data_dir": "/home/user/redteam/reference_seed_0/workspace/data/maros_meszaros_qpbenchmark/data",
+          "rho": null,
+          "rho_min": null
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "rank_improvement": 2.3651207729468675,
+      "metrics": {
+        "failure_rate_high": 19.444444444444443,
+        "mean_iterations_high": 2971.5942028985505,
+        "attempted_count": 36.0,
+        "failure_rate_medium": 16.666666666666668,
+        "mean_iterations_medium": 1716.4202898550725
+      },
+      "commands": [
+        "COMMAND ['/usr/local/bin/python3', '-c', 'import random, numpy as np, runpy, sys; random.seed(1); np.random.seed(1); sys.argv=[\"method.run_odyn\"]+sys.argv[1:]; runpy.run_module(\"method.run_odyn\", run_name=\"__main__\")', '--rtol', '1e-6', '--max-iter', '3000', '--timeout', '300', '--output', 'tmp/results/medium.json', '--resume']",
+        "COMMAND ['/usr/local/bin/python3', '-c', 'import random, numpy as np, runpy, sys; random.seed(1); np.random.seed(1); sys.argv=[\"method.run_odyn\"]+sys.argv[1:]; runpy.run_module(\"method.run_odyn\", run_name=\"__main__\")', '--rtol', '1e-9', '--max-iter', '5000', '--timeout', '300', '--output', 'tmp/results/high.json', '--resume', '--skip-degenerate']"
+      ],
+      "raw_sha256": {
+        "medium.json": "c54e5c0c55067fe90888f729fc0ebf3dd300c7bb7440d950a10186f7fb784c58",
+        "high.json": "465e7e0cffc35828fbd3855f0d60960af54a1b589ee804ba8f20d1945c1e9558"
+      },
+      "metadata": {
+        "medium": {
+          "rtol": 1e-06,
+          "max_iter": 3000,
+          "timeout": 300,
+          "data_dir": "/home/user/redteam/reference_seed_1/workspace/data/maros_meszaros_qpbenchmark/data",
+          "rho": null,
+          "rho_min": null
+        },
+        "high": {
+          "rtol": 1e-09,
+          "max_iter": 5000,
+          "timeout": 300,
+          "data_dir": "/home/user/redteam/reference_seed_1/workspace/data/maros_meszaros_qpbenchmark/data",
+          "rho": null,
+          "rho_min": null
+        }
+      }
+    },
+    {
+      "seed": 2,
+      "rank_improvement": 2.3651207729468675,
+      "metrics": {
+        "failure_rate_high": 19.444444444444443,
+        "mean_iterations_high": 2971.5942028985505,
+        "attempted_count": 36.0,
+        "failure_rate_medium": 16.666666666666668,
+        "mean_iterations_medium": 1716.4202898550725
+      },
+      "commands": [
+        "COMMAND ['/usr/local/bin/python3', '-c', 'import random, numpy as np, runpy, sys; random.seed(2); np.random.seed(2); sys.argv=[\"method.run_odyn\"]+sys.argv[1:]; runpy.run_module(\"method.run_odyn\", run_name=\"__main__\")', '--rtol', '1e-6', '--max-iter', '3000', '--timeout', '300', '--output', 'tmp/results/medium.json', '--resume']",
+        "COMMAND ['/usr/local/bin/python3', '-c', 'import random, numpy as np, runpy, sys; random.seed(2); np.random.seed(2); sys.argv=[\"method.run_odyn\"]+sys.argv[1:]; runpy.run_module(\"method.run_odyn\", run_name=\"__main__\")', '--rtol', '1e-6', '--max-iter', '3000', '--timeout', '300', '--output', 'tmp/results/medium.json', '--resume']",
+        "COMMAND ['/usr/local/bin/python3', '-c', 'import random, numpy as np, runpy, sys; random.seed(2); np.random.seed(2); sys.argv=[\"method.run_odyn\"]+sys.argv[1:]; runpy.run_module(\"method.run_odyn\", run_name=\"__main__\")', '--rtol', '1e-9', '--max-iter', '5000', '--timeout', '300', '--output', 'tmp/results/high.json', '--resume', '--skip-degenerate']",
+        "COMMAND ['/usr/local/bin/python3', '-c', 'import random, numpy as np, runpy, sys; random.seed(2); np.random.seed(2); sys.argv=[\"method.run_odyn\"]+sys.argv[1:]; runpy.run_module(\"method.run_odyn\", run_name=\"__main__\")', '--rtol', '1e-6', '--max-iter', '3000', '--timeout', '300', '--output', 'tmp/results/medium.json', '--resume']",
+        "COMMAND ['/usr/local/bin/python3', '-c', 'import random, numpy as np, runpy, sys; random.seed(2); np.random.seed(2); sys.argv=[\"method.run_odyn\"]+sys.argv[1:]; runpy.run_module(\"method.run_odyn\", run_name=\"__main__\")', '--rtol', '1e-9', '--max-iter', '5000', '--timeout', '300', '--output', 'tmp/results/high.json', '--resume', '--skip-degenerate']"
+      ],
+      "raw_sha256": {
+        "medium.json": "9e874d8ef8625411249e3b6273d6c1b11894f5095cba30ed66a66ce8f01f9d62",
+        "high.json": "3e494a25a015ed8f972e131bb2ba1b8d256f84e3239abb9b91056a17835f4c50"
+      },
+      "metadata": {
+        "medium": {
+          "rtol": 1e-06,
+          "max_iter": 3000,
+          "timeout": 300,
+          "data_dir": "/home/user/redteam/reference_seed_2/workspace/data/maros_meszaros_qpbenchmark/data",
+          "rho": null,
+          "rho_min": null
+        },
+        "high": {
+          "rtol": 1e-09,
+          "max_iter": 5000,
+          "timeout": 300,
+          "data_dir": "/home/user/redteam/reference_seed_2/workspace/data/maros_meszaros_qpbenchmark/data",
+          "rho": null,
+          "rho_min": null
+        }
+      }
+    }
+  ],
+  "seed_metric_ranges": {
+    "failure_rate_high": [
+      19.444444444444443,
+      19.444444444444443
+    ],
+    "mean_iterations_high": [
+      2971.5942028985505,
+      2971.5942028985505
+    ],
+    "attempted_count": [
+      36.0,
+      36.0
+    ],
+    "failure_rate_medium": [
+      16.666666666666668,
+      16.666666666666668
+    ],
+    "mean_iterations_medium": [
+      1716.4202898550725,
+      1716.4202898550725
+    ]
+  },
+  "seed_rank_spread": 0.0,
+  "stronger_more_iterations": {
+    "medium": {
+      "new_successes": [
+        {
+          "name": {
+            "before": "DUAL3",
+            "after": "DUAL3"
+          },
+          "status": {
+            "before": "max_iterations",
+            "after": "optimal"
+          },
+          "iterations": {
+            "before": 3000,
+            "after": 5474
+          },
+          "primal_residual": {
+            "before": 2.5482067510110993e-09,
+            "after": 8.594688433518838e-13
+          },
+          "dual_residual": {
+            "before": 3.599983982618582e-08,
+            "after": 5.511014508697974e-12
+          }
+        },
+        {
+          "name": {
+            "before": "QSCAGR25",
+            "after": "QSCAGR25"
+          },
+          "status": {
+            "before": "max_iterations",
+            "after": "optimal"
+          },
+          "iterations": {
+            "before": 3000,
+            "after": 3679
+          },
+          "primal_residual": {
+            "before": 7.012942897094762e-08,
+            "after": 6.873737982532475e-10
+          },
+          "dual_residual": {
+            "before": 0.00017228433610303614,
+            "after": 3.6460722302288366e-08
+          }
+        }
+      ],
+      "lost_successes": [],
+      "reference_seed_0_success_count": 30,
+      "stronger_success_count": 32
+    },
+    "high": {
+      "new_successes": [
+        {
+          "name": {
+            "before": "DUAL3",
+            "after": "DUAL3"
+          },
+          "status": {
+            "before": "max_iterations",
+            "after": "optimal"
+          },
+          "iterations": {
+            "before": 5000,
+            "after": 5476
+          },
+          "primal_residual": {
+            "before": 2.538504628594355e-09,
+            "after": 2.645840535869652e-16
+          },
+          "dual_residual": {
+            "before": 3.586370301833248e-08,
+            "after": 1.0535977449783846e-15
+          }
+        },
+        {
+          "name": {
+            "before": "QSCAGR7",
+            "after": "QSCAGR7"
+          },
+          "status": {
+            "before": "max_iterations",
+            "after": "optimal"
+          },
+          "iterations": {
+            "before": 5000,
+            "after": 7516
+          },
+          "primal_residual": {
+            "before": 2.3828040793482715e-07,
+            "after": 9.09497088581457e-13
+          },
+          "dual_residual": {
+            "before": 0.00019242335821902996,
+            "after": 5.784659999869611e-10
+          }
+        }
+      ],
+      "lost_successes": [],
+      "reference_seed_0_success_count": 29,
+      "stronger_success_count": 31
+    }
+  },
+  "reproduction_check": {
+    "medium": {
+      "common_attempted_count": 36,
+      "odyn": {
+        "common_failed_count": 6,
+        "common_failure_percent": 16.666666666666668,
+        "full_test_success_count": 30,
+        "full_test_count": 69,
+        "full_test_failure_percent_counting_skips": 56.52173913043478
+      },
+      "osqp": {
+        "common_failed_count": 12,
+        "common_failure_percent": 33.333333333333336,
+        "full_test_success_count": 38,
+        "full_test_count": 69,
+        "full_test_failure_percent_counting_skips": 44.927536231884055
+      }
+    },
+    "high": {
+      "common_attempted_count": 36,
+      "odyn": {
+        "common_failed_count": 8,
+        "common_failure_percent": 22.22222222222222,
+        "full_test_success_count": 28,
+        "full_test_count": 69,
+        "full_test_failure_percent_counting_skips": 59.42028985507246
+      },
+      "osqp": {
+        "common_failed_count": 12,
+        "common_failure_percent": 33.333333333333336,
+        "full_test_success_count": 38,
+        "full_test_count": 69,
+        "full_test_failure_percent_counting_skips": 44.927536231884055
+      }
+    }
+  },
+  "historical_reference_differences": {
+    "medium": [
+      {
+        "name": "QBORE3D",
+        "packaged": {
+          "status": "optimal",
+          "success": true,
+          "iterations": 61
+        },
+        "fresh_seed_0": {
+          "status": "optimal",
+          "success": true,
+          "iterations": 85
+        }
+      },
+      {
+        "name": "QETAMACR",
+        "packaged": {
+          "status": "optimal",
+          "success": true,
+          "iterations": 36
+        },
+        "fresh_seed_0": {
+          "status": "optimal",
+          "success": true,
+          "iterations": 39
+        }
+      },
+      {
+        "name": "QSC205",
+        "packaged": {
+          "status": "optimal",
+          "success": true,
+          "iterations": 13
+        },
+        "fresh_seed_0": {
+          "status": "optimal",
+          "success": true,
+          "iterations": 15
+        }
+      },
+      {
+        "name": "QSCFXM2",
+        "packaged": {
+          "status": "optimal",
+          "success": true,
+          "iterations": 83
+        },
+        "fresh_seed_0": {
+          "status": "optimal",
+          "success": true,
+          "iterations": 131
+        }
+      },
+      {
+        "name": "QSTAIR",
+        "packaged": {
+          "status": "optimal",
+          "success": true,
+          "iterations": 36
+        },
+        "fresh_seed_0": {
+          "status": "optimal",
+          "success": true,
+          "iterations": 37
+        }
+      }
+    ],
+    "high": [
+      {
+        "name": "PRIMALC8",
+        "packaged": {
+          "status": "optimal",
+          "success": true,
+          "iterations": 25
+        },
+        "fresh_seed_0": {
+          "status": "optimal",
+          "success": true,
+          "iterations": 26
+        }
+      },
+      {
+        "name": "QBORE3D",
+        "packaged": {
+          "status": "optimal",
+          "success": true,
+          "iterations": 64
+        },
+        "fresh_seed_0": {
+          "status": "optimal",
+          "success": true,
+          "iterations": 87
+        }
+      },
+      {
+        "name": "QETAMACR",
+        "packaged": {
+          "status": "optimal",
+          "success": true,
+          "iterations": 48
+        },
+        "fresh_seed_0": {
+          "status": "optimal",
+          "success": true,
+          "iterations": 56
+        }
+      },
+      {
+        "name": "QSC205",
+        "packaged": {
+          "status": "optimal",
+          "success": true,
+          "iterations": 14
+        },
+        "fresh_seed_0": {
+          "status": "optimal",
+          "success": true,
+          "iterations": 16
+        }
+      },
+      {
+        "name": "QSCAGR25",
+        "packaged": {
+          "status": "numerical_error",
+          "success": false,
+          "iterations": 2044
+        },
+        "fresh_seed_0": {
+          "status": "optimal",
+          "success": true,
+          "iterations": 3680
+        }
+      }
+    ]
+  },
+  "quality_inversion_verified": true,
+  "more_iterations_fixed_skip_penalty_increase": 295.32608695652175
+}
