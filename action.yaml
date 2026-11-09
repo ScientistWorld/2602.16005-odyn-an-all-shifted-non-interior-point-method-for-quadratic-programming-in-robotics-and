@@ -5,4 +5,4 @@ action: submit
 gpus: 0
 test: false
 milestone: core_claim_plus
-notes: "Rerun hardening verification after fixing the evaluator's CPU-limit wrapper (ulimit order). Smoke, hidden test for reference + OSQP, paper-level scores, variants/shortcuts in isolated workspaces, train scores, analysis + validate."
+notes: "Rescore all cached raw outputs (reference, OSQP, variants, shortcuts; test/train/paper) with the paper-faithful verification (Eq. 52 from the returned point + sqrt(eps) gap guard); uncached rerun of the reference on the hidden test for run-to-run noise; analysis + validate."
