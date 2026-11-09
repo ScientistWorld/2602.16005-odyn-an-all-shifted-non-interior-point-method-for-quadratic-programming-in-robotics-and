@@ -1,5 +1,7 @@
 #!/bin/bash
-# Python dependency installation for the ODYN reproduction container.
+# Python dependency installation for the QP-solver benchmark container.
+# Versions are pinned so the evaluator, the OSQP baseline, and the reference
+# solver see identical numerics on every rebuild.
 
 set -euo pipefail
 
@@ -10,5 +12,4 @@ fi
 export UV_SYSTEM_PYTHON=1
 export UV_BREAK_SYSTEM_PACKAGES=1
 
-uv pip install --system numpy scipy proxsuite osqp
-
+uv pip install --system "numpy==2.5.4" "scipy==1.18.1" "osqp==1.1.3"

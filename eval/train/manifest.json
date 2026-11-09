@@ -1,0 +1,69 @@
+{
+  "slice": "train",
+  "protocol": "qp-verified-kkt-v1",
+  "maros_meszaros": {
+    "source": "qpsolvers/maros_meszaros_qpbenchmark@afa738d9a66aca7f5ae223034c72f2e9c6866aff data/*.mat (SHA-256 pinned)",
+    "selection": "problems the reference implementation can hold as dense arrays (n <= 1000, dense Q/A/G <= 2 GB); train/test split balanced for difficulty",
+    "perturbation": {
+      "delta": 0.01,
+      "draws": 1,
+      "include_original": true,
+      "seed": 20261101
+    },
+    "problems": {
+      "CVXQP1_S": "fee6721ac73bf3a240c3e7610af9809b517c8f36c30787c242a51e1f287e99d8",
+      "CVXQP2_M": "f7f4dcc9a5aacf491b8590b51bbbb3d8fcfd19f2b51eb5a36fa86783517acf81",
+      "DUAL1": "caa4185e5749cccf99b7cc8e4a84af99953188c48245641fb9d2a3c843130f5a",
+      "DUAL2": "ad46a7a8e94534a504b71d8f69b42b613036a682ee0f0ed8ce7473a20ee56cac",
+      "DUAL4": "99651e0df080d926141a6cdf3c79466ac7a279d6f51c7a2eaa8199df73d23bba",
+      "DUALC1": "6e903f95d8530212cfb7f2786617d415495f5c1876ae2741315afa67903d89a7",
+      "DUALC5": "4904df0fbbab942b0d904a393ef6ff91ee6707ea3937a7ee772f575d40f3f71e",
+      "DUALC8": "6fb4177cb5323286edc5bee679f43150723dcf24dab571bc62c9aa9f90b45e48",
+      "GENHS28": "75549882d022b67de2f134aba87f2df6a02497b1bcc29148e07d79baa343f6ab",
+      "GOULDQP2": "ce1971bffb4b4df2db20fde651614298fcd3fbff21e0e1fa6949e2c312fd58cd",
+      "GOULDQP3": "6a7dd3684c5c4a674a651900109f948645ef629ab74e7cb1bcfbd31dd5221487",
+      "HS21": "e5cfbdd20d35cd322d152ee79e629a03713c82e7003548619371f9374d783bb1",
+      "HS268": "5d34f090962ca87d225a8828e342994b91ab1aef0907d7b864dce2c3a5038414",
+      "HS35": "e27475c5448764c1c10d575716c7cc3505b5296db3cfa3f49916f79e49a9fcb3",
+      "HS35MOD": "eafe27b305cd71dab9e44391f98f83b5c4431ebfb63f0dfc92c6c21c11cfc3ca",
+      "HS52": "9d608738f23eb88a77b3baad844cb3f6216917d1197ccc04eb764f151f0136c9",
+      "HS53": "b68aed46c348902296d18b4a6483b0779e474d9fbaea2fc4f89c1dbb5c59e159",
+      "KSIP": "93bd9f606bf724a8c788a420e5372f48b9645f86c0f21c3a0e06f6364c7acdd0",
+      "PRIMAL3": "371155fb17d7a9f45857f615daddb75168d4bd0ebe5c03139cf0e1c7bc6f3c6f",
+      "PRIMALC2": "69438fe26a4b3cdaaabe8393af41ef974ecb87ed188b043a9ab32b3179d17942",
+      "PRIMALC5": "58bd01ef7c9ac71a2f3376c983399d1355386fdab330ab2970842725d2b19fe1",
+      "QADLITTL": "583a0dab44a711842256fd18921aafae7be28c74d1155bf2030ff828f9325cbb",
+      "QBANDM": "b146185f43ff5ce3e341df1f8d09d292bd6073199c1c3ff5885b6beccfdc1d9f",
+      "QBRANDY": "eede661dcd79c4cfed79c613833b4fb40f546d657707211f6dc14910df8abf3b",
+      "QCAPRI": "7959ca98718c03804043179bd7f2ebb06b5d004a8b6ea541f022020d1e1f4f5c",
+      "QE226": "5774f539e26bd862b979c22acbcefd9b2febf1216961b5d8f370197d1299590d",
+      "QFFFFF80": "e35e881fabd85ce8807d3528b4d8c95a6c100ed232ce980ddddf890415af99f0",
+      "QGROW22": "1054ccfc4aa7cb88167c804631f3fcf667902e19cb97db0449af4f55a8978bd7",
+      "QGROW7": "cb2b751a6287a72c23212f01b51dad42c4be0b58e34b65d41920a7698e495204",
+      "QPCBLEND": "e26ee6cd51edfbc8ccc97a530ce9f0da10ef853523676e6507945e00a357795b",
+      "QPCBOEI1": "6e47627585223661f44779345c2fe4ce0b47026c2fadb4d928e3d401c080c0e1",
+      "QPCSTAIR": "b89a5b9a8695189f28ca0b7832e648fb048f906a297a1afb6154e6244c4f5574",
+      "QSCFXM1": "73701271f66cde462c663572df7d805f5ed6a984a35d357a0961e7548d48cd04",
+      "QSHARE1B": "cdef8300b359aa52cb2a9f062e2b15105f58d85a67ee118105ef3cc43d57f0c3",
+      "QSHARE2B": "d0817d60613a5ba2c157047d99a9d725a26574689fc439405f077717114b8258",
+      "S268": "ef649918cf058297391ff67517662af92fb2f1a68aa9c59492b376eb975bdbab",
+      "VALUES": "7e0d53b32c8c69df8951c6f776a03aabeb784de486d56b17d76ffe1c4e700507"
+    }
+  },
+  "degenerate": {
+    "kinds": [
+      "redundant_ineq",
+      "licq_failure",
+      "multiple_solutions"
+    ],
+    "count_per_kind": 12,
+    "sizes": [
+      8,
+      16,
+      32,
+      64
+    ],
+    "seed": 4242,
+    "include_paper_cases": true
+  }
+}

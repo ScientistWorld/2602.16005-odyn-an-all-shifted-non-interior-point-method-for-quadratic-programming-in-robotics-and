@@ -1,45 +1,9 @@
 #!/bin/bash
-# Score one or more raw solver result files.
-#
-# Usage:
-#   bash scripts/evaluate.sh
-#   bash scripts/evaluate.sh --results tmp/results/odyn_results.json
-
+# Paper-level reproduction scores: every registered solver plus the OSQP
+# baseline on the original (unperturbed) tractable Maros-Meszaros problems and
+# the paper's three degenerate QPs; writes scoring/scores.json.
 set -euo pipefail
-
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WORKSPACE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-
 cd "$WORKSPACE_DIR"
-mkdir -p scoring
-
-RESULTS=()
-OUTPUT="$WORKSPACE_DIR/scoring/scores.json"
-
-while [[ $# -gt 0 ]]; do
-    case "$1" in
-        --results)
-            shift
-            RESULTS=()
-            while [[ $# -gt 0 && "$1" != --* ]]; do
-                RESULTS+=("$1")
-                shift
-            done
-            ;;
-        --output)
-            OUTPUT="$2"
-            shift 2
-            ;;
-        *)
-            echo "Unknown argument: $1" >&2
-            exit 2
-            ;;
-    esac
-done
-
-CMD=(python3 -m eval.benchmark --output "$OUTPUT")
-if [[ "${#RESULTS[@]}" -gt 0 ]]; then
-    CMD+=(--results "${RESULTS[@]}")
-fi
-
-"${CMD[@]}"
+python3 -m eval.benchmark "$@"

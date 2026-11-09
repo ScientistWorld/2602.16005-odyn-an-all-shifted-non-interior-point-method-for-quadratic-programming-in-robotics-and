@@ -1,93 +1,64 @@
 #!/bin/bash
-# Container smoke verification for the packaged ODYN reproduction.
-# This job is post-hoc scoring and validation only; it does not rerun the
-# already-completed QP benchmark artifacts.
-
-set -euo pipefail
+# Hardening verification job.
+#
+#   S0  environment report + smoke test of the verified evaluation pipeline
+#   S1  hidden test (bash scripts/evaluate_test.sh, no arguments): reference
+#       solver "odyn" + evaluator-owned OSQP baseline -> scoring/scores_test.json
+#   S2  paper-level scores on unperturbed problems  -> scoring/scores.json
+#   S3  better/weaker variants and shortcut probes, each in an isolated
+#       workspace copy, through the unmodified hidden test
+#   S4  train slice                                 -> scoring/scores_train.json
+#   S5  analysis (ranks, paired bootstrap, draw noise) + validate.py
+#
+# QP_GYM_EVAL_CACHE stores raw solver outputs keyed by solver code + instance
+# content, so a preempted job resumes and unchanged reference/baseline runs
+# are reused by the case workspaces. Scores are always recomputed from the raw
+# outputs. The hidden test itself never sets this variable.
+set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-WORKSPACE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+WS="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$WS"
+mkdir -p tmp/hardening/logs
+export QP_GYM_EVAL_CACHE="$WS/tmp/eval_cache"
+LOGS="$WS/tmp/hardening/logs"
 
-cd "$WORKSPACE_DIR"
+stage() { echo; echo "=================== $* ($(date -u +%H:%M:%S)) ==================="; }
 
-mkdir -p "$WORKSPACE_DIR/tmp/results" "$WORKSPACE_DIR/scoring"
+stage "S0 environment"
+python3 -c "import sys, numpy, scipy, osqp; print(sys.version); print('numpy', numpy.__version__, 'scipy', scipy.__version__, 'osqp', osqp.__version__)"
+echo "nproc=$(nproc) affinity=$(python3 -c 'import os; print(len(os.sched_getaffinity(0)))') cpu.max=$(cat /sys/fs/cgroup/cpu.max 2>/dev/null || echo n/a)"
+python3 -c "from eval.train.evaluate import available_cpus; print('evaluator workers:', min(8, available_cpus()))"
 
-raw_result() {
-    local name="$1"
-    if [[ -f "$WORKSPACE_DIR/tmp/results/$name" ]]; then
-        printf '%s\n' "$WORKSPACE_DIR/tmp/results/$name"
-    else
-        printf '%s\n' "$WORKSPACE_DIR/scoring/raw_results/$name"
-    fi
-}
+stage "S0 smoke"
+if ! python3 scripts/hardening/cases.py smoke 2>&1 | tee "$LOGS/smoke.log"; then
+    echo "SMOKE TEST FAILED - aborting"
+    find /tmp -maxdepth 1 -name 'qp_gym_*' | head
+    exit 1
+fi
+if grep -q "smoke test failed" "$LOGS/smoke.log"; then
+    echo "SMOKE TEST FAILED - aborting"; exit 1
+fi
 
-ODYN_MEDIUM="$(raw_result odyn_full_medium.json)"
-ODYN_HIGH="$(raw_result odyn_full_high.json)"
-OSQP_MEDIUM="$(raw_result osqp_full_medium.json)"
-OSQP_HIGH="$(raw_result osqp_full_high.json)"
+stage "S1 hidden test: reference + baseline"
+bash scripts/evaluate_test.sh 2>&1 | tee "$LOGS/test_reference.log" | grep -v " OK " | tail -n 400
+test -f scoring/scores_test.json || echo "S1 FAILED: no scoring/scores_test.json"
 
-for required in "$ODYN_MEDIUM" "$ODYN_HIGH" "$OSQP_MEDIUM" "$OSQP_HIGH"; do
-    if [[ ! -f "$required" ]]; then
-        echo "Missing raw benchmark result: $required" >&2
-        echo "Run scripts/reproduce.sh to regenerate full raw artifacts." >&2
-        exit 1
-    fi
-done
+stage "S2 paper-level scores"
+bash scripts/evaluate.sh 2>&1 | tee "$LOGS/paper.log" | grep -v " OK " | tail -n 400
+test -f scoring/scores.json || echo "S2 FAILED: no scoring/scores.json"
 
-python3 -m method.run_odyn \
-    --degenerate-only \
-    --rtol 1e-6 \
-    --max-iter 300 \
-    --timeout 30 \
-    --output "$WORKSPACE_DIR/tmp/results/odyn_smoke_current.json"
+stage "S3 variants and shortcuts through the hidden test"
+python3 scripts/hardening/cases.py export 2>&1 | tee "$LOGS/export.log"
+python3 scripts/hardening/cases.py run 2>&1 | tee "$LOGS/cases.log"
 
-python3 -m eval.benchmark \
-    --results "$WORKSPACE_DIR/tmp/results/odyn_smoke_current.json" \
-    --output "$WORKSPACE_DIR/tmp/scores_smoke_current.json"
+stage "S4 train slice"
+bash scripts/evaluate_train.sh 2>&1 | tee "$LOGS/train.log" | grep -v " OK " | tail -n 400
+test -f scoring/scores_train.json || echo "S4 FAILED: no scoring/scores_train.json"
 
-python3 - <<'PY'
-import numpy as np
-import scipy.sparse as spa
-
-from method.odyn_solver import OdynParams, SparseOdynSolver
-
-params = OdynParams()
-params.max_iter = 100
-solver = SparseOdynSolver(params)
-result = solver.solve(
-    spa.csc_matrix([[2.0, 0.5], [0.5, 1.0]]),
-    np.array([-1.0, -0.5]),
-    None,
-    None,
-    spa.csc_matrix([[-1.0, 0.0], [0.0, -1.0], [1.0, 1.0]]),
-    np.array([0.0, 0.0, 2.0]),
-    rtol=1e-6,
-)
-if not result.success:
-    raise SystemExit(f"sparse ODYN smoke failed: {result.status}")
-print(f"sparse ODYN smoke: {result.status} in {result.iterations} iterations")
-PY
-
-bash scripts/evaluate_train.sh \
-    --results \
-        "$ODYN_MEDIUM" \
-        "$ODYN_HIGH" \
-        "$OSQP_MEDIUM" \
-        "$OSQP_HIGH"
-
-bash scripts/evaluate_test.sh \
-    --results \
-        "$ODYN_MEDIUM" \
-        "$ODYN_HIGH" \
-        "$OSQP_MEDIUM" \
-        "$OSQP_HIGH"
-
-bash scripts/evaluate.sh \
-    --results \
-        "$ODYN_MEDIUM" \
-        "$ODYN_HIGH" \
-        "$OSQP_MEDIUM" \
-        "$OSQP_HIGH" \
-    --output "$WORKSPACE_DIR/scoring/scores.json"
-
-python3 validate.py --compare
+stage "S5 analysis and validation"
+python3 scripts/hardening/cases.py analyze > "$LOGS/analyze.log" 2>&1; tail -n 60 "$LOGS/analyze.log"
+python3 validate.py 2>&1 | tail -n 40
+mkdir -p notes/hardening
+for f in smoke export cases analyze; do cp "$LOGS/$f.log" notes/hardening/ 2>/dev/null || true; done
+stage "done"

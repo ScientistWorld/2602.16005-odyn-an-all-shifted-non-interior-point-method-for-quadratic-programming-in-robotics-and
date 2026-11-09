@@ -1,4 +1,8 @@
-"""Maros-Meszaros QP loader and small paper benchmark instances.
+"""Maros-Meszaros QP loader and small paper benchmark instances (development helper).
+
+The evaluators in ``eval/`` do not import this module: they load and check the
+benchmark files with their own code and hand solvers instance files in the
+format described in ``data/qp_format.py``.
 
 The loader converts the qpbenchmark MAT format into the standard form used by
 the paper:
@@ -50,6 +54,13 @@ def _append_bound_rows(
     upper_only = finite_upper & ~equal
     lower_only = finite_lower & ~equal
 
+    # Fixed variables (equal bounds) are kept as a pair of opposite
+    # inequalities, so they are never silently dropped.
+    if np.any(equal):
+        rows.append(matrix[equal])
+        rhs.append(upper[equal])
+        rows.append(-matrix[equal])
+        rhs.append(-lower[equal])
     if np.any(upper_only):
         rows.append(matrix[upper_only])
         rhs.append(upper[upper_only])
@@ -148,8 +159,8 @@ def degenerate_cases() -> dict[str, dict[str, Any]]:
 
     cases["licq_failure"] = {
         "name": "licq_failure",
-        "Q": np.array([[1e-10, 5e-13], [5e-13, 1e-6]]),
-        "P": np.array([[1e-10, 5e-13], [5e-13, 1e-6]]),
+        "Q": np.array([[1e-10, 1e-12], [1e-12, 1e-6]]),
+        "P": np.array([[1e-10, 1e-12], [1e-12, 1e-6]]),
         "c": np.array([1e-4, -1.0]),
         "q": np.array([1e-4, -1.0]),
         "A": np.array([[1.0, 0.0]]),
