@@ -1,0 +1,120 @@
+{
+  "case_count": 16,
+  "all_scores_identical": true,
+  "job_script": "redteam/evaluate_fresh_job.sh",
+  "purpose": "Scoring-only job submitted after the solver/candidate job exited; no candidate process survives.",
+  "results": {
+    "packaged_reference": {
+      "byte_identical": true,
+      "scores_test_sha256": "52ddff6122042ab57f808916e7ca38a55538ca44316697559f67a1ef62921edf",
+      "test_command": "bash scripts/evaluate_test.sh",
+      "test_command_arguments": [],
+      "rank_improvement": 0.0
+    },
+    "reference_seed_0": {
+      "byte_identical": true,
+      "scores_test_sha256": "aa0a50888831f7ee5394220647c9b4d740a008564ba73fe82a235fd57af1c3e1",
+      "test_command": "bash scripts/evaluate_test.sh",
+      "test_command_arguments": [],
+      "rank_improvement": 2.3651207729468675
+    },
+    "reference_seed_1": {
+      "byte_identical": true,
+      "scores_test_sha256": "aa0a50888831f7ee5394220647c9b4d740a008564ba73fe82a235fd57af1c3e1",
+      "test_command": "bash scripts/evaluate_test.sh",
+      "test_command_arguments": [],
+      "rank_improvement": 2.3651207729468675
+    },
+    "reference_seed_2": {
+      "byte_identical": true,
+      "scores_test_sha256": "aa0a50888831f7ee5394220647c9b4d740a008564ba73fe82a235fd57af1c3e1",
+      "test_command": "bash scripts/evaluate_test.sh",
+      "test_command_arguments": [],
+      "rank_improvement": 2.3651207729468675
+    },
+    "shortcut_hide_failures": {
+      "byte_identical": true,
+      "scores_test_sha256": "0da324300fb19f9a9a7b41995e32c4caa7d90a3200c6ce9c05abc10aa3f4e10e",
+      "test_command": "bash scripts/evaluate_test.sh",
+      "test_command_arguments": [],
+      "rank_improvement": 21.85067632850242
+    },
+    "shortcut_ignore_degenerate": {
+      "byte_identical": true,
+      "scores_test_sha256": "aa0a50888831f7ee5394220647c9b4d740a008564ba73fe82a235fd57af1c3e1",
+      "test_command": "bash scripts/evaluate_test.sh",
+      "test_command_arguments": [],
+      "rank_improvement": 2.3651207729468675
+    },
+    "shortcut_low_budget_weak_variant": {
+      "byte_identical": true,
+      "scores_test_sha256": "f69973306ae6304845f168c20574728c725b81337241adc58d156231b40bff38",
+      "test_command": "bash scripts/evaluate_test.sh",
+      "test_command_arguments": [],
+      "rank_improvement": 271.8877777777778
+    },
+    "shortcut_move_baseline": {
+      "byte_identical": true,
+      "scores_test_sha256": "2c1ce82095d6ef1f15a243e58f0a0877a6cd56eaa3039e441345a039317854eb",
+      "test_command": "bash scripts/evaluate_test.sh",
+      "test_command_arguments": [],
+      "rank_improvement": 2.3651207729468675
+    },
+    "shortcut_negative_cap": {
+      "byte_identical": true,
+      "scores_test_sha256": "e8cdc3bcab3f012d330444a0a8e93cf33222c076f063afcabfd031863bcc3df0",
+      "test_command": "bash scripts/evaluate_test.sh",
+      "test_command_arguments": [],
+      "rank_improvement": 162773.12277777778
+    },
+    "shortcut_replace_problem_loader": {
+      "byte_identical": true,
+      "scores_test_sha256": "79b4b9419a03eb6bc3059cf3bfa735ab6e3e4bfa828659ec11df0ae312cae171",
+      "test_command": "bash scripts/evaluate_test.sh",
+      "test_command_arguments": [],
+      "rank_improvement": 383.4602777777778
+    },
+    "shortcut_success_flags": {
+      "byte_identical": true,
+      "scores_test_sha256": "c7a5f86097a9cc72245fa1bd7d501f4f9b10f76af1245a08ea4d0266cd8f0b75",
+      "test_command": "bash scripts/evaluate_test.sh",
+      "test_command_arguments": [],
+      "rank_improvement": 383.6227777777778
+    },
+    "shortcut_visible_cache": {
+      "byte_identical": true,
+      "scores_test_sha256": "22c0d934441753a1906919557d0e8801840472e6380b7c0ac1e4c05972fd80c7",
+      "test_command": "bash scripts/evaluate_test.sh",
+      "test_command_arguments": [],
+      "rank_improvement": 378.2532125603865
+    },
+    "shortcut_write_scores_only": {
+      "byte_identical": true,
+      "scores_test_sha256": "aa0a50888831f7ee5394220647c9b4d740a008564ba73fe82a235fd57af1c3e1",
+      "test_command": "bash scripts/evaluate_test.sh",
+      "test_command_arguments": [],
+      "rank_improvement": 2.3651207729468675
+    },
+    "shortcut_zero_cap_all_fail": {
+      "byte_identical": true,
+      "scores_test_sha256": "6e69623dae325022903fa8b8421dadcec4bfd33f976e28cf889154aa95bb0d08",
+      "test_command": "bash scripts/evaluate_test.sh",
+      "test_command_arguments": [],
+      "rank_improvement": 273.1227777777778
+    },
+    "stronger_more_iterations": {
+      "byte_identical": true,
+      "scores_test_sha256": "83658437406d2310b8962c89cafc9c175537bffb23b194f8f51c2bfdad935e87",
+      "test_command": "bash scripts/evaluate_test.sh",
+      "test_command_arguments": [],
+      "rank_improvement": -334.6032004830918
+    },
+    "stronger_regularization": {
+      "byte_identical": true,
+      "scores_test_sha256": "aedd02cbaafe41586d727425d466e661b83f84900b5faa0b309f927e1856d582",
+      "test_command": "bash scripts/evaluate_test.sh",
+      "test_command_arguments": [],
+      "rank_improvement": -12.480628019323662
+    }
+  }
+}

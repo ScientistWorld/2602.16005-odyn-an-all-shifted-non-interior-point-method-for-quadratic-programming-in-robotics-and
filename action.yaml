@@ -1,4 +1,4 @@
 action: submit
 gpus: 0
 test: false
-notes: "Resume checkpointed scoring audit after scheduler drain: execute cheap shortcut probes first, then finish regularization and doubled-budget variants plus independent seeds 1 and 2."
+notes: "Fresh scoring-only verification of all 16 saved audit submissions after candidate processes exited; run original hidden test without arguments, require unchanged scores, and save comparison evidence. No solver reruns."

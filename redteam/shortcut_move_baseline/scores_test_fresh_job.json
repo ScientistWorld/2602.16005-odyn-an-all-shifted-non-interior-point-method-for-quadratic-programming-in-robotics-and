@@ -1,0 +1,36 @@
+{
+  "_provenance": {
+    "generator": "eval.test.evaluate",
+    "slice": "test",
+    "split_manifest": "eval/test/problem_names.json",
+    "raw_results": [
+      "tmp/results/high.json",
+      "tmp/results/medium.json",
+      "tmp/results/osqp_high.json",
+      "tmp/results/osqp_medium.json"
+    ],
+    "target_problem_count": 69,
+    "train_scores": "scoring/scores_train.json",
+    "success_criterion": "solver success flag among attempted slice problems; attempted_count exposes coverage, and missing/skipped/failed problems receive the iteration cap for convergence-cost metrics"
+  },
+  "experiments": {
+    "failure_rate_comparison": {
+      "results": {
+        "odyn": {
+          "failure_rate_high": 19.444444444444443,
+          "mean_iterations_high": 2971.5942028985505,
+          "attempted_count": 36.0,
+          "failure_rate_medium": 16.666666666666668,
+          "mean_iterations_medium": 1716.4202898550725
+        },
+        "osqp": {
+          "failure_rate_high": 100.0,
+          "mean_iterations_high": 1000000.0,
+          "attempted_count": 69.0,
+          "failure_rate_medium": 100.0,
+          "mean_iterations_medium": 1000000.0
+        }
+      }
+    }
+  }
+}
