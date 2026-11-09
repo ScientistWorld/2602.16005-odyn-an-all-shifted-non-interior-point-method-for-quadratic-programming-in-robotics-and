@@ -1,4 +1,8 @@
-action: done
+# Once you set action to 'submit' or 'done', STOP immediately.
+# Do NOT sleep, poll, or wait for jobs. The system reads this file
+# only after your turn ends.
+action: pending
 gpus: 0
 test: false
-notes: "Audit complete and committed: scoring rewards an all-failing solver, penalizes improved robustness, and accepts major shortcuts; three-seed spread is zero and all 16 scores match in a fresh job. See REDTEAM.md. Temporary files restored."
+milestone: core_claim_plus
+notes: ""
