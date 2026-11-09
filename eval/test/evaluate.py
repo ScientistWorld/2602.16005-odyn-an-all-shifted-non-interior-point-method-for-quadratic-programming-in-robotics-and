@@ -527,11 +527,18 @@ def read_solution(path: Path, inst: Instance) -> tuple[dict[str, np.ndarray] | N
     return point, "ok", reported
 
 
-def kkt_ratios(inst: Instance, x: np.ndarray, y: np.ndarray, z: np.ndarray) -> dict[str, float]:
-    """Residual / scale ratios; a point is accepted at tolerance eps when every ratio <= eps.
+VERIFICATION = "paper-eq52-from-returned-point+sqrt-eps-gap-guard"
 
-    Scales follow the paper's combined absolute + relative stopping rule
-    (absolute and relative tolerances equal), plus a duality-gap test.
+
+def kkt_ratios(inst: Instance, x: np.ndarray, y: np.ndarray, z: np.ndarray) -> dict[str, float]:
+    """Residual / scale ratios of the returned point.
+
+    ``primal_eq``, ``dual`` and ``ncp`` are the paper's stopping test (Eq. 52,
+    absolute = relative tolerance) recomputed by the evaluator with the true
+    slack ``s = h - Gx``: the NCP residual ``min(s, z)`` covers inequality
+    feasibility, multiplier sign, and complementarity. ``gap`` is the relative
+    duality gap; it guards against forged multipliers (e.g. large cancelling
+    pairs on a box constraint, which inflate the relative scales of Eq. 52).
     """
     with np.errstate(all="ignore"):
         Q, c, A, b, G, h = inst.Q, inst.c, inst.A, inst.b, inst.G, inst.h
@@ -540,17 +547,13 @@ def kkt_ratios(inst: Instance, x: np.ndarray, y: np.ndarray, z: np.ndarray) -> d
         Gx = G @ x
         Aty = A.T @ y
         Gtz = G.T @ z
+        slack = h - Gx
         r_eq = _ninf(Ax - b)
         s_eq = 1.0 + max(_ninf(Ax), _ninf(b))
-        r_in = _ninf(np.maximum(Gx - h, 0.0))
-        s_in = 1.0 + max(_ninf(Gx), _ninf(h))
         r_du = _ninf(Qx + c + Aty + Gtz)
         s_du = 1.0 + max(_ninf(Qx), _ninf(c), _ninf(Aty), _ninf(Gtz))
-        r_sg = _ninf(np.maximum(-z, 0.0))
-        s_sg = 1.0 + _ninf(z)
-        comp = np.minimum(np.maximum(h - Gx, 0.0), np.maximum(z, 0.0))
-        r_cp = _ninf(comp)
-        s_cp = 1.0 + max(_ninf(Gx), _ninf(h), _ninf(z))
+        r_ncp = _ninf(np.minimum(slack, z))
+        s_ncp = 1.0 + max(_ninf(slack), _ninf(z))
         xQx = float(x @ Qx)
         cx = float(c @ x)
         dual_lin = float(b @ y + h @ z)
@@ -558,13 +561,15 @@ def kkt_ratios(inst: Instance, x: np.ndarray, y: np.ndarray, z: np.ndarray) -> d
         s_gap = 1.0 + max(abs(xQx), abs(cx), abs(dual_lin))
         ratios = {
             "primal_eq": r_eq / s_eq,
-            "primal_ineq": r_in / s_in,
             "dual": r_du / s_du,
-            "dual_sign": r_sg / s_sg,
-            "complementarity": r_cp / s_cp,
+            "ncp": r_ncp / s_ncp,
             "gap": r_gap / s_gap,
         }
     return {k: (float(v) if np.isfinite(v) else float("inf")) for k, v in ratios.items()}
+
+
+def thresholds(eps: float) -> dict[str, float]:
+    return {"primal_eq": eps, "dual": eps, "ncp": eps, "gap": float(np.sqrt(eps))}
 
 
 def verify(inst: Instance, output: Path, eps: float) -> dict[str, Any]:
@@ -574,7 +579,8 @@ def verify(inst: Instance, output: Path, eps: float) -> dict[str, Any]:
         record.update(solved=False, reason=reason, ratios=None)
         return record
     ratios = kkt_ratios(inst, point["x"], point["y"], point["z"])
-    failed = sorted(k for k, v in ratios.items() if not v <= eps)
+    limits = thresholds(eps)
+    failed = sorted(k for k, v in ratios.items() if not v <= limits[k])
     record.update(solved=not failed, reason="verified" if not failed else "kkt:" + ",".join(failed), ratios=ratios)
     return record
 
@@ -873,10 +879,13 @@ def evaluate(instances: list[Instance], output_path: Path, *, slice_name: str, o
             "cpu_seconds_per_instance": CPU_LIMIT_S,
             "total_cpu_seconds_per_solver": TOTAL_CPU_BUDGET_S,
             "instances": {fam: sum(1 for i in instances if i.family == fam) for fam in FAMILY_EXPERIMENTS},
-            "success_criterion": "evaluator-computed residuals of the returned (x, y, z) are within the tolerance "
-                                 "for primal feasibility, dual feasibility, multiplier sign, complementarity, and "
-                                 "duality gap; solver-reported status/iterations are ignored; every manifest "
-                                 "instance counts, unsolved or missing ones as failures",
+            "verification": VERIFICATION,
+            "success_criterion": "the paper's stopping test (Eq. 52 with absolute = relative tolerance eps) "
+                                 "recomputed by the evaluator from the returned (x, y, z) with slack s = h - Gx: "
+                                 "equality residual, stationarity residual and NCP residual min(s, z) within eps of "
+                                 "their scales, plus relative duality gap <= sqrt(eps); solver-reported "
+                                 "status/iterations are ignored; every manifest instance counts, unsolved or "
+                                 "missing ones as failures",
             "solvers": sorted(solvers),
             **provenance_extra,
         },

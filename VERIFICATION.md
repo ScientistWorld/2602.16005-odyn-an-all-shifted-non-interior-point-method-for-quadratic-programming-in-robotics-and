@@ -1,3 +1,5 @@
+> **Superseded (hardening iteration, 2026-11-09):** the evaluation described below (scoring raw result files by their self-reported success flags, iteration counts and attempted counts) was replaced. The evaluators now run the registered solvers themselves on evaluator-built instances and verify every returned point. See `HARDENING.md` and `briefing/evaluation.md`.
+
 # Verification Report
 
 ## Initial Assessment

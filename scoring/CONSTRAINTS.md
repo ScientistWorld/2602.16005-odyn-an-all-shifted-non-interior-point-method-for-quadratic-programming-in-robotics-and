@@ -1,23 +1,23 @@
 # Scientist Constraints
 
 ## Problem Set
-Use the Maros-Meszaros QP instances provided in `data/maros_meszaros_qpbenchmark/data` for the main benchmark. Do not add, remove, rename, or edit problem files when reporting `failure_rate_comparison`.
+The evaluators build every instance themselves from the pinned Maros-Meszaros files in `data/maros_meszaros_qpbenchmark/data` and their own degenerate-problem generators. Do not edit, replace, or add problem files; altered files abort scoring.
 
 ## Problem Form
-Evaluate every solver on the same standard-form convex QPs: quadratic objective, equality constraints, and upper-bound inequalities. Variable bounds from the benchmark files must be converted into explicit linear inequalities. Dropping box bounds, changing inequality orientation, or removing difficult constraints invalidates the comparison.
+Solve the instance exactly as given: `minimize 1/2 x'Qx + c'x subject to Ax = b, Gx <= h`. Return a primal-dual point `(x, y, z)` with `Qx + c + A'y + G'z = 0`, `z >= 0`. Dropping or relaxing constraints, or returning points for a different problem, fails verification.
 
 ## Accuracy And Failure Rules
-Use the same requested tolerances as the experiment being reported. Count solver errors, timeouts, numerical failures, and iteration-limit exits as failures. Do not exclude hard instances after seeing solver behavior. If a method cannot attempt every problem because of a predeclared memory guard, report that reduced coverage through `attempted_count`.
+The evaluator applies the same tolerances (1e-6, 1e-9) and the same residual test to every solver. Errors, crashes, budget overruns, missing or malformed outputs, and unverified points are failures. Every manifest instance is in the denominator. Self-reported status, iteration counts, or residuals are ignored.
 
 ## Solver Resources
-Use a single-process CPU solver run per QP instance unless a future benchmark explicitly adds a parallel setting. Do not report results from commercial solvers as improvements to the reproduced open-source method unless they are clearly labeled as external baselines.
+Each solve gets 120 CPU-seconds (all threads of the process count) and each solver gets 7200 CPU-seconds per evaluation. Solvers run single-process on CPU with the evaluator's environment. Do not spawn detached processes to escape the budget.
 
 ## Result Contract
-A submitted method must write raw JSON with the same top-level structure used by `method/run_odyn.py`, and it must be scored only through `scripts/evaluate.sh`. Evaluation code must remain method-agnostic.
+Register the solver as an executable `scripts/solvers/<name>.sh` implementing `--problem IN.npz --output OUT.npz --tol TOL` (see `briefing/evaluation.md`). Scores come only from `scripts/evaluate_{train,test}.sh` and `scripts/evaluate.sh`; the evaluators must remain method-agnostic and must not import `method/`.
 
 ## Compliance Checklist
-- [ ] Main benchmark uses the provided Maros-Meszaros files unchanged
-- [ ] Variable bounds are included as linear constraints
-- [ ] Requested tolerance and failure-counting rules are unchanged
-- [ ] Raw results are scored by `scripts/evaluate.sh`
+- [ ] Problem files are unchanged (SHA-256 checks pass)
+- [ ] The solver solves the instance it is given, and does not recognize instances or look up stored solutions
+- [ ] No commercial or third-party QP solver is called in place of the method being developed
+- [ ] Scores are produced by the evaluation scripts
 - [ ] `eval/` does not import the submitted method

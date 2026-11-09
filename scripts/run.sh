@@ -50,7 +50,7 @@ test -f scoring/scores.json || echo "S2 FAILED: no scoring/scores.json"
 
 stage "S3 variants and shortcuts through the hidden test"
 python3 scripts/hardening/cases.py export 2>&1 | tee "$LOGS/export.log"
-python3 scripts/hardening/cases.py run 2>&1 | tee "$LOGS/cases.log"
+python3 scripts/hardening/cases.py run --force 2>&1 | tee "$LOGS/cases.log"
 
 stage "S4 train slice"
 bash scripts/evaluate_train.sh 2>&1 | tee "$LOGS/train.log" | grep -v " OK " | tail -n 400
@@ -59,6 +59,15 @@ test -f scoring/scores_train.json || echo "S4 FAILED: no scoring/scores_train.js
 stage "S5 analysis and validation"
 python3 scripts/hardening/cases.py analyze > "$LOGS/analyze.log" 2>&1; tail -n 60 "$LOGS/analyze.log"
 python3 validate.py 2>&1 | tail -n 40
-mkdir -p notes/hardening
-for f in smoke export cases analyze; do cp "$LOGS/$f.log" notes/hardening/ 2>/dev/null || true; done
+
+stage "S6 run-to-run noise: uncached rerun of the reference on the hidden test"
+mkdir -p notes/hardening tmp/hardening/rerun
+cp tmp/eval_runs/test/outcomes.jsonl tmp/hardening/reference_test_outcomes.jsonl
+QP_GYM_EVAL_CACHE= python3 -m eval.test.evaluate --solvers odyn --output tmp/hardening/rerun/scores_test.json \
+    > "$LOGS/rerun.log" 2>&1
+cp tmp/eval_runs/test/outcomes.jsonl tmp/hardening/rerun/outcomes.jsonl
+cp tmp/hardening/reference_test_outcomes.jsonl tmp/eval_runs/test/outcomes.jsonl
+python3 scripts/hardening_noise.py tmp/hardening/reference_test_outcomes.jsonl \
+    tmp/hardening/rerun/outcomes.jsonl notes/hardening/noise.json 2>&1 | tee "$LOGS/noise.log"
+for f in smoke export cases analyze noise; do cp "$LOGS/$f.log" notes/hardening/ 2>/dev/null || true; done
 stage "done"

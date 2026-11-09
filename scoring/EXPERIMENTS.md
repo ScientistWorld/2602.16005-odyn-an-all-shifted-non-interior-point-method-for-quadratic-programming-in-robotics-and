@@ -1,7 +1,9 @@
 # Experiment Overview
 
+Both experiments run the candidate solver on evaluator-constructed instances and count an instance as solved only when the evaluator's own residual check of the returned primal-dual point passes. Nothing the solver reports about itself is used.
+
 ## failure_rate_comparison
-This experiment checks whether the solver can handle a standard suite of difficult convex quadratic programs at fixed requested tolerances. It treats errors, timeouts, and non-convergence as failures, so lower failure rates indicate a more dependable solver rather than just faster behavior on easy instances. It also reports how many benchmark problems the solver actually attempted, so reduced coverage is visible instead of hidden by the failure-rate denominator.
+Establishes whether a solver reliably reaches medium (1e-6) and high (1e-9) accuracy on a standard suite of difficult convex QPs within a fixed CPU budget per instance. The suite is the tractable part of the Maros-Meszaros set; the held-out slice scores unseen perturbations of its problems. Errors, crashes, budget overruns, missing outputs, and points that fail the check are all failures, and every instance stays in the denominator. Lower failure rates mean a more dependable solver. The high-accuracy rate exposes methods that only work at loose tolerances.
 
 ## degenerate_problems
-This experiment checks whether the solver handles small but structurally difficult QPs. The cases are designed to expose fragility around redundant constraints, failed regularity assumptions, and solution non-uniqueness. The benchmark ranks methods by the redundant-constraint case because every solver has a numeric paper value there; the LICQ-failure case is still reported, but one paper baseline is marked only as a qualitative failure rather than a numeric iteration count.
+Establishes whether a solver stays reliable when the optimum is degenerate. The cases are redundant active constraints, failed constraint qualifications with rank-deficient and badly scaled data, and non-unique solutions from a semidefinite Hessian, generated freshly for the held-out slice. It is scored like the first experiment, as failure rates at medium and high accuracy.
