@@ -6,40 +6,40 @@
    {
     "instance": "mm/QBORE3D/d0",
     "tolerance": "medium",
-    "reference": false,
-    "rerun": true,
-    "reference_cpu_s": 36.596117,
-    "rerun_cpu_s": 1.913153
+    "reference": true,
+    "rerun": false,
+    "reference_cpu_s": 2.063828,
+    "rerun_cpu_s": 42.257664
    },
    {
     "instance": "mm/QETAMACR/d0",
     "tolerance": "high",
-    "reference": true,
-    "rerun": false,
-    "reference_cpu_s": 9.199449,
-    "rerun_cpu_s": 114.792406
+    "reference": false,
+    "rerun": true,
+    "reference_cpu_s": 113.750821,
+    "rerun_cpu_s": 9.445437
    },
    {
     "instance": "mm/QETAMACR/d0",
     "tolerance": "medium",
-    "reference": true,
-    "rerun": false,
-    "reference_cpu_s": 7.798941,
-    "rerun_cpu_s": 114.199088
+    "reference": false,
+    "rerun": true,
+    "reference_cpu_s": 117.76291599999999,
+    "rerun_cpu_s": 8.008676
    },
    {
     "instance": "mm/QFORPLAN/d1",
     "tolerance": "high",
-    "reference": false,
-    "rerun": true,
-    "reference_cpu_s": 116.353813,
-    "rerun_cpu_s": 2.1931
+    "reference": true,
+    "rerun": false,
+    "reference_cpu_s": 1.7613679999999998,
+    "rerun_cpu_s": 116.230169
    }
   ],
   "rerun_metrics": {
    "failure_rate_comparison": {
-    "failure_rate_medium": 15.277777777777779,
-    "failure_rate_high": 18.055555555555557
+    "failure_rate_medium": 20.833333333333332,
+    "failure_rate_high": 20.833333333333332
    },
    "degenerate_problems": {
     "degenerate_failure_rate_medium": 5.555555555555555,
@@ -48,8 +48,8 @@
   },
   "reference_metrics": {
    "failure_rate_comparison": {
-    "failure_rate_medium": 15.277777777777779,
-    "failure_rate_high": 18.055555555555557
+    "failure_rate_medium": 20.833333333333332,
+    "failure_rate_high": 20.833333333333332
    },
    "degenerate_problems": {
     "degenerate_failure_rate_medium": 5.555555555555555,
@@ -61,8 +61,8 @@
  "split_half": {
   "half0_metrics": {
    "failure_rate_comparison": {
-    "failure_rate_medium": 16.666666666666668,
-    "failure_rate_high": 13.88888888888889
+    "failure_rate_medium": 22.22222222222222,
+    "failure_rate_high": 19.444444444444443
    },
    "degenerate_problems": {
     "degenerate_failure_rate_medium": 5.555555555555555,
@@ -71,7 +71,7 @@
   },
   "half1_metrics": {
    "failure_rate_comparison": {
-    "failure_rate_medium": 13.88888888888889,
+    "failure_rate_medium": 19.444444444444443,
     "failure_rate_high": 22.22222222222222
    },
    "degenerate_problems": {
@@ -79,7 +79,7 @@
     "degenerate_failure_rate_high": 16.666666666666668
    }
   },
-  "rank_half1_vs_half0": -7.819444444444443,
+  "rank_half1_vs_half0": -5.291666666666666,
   "note": "each half holds half the hidden test; the sampling noise (standard deviation) of the full test's rank is about half of the half-vs-half rank difference"
  }
 }

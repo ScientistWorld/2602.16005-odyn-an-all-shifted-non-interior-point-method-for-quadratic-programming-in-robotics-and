@@ -1,7 +1,7 @@
 [smoke] 13 instances x 2 tolerances x 2 solvers (odyn, osqp); workers=8; cpu budget=120s/instance
-[smoke] 25/52         odyn deg/licq_failure/00          medium OK  verified                                 cpu=1.4s t=0s
-[smoke] 50/52         osqp deg/paper_redundant_ineq     medium OK  verified                                 cpu=1.4s t=0s
-[smoke] 52/52         odyn deg/paper_redundant_ineq     high   OK  verified                                 cpu=1.4s t=0s
+[smoke] 25/52         osqp deg/licq_failure/00          high   OK  verified                                 cpu=1.4s t=0s
+[smoke] 50/52         odyn deg/paper_redundant_ineq     medium OK  verified                                 cpu=1.1s t=0s
+[smoke] 52/52         odyn deg/paper_multiple_solutions high   OK  verified                                 cpu=1.1s t=0s
 {
   "failure_rate_comparison": {
     "results": {

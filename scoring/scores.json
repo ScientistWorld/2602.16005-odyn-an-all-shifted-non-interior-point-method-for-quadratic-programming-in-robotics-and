@@ -26,28 +26,29 @@
       "maros_meszaros": {
         "medium": {
           "instances": 73,
-          "verified_solved": 58,
+          "verified_solved": 57,
           "failure_reasons": {
             "kkt:dual": 1,
             "kkt:dual,gap": 1,
-            "kkt:gap": 5,
+            "kkt:gap": 6,
             "kkt:gap,ncp": 5,
             "kkt:ncp": 1,
             "no_output": 2
           },
-          "median_reported_iterations_unverified_unscored": 21.5
+          "median_reported_iterations_unverified_unscored": 21.0
         },
         "high": {
           "instances": 73,
-          "verified_solved": 53,
+          "verified_solved": 54,
           "failure_reasons": {
-            "kkt:dual": 3,
-            "kkt:dual,gap": 1,
-            "kkt:dual,gap,ncp": 5,
+            "kkt:dual": 2,
+            "kkt:dual,gap": 2,
+            "kkt:dual,gap,ncp": 4,
             "kkt:gap,ncp": 1,
             "kkt:gap,primal_eq": 1,
             "kkt:ncp": 2,
-            "no_output": 7
+            "kkt:primal_eq": 1,
+            "no_output": 6
           },
           "median_reported_iterations_unverified_unscored": 24.0
         }
@@ -117,8 +118,8 @@
     "failure_rate_comparison": {
       "results": {
         "odyn": {
-          "failure_rate_medium": 20.54794520547945,
-          "failure_rate_high": 27.397260273972602
+          "failure_rate_medium": 21.91780821917808,
+          "failure_rate_high": 26.027397260273972
         },
         "osqp": {
           "failure_rate_medium": 41.0958904109589,

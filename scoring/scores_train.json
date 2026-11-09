@@ -26,27 +26,29 @@
       "maros_meszaros": {
         "medium": {
           "instances": 74,
-          "verified_solved": 56,
+          "verified_solved": 59,
           "failure_reasons": {
             "kkt:dual,gap": 2,
             "kkt:gap": 5,
-            "kkt:gap,ncp": 8,
+            "kkt:gap,ncp": 4,
             "kkt:ncp": 1,
-            "no_output": 2
+            "no_output": 3
           },
-          "median_reported_iterations_unverified_unscored": 26.5
+          "median_reported_iterations_unverified_unscored": 23.0
         },
         "high": {
           "instances": 74,
-          "verified_solved": 52,
+          "verified_solved": 55,
           "failure_reasons": {
             "kkt:dual": 3,
-            "kkt:dual,gap,ncp": 6,
+            "kkt:dual,gap": 1,
+            "kkt:dual,gap,ncp": 2,
             "kkt:gap,ncp": 2,
             "kkt:ncp": 1,
-            "no_output": 10
+            "kkt:primal_eq": 1,
+            "no_output": 9
           },
-          "median_reported_iterations_unverified_unscored": 28.0
+          "median_reported_iterations_unverified_unscored": 27.0
         }
       },
       "degenerate": {
@@ -81,7 +83,7 @@
             "kkt:dual,ncp,primal_eq": 4,
             "kkt:ncp": 2
           },
-          "median_reported_iterations_unverified_unscored": 125.0
+          "median_reported_iterations_unverified_unscored": 175.0
         },
         "high": {
           "instances": 74,
@@ -94,7 +96,7 @@
             "kkt:dual,ncp,primal_eq": 3,
             "kkt:ncp": 3
           },
-          "median_reported_iterations_unverified_unscored": 187.5
+          "median_reported_iterations_unverified_unscored": 350.0
         }
       },
       "degenerate": {
@@ -124,8 +126,8 @@
     "failure_rate_comparison": {
       "results": {
         "odyn": {
-          "failure_rate_medium": 24.324324324324323,
-          "failure_rate_high": 29.72972972972973
+          "failure_rate_medium": 20.27027027027027,
+          "failure_rate_high": 25.675675675675677
         },
         "osqp": {
           "failure_rate_medium": 40.54054054054054,
