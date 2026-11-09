@@ -79,7 +79,7 @@
     "degenerate_failure_rate_high": 16.666666666666668
    }
   },
-  "rank_half1_vs_half0": -6.069444444444443,
+  "rank_half1_vs_half0": -7.819444444444443,
   "note": "each half holds half the hidden test; the sampling noise (standard deviation) of the full test's rank is about half of the half-vs-half rank difference"
  }
 }

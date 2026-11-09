@@ -21,13 +21,11 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
+import random
 import shutil
 import subprocess
 import sys
 from pathlib import Path
-
-import numpy as np
 
 WS = Path(__file__).resolve().parents[2]
 HARD = WS / "tmp" / "hardening"
@@ -120,6 +118,8 @@ def cmd_smoke(_: argparse.Namespace) -> None:
 
 
 def cmd_export(_: argparse.Namespace) -> None:
+    import numpy as np  # noqa: PLC0415
+
     shutil.rmtree(MEMO, ignore_errors=True)
     MEMO.mkdir(parents=True)
     count = 0
@@ -289,18 +289,19 @@ def outcome_index(path: Path, solver: str) -> dict:
 
 def paired_bootstrap(a: dict, b: dict, table, n_boot: int = 4000, seed: int = 0) -> dict:
     units = sorted({u for (u, _) in a} | {u for (u, _) in b})
-    rng = np.random.default_rng(seed)
+    rng = random.Random(seed)
     full = rank(metrics_from_records(a, units), metrics_from_records(b, units), table)[0]
     draws = []
     for _ in range(n_boot):
-        pick = [units[i] for i in rng.integers(0, len(units), len(units))]
+        pick = [units[rng.randrange(len(units))] for _ in units]
         # duplicate units are kept as repeated entries
         ma = metrics_from_records_multi(a, pick)
         mb = metrics_from_records_multi(b, pick)
         draws.append(rank(ma, mb, table)[0])
-    draws = np.array(draws)
-    return {"rank_difference": full, "ci95": [float(np.percentile(draws, 2.5)), float(np.percentile(draws, 97.5))],
-            "p_le_zero": float(np.mean(draws <= 0.0)), "units": len(units)}
+    draws.sort()
+    lo, hi = draws[int(0.025 * (n_boot - 1))], draws[int(0.975 * (n_boot - 1))]
+    return {"rank_difference": full, "ci95": [lo, hi],
+            "p_le_zero": sum(d <= 0.0 for d in draws) / n_boot, "units": len(units)}
 
 
 def metrics_from_records_multi(recs: dict, picks: list[tuple]) -> dict:

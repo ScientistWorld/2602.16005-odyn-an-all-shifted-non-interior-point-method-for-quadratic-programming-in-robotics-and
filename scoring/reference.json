@@ -1,5 +1,5 @@
 {
-  "_notes": "Scaled setup: solvers are scored on the 73 Maros-Meszaros problems the reproduced Python solver can hold as dense arrays (n <= 1000, dense data <= 2 GB), split 37 train / 36 test, under an evaluator-enforced 120 CPU-second budget per instance. The held-out test uses evaluator-generated perturbations of its problems (two hidden draws each) and a hidden family of 36 generated degenerate QPs. Success is decided by the evaluator's own KKT check of the returned primal-dual point, never by solver-reported status. Paper values below are the paper's own numbers (C++ ODYN, 103-problem subset, 120 s wall-clock limit) and are not targets the gym must match. Coefficients are magnitudes; direction comes from higher_is_better.",
+  "_notes": "Scaled setup: solvers are scored on the 73 Maros-Meszaros problems the reproduced Python solver can hold as dense arrays (n <= 1000, dense data <= 2 GB), split 37 train / 36 test, under an evaluator-enforced 120 CPU-second budget per instance. The held-out test uses evaluator-generated perturbations of its problems (two hidden draws each) and a hidden family of 36 generated degenerate QPs. Success is decided by the evaluator's own KKT check of the returned primal-dual point, never by solver-reported status. Paper values the gym cannot match on its scale are kept under '_paper_results'; see each experiment's _setup_note. Success is the paper's stopping test (Eq. 52, absolute = relative tolerance) recomputed by the evaluator from the returned point, plus a sqrt(eps) relative duality-gap guard. Coefficients are magnitudes; direction comes from higher_is_better.",
   "experiments": {
     "failure_rate_comparison": {
       "description": "Failure rate on Maros-Meszaros QPs at medium (1e-6) and high (1e-9) requested accuracy (paper Table III). Every instance of the fixed manifest is in the denominator; an instance is solved only if the evaluator verifies the returned (x, y, z).",
@@ -17,7 +17,8 @@
           "description": "Percentage of manifest instances without a verified 1e-9 solution; catches methods that only work at loose tolerances."
         }
       },
-      "results": {
+      "_setup_note": "Not on the paper's scale. The paper's Table III values (C++ ODYN, 103-problem subset, 120 s wall-clock limit, solver-reported convergence) are kept under _paper_results: ODYN 9.7 / 15.5 %, OSQP 44.7 / 49.5 % at medium / high. 'results' holds this gym's paper-level reproduction (scoring/scores.json: the 73 tractable problems unperturbed, Python reference, 120 CPU-s budget, evaluator-verified Eq. 52 + gap guard), where the reference fails about twice as often as the paper's C++ solver while the ODYN-vs-OSQP gap of the paper reproduces (20.5 vs 41.1 % medium). The ranked comparison uses scoring/scores_test.json, not these numbers.",
+      "_paper_results": {
         "odyn": {
           "type": "proposed",
           "failure_rate_medium": 9.7,
@@ -49,51 +50,68 @@
           "failure_rate_high": 12.6
         }
       },
-      "_setup_note": "Paper: 103 Maros-Meszaros problems (failure counts 10/103 medium and 16/103 high for ODYN), C++ solvers, 120 s wall-clock limit. Gym: 37/36 tractable problems per slice, Python reference, 120 CPU-s budget, evaluator-verified success; the test slice scores two hidden perturbations per problem."
+      "results": {
+        "odyn": {
+          "type": "proposed",
+          "failure_rate_medium": 20.55,
+          "failure_rate_high": 27.4
+        },
+        "osqp": {
+          "type": "baseline",
+          "failure_rate_medium": 41.1,
+          "failure_rate_high": 42.47
+        }
+      }
     },
     "degenerate_problems": {
       "description": "Failure rate on degenerate QPs (redundant active inequalities, LICQ failure with rank-deficient and badly scaled data, positive-semidefinite Hessians with non-unique solutions) at medium and high accuracy (paper Table IV categories).",
       "weight": 0.35,
-      "primary_metric": "degenerate_failure_rate_medium",
+      "primary_metric": "degenerate_failure_rate_high",
       "metrics": {
         "degenerate_failure_rate_medium": {
           "higher_is_better": false,
-          "coefficient": 1.0,
+          "coefficient": 0.7,
           "description": "Percentage of degenerate instances without a verified 1e-6 solution."
         },
         "degenerate_failure_rate_high": {
           "higher_is_better": false,
-          "coefficient": 0.7,
+          "coefficient": 1.0,
           "description": "Percentage of degenerate instances without a verified 1e-9 solution."
         }
       },
       "results": {
         "odyn": {
           "type": "proposed",
-          "degenerate_failure_rate_medium": 0.0
+          "degenerate_failure_rate_medium": 0.0,
+          "degenerate_failure_rate_high": 0.0
         },
         "proxqp": {
           "type": "baseline",
-          "degenerate_failure_rate_medium": 0.0
+          "degenerate_failure_rate_medium": 0.0,
+          "degenerate_failure_rate_high": 0.0
         },
         "piqp": {
           "type": "baseline",
-          "degenerate_failure_rate_medium": 0.0
+          "degenerate_failure_rate_medium": 0.0,
+          "degenerate_failure_rate_high": 0.0
         },
         "osqp": {
           "type": "baseline",
-          "degenerate_failure_rate_medium": 33.33
+          "degenerate_failure_rate_medium": 33.33,
+          "degenerate_failure_rate_high": 33.33
         },
         "mosek": {
           "type": "baseline",
-          "degenerate_failure_rate_medium": 0.0
+          "degenerate_failure_rate_medium": 0.0,
+          "degenerate_failure_rate_high": 0.0
         },
         "gurobi": {
           "type": "baseline",
-          "degenerate_failure_rate_medium": 0.0
+          "degenerate_failure_rate_medium": 0.0,
+          "degenerate_failure_rate_high": 0.0
         }
       },
-      "_setup_note": "Paper values are derived from Table IV: the share of its three degenerate problems a solver did not solve (OSQP declared the LICQ-failure problem dual infeasible; every other solver solved all three; the accuracy setting is not stated, so only the medium metric is filled). The paper reports iteration counts, which the gym does not score because a method's own iteration count cannot be verified. The gym scores the paper's three problems (train / paper-level) and a generated family of the same three categories (12 instances each, n in {8, 16, 32, 64}; the test family uses a hidden seed).",
+      "_setup_note": "Paper values are derived from Table IV: the share of its three degenerate problems a solver did not solve (OSQP declared the LICQ-failure problem dual infeasible; every other solver solved all three; the accuracy setting is not stated, so the same derived value is entered at both accuracies). The paper reports iteration counts, which the gym does not score because a method's own iteration count cannot be verified. The gym scores the paper's three problems (train / paper-level) and a generated family of the same three categories (12 instances each, n in {8, 16, 32, 64}; the test family uses a hidden seed). High accuracy is the primary metric and carries the larger coefficient: at 1e-6 the generated family barely separates solvers (train: reference and baseline both fail 2 of 39), while 1e-9 exposes the numerical fragility the paper's degenerate-problem study is about (test: reference 8.3 %, OSQP 33.3 %).",
       "_paper_table_iv_iterations": {
         "odyn": {
           "redundant_ineq": 5,

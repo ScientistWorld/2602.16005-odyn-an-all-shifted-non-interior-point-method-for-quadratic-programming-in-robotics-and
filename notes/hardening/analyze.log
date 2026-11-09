@@ -35,11 +35,11 @@
      "degenerate_failure_rate_high": 8.333333333333334
     }
    },
-   "rank_vs_reference": 7.451388888888889,
+   "rank_vs_reference": 6.868055555555556,
    "rank_parts": {
     "failure_rate_comparison/failure_rate_medium": 3.611111111111112,
     "failure_rate_comparison/failure_rate_high": 1.8958333333333337,
-    "degenerate_problems/degenerate_failure_rate_medium": 1.9444444444444442,
+    "degenerate_problems/degenerate_failure_rate_medium": 1.361111111111111,
     "degenerate_problems/degenerate_failure_rate_high": 0.0
    },
    "reference_in_case_run": {
@@ -53,12 +53,12 @@
     }
    },
    "paired_bootstrap_vs_reference": {
-    "rank_difference": 7.451388888888889,
+    "rank_difference": 6.868055555555556,
     "ci95": [
-     1.7816205318221454,
-     15.473301426426424
+     1.4166666666666665,
+     14.532608695652174
     ],
-    "p_le_zero": 0.001,
+    "p_le_zero": 0.0025,
     "units": 72
    }
   },
@@ -77,12 +77,12 @@
      "degenerate_failure_rate_high": 25.0
     }
    },
-   "rank_vs_reference": -39.22916666666666,
+   "rank_vs_reference": -40.10416666666666,
    "rank_parts": {
     "failure_rate_comparison/failure_rate_medium": -18.958333333333332,
     "failure_rate_comparison/failure_rate_high": -13.27083333333333,
-    "degenerate_problems/degenerate_failure_rate_medium": -2.9166666666666665,
-    "degenerate_problems/degenerate_failure_rate_high": -4.083333333333332
+    "degenerate_problems/degenerate_failure_rate_medium": -2.0416666666666665,
+    "degenerate_problems/degenerate_failure_rate_high": -5.833333333333332
    },
    "reference_in_case_run": {
     "failure_rate_comparison": {
@@ -95,10 +95,10 @@
     }
    },
    "paired_bootstrap_vs_reference": {
-    "rank_difference": -39.22916666666666,
+    "rank_difference": -40.10416666666666,
     "ci95": [
-     -54.27650337837838,
-     -25.019971846846847
+     -55.45046439628482,
+     -25.65972222222222
     ],
     "p_le_zero": 1.0,
     "units": 72
@@ -119,12 +119,12 @@
      "degenerate_failure_rate_high": 100.0
     }
    },
-   "rank_vs_reference": -146.0625,
+   "rank_vs_reference": -145.77083333333334,
    "rank_parts": {
     "failure_rate_comparison/failure_rate_medium": -53.2638888888889,
     "failure_rate_comparison/failure_rate_high": -37.28472222222222,
-    "degenerate_problems/degenerate_failure_rate_medium": -33.05555555555555,
-    "degenerate_problems/degenerate_failure_rate_high": -22.458333333333332
+    "degenerate_problems/degenerate_failure_rate_medium": -23.138888888888886,
+    "degenerate_problems/degenerate_failure_rate_high": -32.083333333333336
    },
    "reference_in_case_run": {
     "failure_rate_comparison": {
@@ -137,10 +137,10 @@
     }
    },
    "paired_bootstrap_vs_reference": {
-    "rank_difference": -146.0625,
+    "rank_difference": -145.77083333333334,
     "ci95": [
-     -157.22626488095239,
-     -133.4015509419631
+     -156.76216216216216,
+     -133.47285601888277
     ],
     "p_le_zero": 1.0,
     "units": 72
@@ -161,12 +161,12 @@
      "degenerate_failure_rate_high": 100.0
     }
    },
-   "rank_vs_reference": -147.86805555555557,
+   "rank_vs_reference": -147.57638888888889,
    "rank_parts": {
     "failure_rate_comparison/failure_rate_medium": -55.06944444444445,
     "failure_rate_comparison/failure_rate_high": -37.28472222222222,
-    "degenerate_problems/degenerate_failure_rate_medium": -33.05555555555555,
-    "degenerate_problems/degenerate_failure_rate_high": -22.458333333333332
+    "degenerate_problems/degenerate_failure_rate_medium": -23.138888888888886,
+    "degenerate_problems/degenerate_failure_rate_high": -32.083333333333336
    },
    "reference_in_case_run": {
     "failure_rate_comparison": {
@@ -179,10 +179,10 @@
     }
    },
    "paired_bootstrap_vs_reference": {
-    "rank_difference": -147.86805555555557,
+    "rank_difference": -147.57638888888889,
     "ci95": [
-     -158.6876086295687,
-     -135.69611132966165
+     -158.0979543666404,
+     -135.71467181467182
     ],
     "p_le_zero": 1.0,
     "units": 72
@@ -203,12 +203,12 @@
      "degenerate_failure_rate_high": 100.0
     }
    },
-   "rank_vs_reference": -147.86805555555557,
+   "rank_vs_reference": -147.57638888888889,
    "rank_parts": {
     "failure_rate_comparison/failure_rate_medium": -55.06944444444445,
     "failure_rate_comparison/failure_rate_high": -37.28472222222222,
-    "degenerate_problems/degenerate_failure_rate_medium": -33.05555555555555,
-    "degenerate_problems/degenerate_failure_rate_high": -22.458333333333332
+    "degenerate_problems/degenerate_failure_rate_medium": -23.138888888888886,
+    "degenerate_problems/degenerate_failure_rate_high": -32.083333333333336
    },
    "reference_in_case_run": {
     "failure_rate_comparison": {
@@ -221,10 +221,10 @@
     }
    },
    "paired_bootstrap_vs_reference": {
-    "rank_difference": -147.86805555555557,
+    "rank_difference": -147.57638888888889,
     "ci95": [
-     -158.6876086295687,
-     -135.69611132966165
+     -158.0979543666404,
+     -135.71467181467182
     ],
     "p_le_zero": 1.0,
     "units": 72
@@ -329,12 +329,12 @@
      "degenerate_failure_rate_high": 100.0
     }
    },
-   "rank_vs_reference": -59.4861111111111,
+   "rank_vs_reference": -59.19444444444444,
    "rank_parts": {
     "failure_rate_comparison/failure_rate_medium": -2.7083333333333317,
     "failure_rate_comparison/failure_rate_high": -1.2638888888888875,
-    "degenerate_problems/degenerate_failure_rate_medium": -33.05555555555555,
-    "degenerate_problems/degenerate_failure_rate_high": -22.458333333333332
+    "degenerate_problems/degenerate_failure_rate_medium": -23.138888888888886,
+    "degenerate_problems/degenerate_failure_rate_high": -32.083333333333336
    },
    "reference_in_case_run": {
     "failure_rate_comparison": {
@@ -347,10 +347,10 @@
     }
    },
    "paired_bootstrap_vs_reference": {
-    "rank_difference": -59.4861111111111,
+    "rank_difference": -59.19444444444444,
     "ci95": [
-     -66.78730285744939,
-     -53.15612281976743
+     -66.65,
+     -52.59722222222222
     ],
     "p_le_zero": 1.0,
     "units": 72
@@ -371,12 +371,12 @@
      "degenerate_failure_rate_high": 100.0
     }
    },
-   "rank_vs_reference": -132.25,
+   "rank_vs_reference": -131.95833333333334,
    "rank_parts": {
     "failure_rate_comparison/failure_rate_medium": -45.1388888888889,
     "failure_rate_comparison/failure_rate_high": -31.597222222222218,
-    "degenerate_problems/degenerate_failure_rate_medium": -33.05555555555555,
-    "degenerate_problems/degenerate_failure_rate_high": -22.458333333333332
+    "degenerate_problems/degenerate_failure_rate_medium": -23.138888888888886,
+    "degenerate_problems/degenerate_failure_rate_high": -32.083333333333336
    },
    "reference_in_case_run": {
     "failure_rate_comparison": {
@@ -389,10 +389,10 @@
     }
    },
    "paired_bootstrap_vs_reference": {
-    "rank_difference": -132.25,
+    "rank_difference": -131.95833333333334,
     "ci95": [
-     -145.99428904428905,
-     -117.18316176470589
+     -146.17171518489377,
+     -117.44736842105263
     ],
     "p_le_zero": 1.0,
     "units": 72
@@ -439,21 +439,21 @@
   }
  },
  "baseline_rank": [
-  -37.92361111111111,
+  -40.84027777777777,
   {
    "failure_rate_comparison/failure_rate_medium": -20.76388888888889,
    "failure_rate_comparison/failure_rate_high": -12.006944444444441,
-   "degenerate_problems/degenerate_failure_rate_medium": 0.9722222222222221,
-   "degenerate_problems/degenerate_failure_rate_high": -6.124999999999999
+   "degenerate_problems/degenerate_failure_rate_medium": 0.6805555555555555,
+   "degenerate_problems/degenerate_failure_rate_high": -8.75
   }
  ],
  "baseline_vs_reference_bootstrap": {
-  "rank_difference": -37.92361111111111,
+  "rank_difference": -40.84027777777777,
   "ci95": [
-   -55.01702185244588,
-   -20.433035748839004
+   -57.770833333333336,
+   -23.109375
   ],
-  "p_le_zero": 0.99975,
+  "p_le_zero": 1.0,
   "units": 72
  },
  "reference_per_draw_failure_rates": {
