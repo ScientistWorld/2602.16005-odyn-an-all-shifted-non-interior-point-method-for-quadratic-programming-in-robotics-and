@@ -2,33 +2,158 @@
   "_provenance": {
     "generator": "eval.test.evaluate",
     "slice": "test",
-    "split_manifest": "eval/test/problem_names.json",
-    "raw_results": [
-      "scoring/raw_results/odyn_full_high.json",
-      "scoring/raw_results/odyn_full_medium.json",
-      "scoring/raw_results/osqp_full_high.json",
-      "scoring/raw_results/osqp_full_medium.json"
+    "protocol": "qp-verified-kkt-v1",
+    "tolerances": {
+      "medium": 1e-06,
+      "high": 1e-09
+    },
+    "cpu_seconds_per_instance": 120,
+    "total_cpu_seconds_per_solver": 7200,
+    "instances": {
+      "maros_meszaros": 72,
+      "degenerate": 36
+    },
+    "success_criterion": "evaluator-computed residuals of the returned (x, y, z) are within the tolerance for primal feasibility, dual feasibility, multiplier sign, complementarity, and duality gap; solver-reported status/iterations are ignored; every manifest instance counts, unsolved or missing ones as failures",
+    "solvers": [
+      "odyn",
+      "osqp"
     ],
-    "target_problem_count": 69,
-    "train_scores": "scoring/scores_train.json",
-    "success_criterion": "solver success flag among attempted slice problems; attempted_count exposes coverage, and missing/skipped/failed problems receive the iteration cap for convergence-cost metrics"
+    "manifest": "eval/test/manifest.json"
+  },
+  "_diagnostics": {
+    "odyn": {
+      "maros_meszaros": {
+        "medium": {
+          "instances": 72,
+          "verified_solved": 38,
+          "failure_reasons": {
+            "kkt:complementarity,dual,gap": 1,
+            "kkt:complementarity,dual_sign,gap": 2,
+            "kkt:complementarity,dual_sign,gap,primal_eq,primal_ineq": 1,
+            "kkt:complementarity,gap": 1,
+            "kkt:dual,gap": 2,
+            "kkt:dual_sign": 5,
+            "kkt:dual_sign,gap": 7,
+            "kkt:gap": 8,
+            "kkt:gap,primal_ineq": 6,
+            "kkt:primal_ineq": 1
+          },
+          "median_reported_iterations_unverified_unscored": 17.5
+        },
+        "high": {
+          "instances": 72,
+          "verified_solved": 49,
+          "failure_reasons": {
+            "kkt:complementarity,dual,dual_sign,gap": 2,
+            "kkt:complementarity,dual,dual_sign,gap,primal_ineq": 1,
+            "kkt:complementarity,dual,gap": 2,
+            "kkt:dual,dual_sign,gap": 1,
+            "kkt:dual,gap": 1,
+            "kkt:dual_sign": 1,
+            "kkt:gap": 8,
+            "kkt:gap,primal_eq,primal_ineq": 2,
+            "kkt:gap,primal_ineq": 1,
+            "no_output": 4
+          },
+          "median_reported_iterations_unverified_unscored": 21.0
+        }
+      },
+      "degenerate": {
+        "medium": {
+          "instances": 36,
+          "verified_solved": 20,
+          "failure_reasons": {
+            "kkt:complementarity,dual_sign,gap": 2,
+            "kkt:dual_sign": 8,
+            "kkt:gap": 6
+          },
+          "median_reported_iterations_unverified_unscored": 10.5
+        },
+        "high": {
+          "instances": 36,
+          "verified_solved": 16,
+          "failure_reasons": {
+            "kkt:complementarity,dual,dual_sign,gap": 1,
+            "kkt:dual,gap": 2,
+            "kkt:dual_sign": 8,
+            "kkt:gap": 9
+          },
+          "median_reported_iterations_unverified_unscored": 11.5
+        }
+      }
+    },
+    "osqp": {
+      "maros_meszaros": {
+        "medium": {
+          "instances": 72,
+          "verified_solved": 40,
+          "failure_reasons": {
+            "kkt:complementarity,dual,gap": 1,
+            "kkt:complementarity,dual,gap,primal_eq,primal_ineq": 11,
+            "kkt:complementarity,dual,gap,primal_ineq": 8,
+            "kkt:complementarity,gap,primal_eq,primal_ineq": 3,
+            "kkt:dual,gap,primal_ineq": 5,
+            "kkt:gap": 2,
+            "kkt:gap,primal_eq,primal_ineq": 2
+          },
+          "median_reported_iterations_unverified_unscored": 150.0
+        },
+        "high": {
+          "instances": 72,
+          "verified_solved": 40,
+          "failure_reasons": {
+            "kkt:complementarity,dual,gap,primal_eq": 1,
+            "kkt:complementarity,dual,gap,primal_eq,primal_ineq": 23,
+            "kkt:complementarity,dual,gap,primal_ineq": 6,
+            "kkt:dual,gap,primal_eq,primal_ineq": 2
+          },
+          "median_reported_iterations_unverified_unscored": 212.5
+        }
+      },
+      "degenerate": {
+        "medium": {
+          "instances": 36,
+          "verified_solved": 36,
+          "failure_reasons": {},
+          "median_reported_iterations_unverified_unscored": 337.5
+        },
+        "high": {
+          "instances": 36,
+          "verified_solved": 25,
+          "failure_reasons": {
+            "kkt:complementarity,dual": 1,
+            "kkt:complementarity,dual,gap": 2,
+            "kkt:complementarity,dual,gap,primal_ineq": 1,
+            "kkt:dual": 2,
+            "kkt:dual,gap": 5
+          },
+          "median_reported_iterations_unverified_unscored": 350.0
+        }
+      }
+    }
   },
   "experiments": {
     "failure_rate_comparison": {
       "results": {
         "odyn": {
-          "failure_rate_high": 22.22222222222222,
-          "mean_iterations_high": 2990.231884057971,
-          "attempted_count": 36.0,
-          "failure_rate_medium": 16.666666666666668,
-          "mean_iterations_medium": 1715.2898550724638
+          "failure_rate_medium": 47.22222222222222,
+          "failure_rate_high": 31.944444444444443
         },
         "osqp": {
-          "failure_rate_high": 44.927536231884055,
-          "mean_iterations_high": 4458.333333333333,
-          "attempted_count": 69.0,
-          "failure_rate_medium": 44.927536231884055,
-          "mean_iterations_medium": 2266.304347826087
+          "failure_rate_medium": 44.44444444444444,
+          "failure_rate_high": 44.44444444444444
+        }
+      }
+    },
+    "degenerate_problems": {
+      "results": {
+        "odyn": {
+          "degenerate_failure_rate_medium": 44.44444444444444,
+          "degenerate_failure_rate_high": 55.55555555555556
+        },
+        "osqp": {
+          "degenerate_failure_rate_medium": 0.0,
+          "degenerate_failure_rate_high": 30.555555555555557
         }
       }
     }

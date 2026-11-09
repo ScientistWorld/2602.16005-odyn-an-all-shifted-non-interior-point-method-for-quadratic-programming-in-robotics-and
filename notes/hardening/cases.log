@@ -1,0 +1,14 @@
+run: odyn_more_iter already complete
+run: odyn_low_budget already complete
+run: odyn_one_iter already complete
+run: shortcut_claim_success already complete
+run: shortcut_no_output already complete
+run: shortcut_hide_failures already complete
+run: shortcut_fake_iterations already complete
+run: shortcut_ignore_degenerate already complete
+run: shortcut_replay_public ...
+run: shortcut_replay_public rc=0 scores_written=True
+run: shortcut_write_scores_only ...
+run: shortcut_write_scores_only rc=0 scores_written=True
+run: shortcut_tamper_data ...
+run: shortcut_tamper_data rc=1 scores_written=False
