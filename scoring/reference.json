@@ -17,7 +17,7 @@
           "description": "Percentage of manifest instances without a verified 1e-9 solution; catches methods that only work at loose tolerances."
         }
       },
-      "_setup_note": "Not on the paper's scale. The paper's Table III values (C++ ODYN, 103-problem subset, 120 s wall-clock limit, solver-reported convergence) are kept under _paper_results: ODYN 9.7 / 15.5 %, OSQP 44.7 / 49.5 % at medium / high. 'results' holds this gym's paper-level reproduction (scoring/scores.json: the 73 tractable problems unperturbed, Python reference, 120 CPU-s budget, evaluator-verified Eq. 52 + gap guard), where the reference fails about twice as often as the paper's C++ solver while the ODYN-vs-OSQP gap of the paper reproduces (20.5 vs 41.1 % medium). The ranked comparison uses scoring/scores_test.json, not these numbers.",
+      "_setup_note": "Not on the paper's scale. The paper's Table III values (C++ ODYN, 103-problem subset, 120 s wall-clock limit, solver-reported convergence) are kept under _paper_results: ODYN 9.7 / 15.5 %, OSQP 44.7 / 49.5 % at medium / high. 'results' holds this gym's paper-level reproduction (scoring/scores.json: the 73 tractable problems unperturbed, Python reference, 120 CPU-s budget, evaluator-verified Eq. 52 + gap guard), where the reference fails about twice as often as the paper's C++ solver while the ODYN-vs-OSQP gap of the paper reproduces (21.9 vs 41.1 % medium). The ranked comparison uses scoring/scores_test.json, not these numbers.",
       "_paper_results": {
         "odyn": {
           "type": "proposed",
@@ -53,8 +53,8 @@
       "results": {
         "odyn": {
           "type": "proposed",
-          "failure_rate_medium": 20.55,
-          "failure_rate_high": 27.4
+          "failure_rate_medium": 21.92,
+          "failure_rate_high": 26.03
         },
         "osqp": {
           "type": "baseline",

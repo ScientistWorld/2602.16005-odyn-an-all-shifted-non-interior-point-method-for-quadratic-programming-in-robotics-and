@@ -75,5 +75,12 @@
 - Fixed standalone evaluator defaults so `scripts/evaluate.sh`, `scripts/evaluate_train.sh`, and `scripts/evaluate_test.sh` can score the packaged raw artifacts without manual result paths.
 - Removed method identity leakage from method-agnostic evaluation documentation and revalidated with `python3 validate.py --compare`.
 
+### [2026-11-09] - core_claim_plus (hardening)
+- Replaced the trusting scorer: `eval/{train,test}` now run every registered solver (`scripts/solvers/*.sh`) and an evaluator-owned OSQP baseline under a fixed CPU budget. An instance counts as solved only if the paper's Eq. (52) test, recomputed from the returned point, passes, plus a sqrt(eps) duality-gap guard. Every manifest instance counts.
+- Hidden test: two hidden-seed perturbations of each of 36 tractable Maros-Meszaros problems, plus a hidden family of 36 generated degenerate QPs (the previously unscored Table IV experiment). Problem files are SHA-256 pinned; the download is pinned to an upstream commit.
+- Reference vs baseline on the hidden test: ODYN 20.8 / 20.8 % failures vs OSQP 47.2 / 44.4 % (medium / high); degenerate 5.6 / 8.3 % vs 2.8 / 33.3 %. On the unperturbed problems: 21.9 / 26.0 % vs 41.1 / 42.5 %.
+- The better variant (2x iteration cap) ranks +8.40 (paired CI [2.3, 16.7]). Every red-team shortcut now scores between -59 and -143, ties exactly, or aborts scoring. See `HARDENING.md`.
+- The milestone stays `core_claim_plus`: the core robustness claim and the degenerate robustness claim (at high accuracy) reproduce; the warm-start (WCR) claim is still not reproduced.
+
 ## Stop Justification
 - Completed at milestone `core_claim_plus`.

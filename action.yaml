@@ -1,8 +1,6 @@
 # Once you set action to 'submit' or 'done', STOP immediately.
 # Do NOT sleep, poll, or wait for jobs. The system reads this file
 # only after your turn ends.
-action: submit
-gpus: 0
-test: false
+action: done
 milestone: core_claim_plus
-notes: "Final hardening audit after train/test rebalance: reference ODYN + OSQP through the hidden test from final code, paper-level and train scores, variants/shortcuts in isolated workspaces, uncached rerun noise, analysis + validate."
+notes: "Hardened: evaluator runs registered solvers on hidden instances (perturbed Maros-Meszaros + generated degenerate QPs) and verifies returned points (paper Eq. 52 + sqrt(eps) gap guard). Reference ODYN 20.8/20.8% vs OSQP 47.2/44.4% on test; better variant +8.40 (CI excludes 0); all red-team shortcuts now lose or tie. See HARDENING.md."

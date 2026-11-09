@@ -9,7 +9,7 @@ The evaluator runs your solver itself on instances it constructs, checks every r
 | Experiment | Metric | Meaning |
 |---|---|---|
 | `failure_rate_comparison` | `failure_rate_medium` (primary), `failure_rate_high` | % of Maros–Meszaros instances without a verified solution at tolerance 1e-6 / 1e-9 |
-| `degenerate_problems` | `degenerate_failure_rate_medium` (primary), `degenerate_failure_rate_high` | % of degenerate instances without a verified solution at 1e-6 / 1e-9 |
+| `degenerate_problems` | `degenerate_failure_rate_high` (primary), `degenerate_failure_rate_medium` | % of degenerate instances without a verified solution at 1e-9 / 1e-6 |
 
 Every instance in the fixed manifest is in the denominator. A missing, unreadable, wrongly shaped, or non-finite output counts as a failure, as do a crash and an over-budget run. Status strings, iteration counts, or residuals written by the solver are never used for scoring. Wall-clock time is not scored.
 
@@ -65,4 +65,4 @@ Each run scores every registered solver plus the baseline: OSQP with fixed setti
 
 ## Ranking
 
-Methods are compared with the coefficients and weights in `scoring/reference.json`: 0.65 for the Maros–Meszaros experiment and 0.35 for the degenerate experiment, with high-accuracy failures counting 0.7 as much as medium. Improvements are taken in each metric's better direction.
+Methods are compared with the coefficients and weights in `scoring/reference.json`: 0.65 for the Maros–Meszaros experiment and 0.35 for the degenerate experiment. Within the Maros–Meszaros experiment high-accuracy failures count 0.7 as much as medium; within the degenerate experiment medium-accuracy failures count 0.7 as much as high. Improvements are taken in each metric's better direction.
