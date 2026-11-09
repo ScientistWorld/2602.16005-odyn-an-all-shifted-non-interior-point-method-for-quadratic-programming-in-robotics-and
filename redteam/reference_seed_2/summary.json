@@ -1,0 +1,23 @@
+{
+  "rank_improvement": 2.3651207729468675,
+  "contributions": {
+    "failure_rate_comparison/failure_rate_medium": -0.0,
+    "failure_rate_comparison/failure_rate_high": 1.263888888888889,
+    "failure_rate_comparison/mean_iterations_medium": -0.11021739130435265,
+    "failure_rate_comparison/mean_iterations_high": 1.2114492753623314,
+    "failure_rate_comparison/attempted_count": 0.0
+  },
+  "metrics": {
+    "failure_rate_high": 19.444444444444443,
+    "mean_iterations_high": 2971.5942028985505,
+    "attempted_count": 36.0,
+    "failure_rate_medium": 16.666666666666668,
+    "mean_iterations_medium": 1716.4202898550725
+  },
+  "test_command": "bash scripts/evaluate_test.sh",
+  "test_command_arguments": [],
+  "raw_sha256": {
+    "medium.json": "9e874d8ef8625411249e3b6273d6c1b11894f5095cba30ed66a66ce8f01f9d62",
+    "high.json": "3e494a25a015ed8f972e131bb2ba1b8d256f84e3239abb9b91056a17835f4c50"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "_provenance": {
+    "generator": "eval.train.evaluate",
+    "slice": "train",
+    "split_manifest": "eval/train/problem_names.json",
+    "raw_results": [
+      "tmp/results/high.json",
+      "tmp/results/medium.json"
+    ],
+    "target_problem_count": 69,
+    "success_criterion": "solver success flag among attempted slice problems; attempted_count exposes coverage, and missing/skipped/failed problems receive the iteration cap for convergence-cost metrics"
+  },
+  "experiments": {
+    "failure_rate_comparison": {
+      "results": {
+        "odyn": {
+          "failure_rate_high": 100.0,
+          "mean_iterations_high": -1000000.0,
+          "attempted_count": 69.0,
+          "failure_rate_medium": 100.0,
+          "mean_iterations_medium": -1000000.0
+        }
+      }
+    }
+  }
+}
